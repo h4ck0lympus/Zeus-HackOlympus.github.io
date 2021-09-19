@@ -3,16 +3,6 @@ title: "Memory Mapping Introduction"
 date: "2021-01-24"
 categories: 
   - "asm"
-tags: 
-  - "assembly"
-  - "hello-world"
-  - "hello-world-in-asm"
-  - "hello-world-in-assembly"
-  - "memory"
-  - "memory-mapping"
-  - "memory-model"
-  - "process-memory-model"
-  - "processor"
 ---
 
 #### **Memory mapping**
@@ -57,29 +47,29 @@ The size of segments vary according to usage but the ultimate size of the page w
 
 I do not want you to understand the whole code below. Just observe how segmentation has been performed in the code and keep this code in the back of your mind so that you can understand and write codes yourself in the upcoming articles.
 
-section .data
-    msg db "Hello world!",10      ; 10 is the ASCII code for a new line (LF)
-
-section .text
-    global \_start
-
-\_start:
-    mov rax, 1
-    mov rdi, 1
-    mov rsi, msg
-    mov rdx, 13
-    syscall
-    
-    mov rax, 60
-    mov rdi, 0
-    syscall
-
+```asm
+.section .text
+    .intel_syntax noprefix 
+    .global _start
+    _start:
+        mov rax, 1
+        mov rdi, 1
+        lea rsi, [rip+msg]
+        mov rdx, 13
+        syscall
+        
+        mov rax, 60
+        mov rdi, 0
+        syscall
+    msg:
+        .ascii "Hello world\n\0" 
+```
 To run this:
 
-nasm -felf64 helloworld.asm
-ld helloworld.o -o helloworld
+```sh
+gcc helloworld.s -nostdlib --static -o helloworld
 ./helloworld
-
+```
 I have not added a lot of things in this article. So please read and view the following sources.
 
 **Sources:**

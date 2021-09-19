@@ -1,5 +1,11 @@
 @import "compass";
-
 @import "base";
 @import "parts";
 @import "custom";
+
+
+.center_img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}

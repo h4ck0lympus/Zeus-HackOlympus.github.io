@@ -16,18 +16,18 @@ Lets start by doing reconnaissance.
 
 First, I ran a basic nmap version scan on the box.
 
-![](https://hackolympus.files.wordpress.com/2020/10/image-1.png?w=942)
+<img src="/images/b99/image-1.png" class="center_img", style="width: 60%">
 
 As we can see there are 3 ports open. First, I went to the webpage of the machine.
 
-![](https://hackolympus.files.wordpress.com/2020/10/image-2.png?w=1024)
 
+<img src="/images/b99/image-2.png" class="center_img", style="width: 60%">
   
 uff, A rabbit hole I viewed the page source but i found nothing special.
 
 Next I inspected FTP port. I tried anonymous login and it worked:
 
-![](https://hackolympus.files.wordpress.com/2020/10/image-3.png?w=738)
+<img src="/images/b99/image-3.png" class="center_img", style="width: 60%">
 
 And we found a file: **note\_to\_jake.txt**. I downloaded the file by using get file command
 
@@ -41,8 +41,8 @@ Looks like we have found a vulnerable username - **jake**
 
 lets fire up hydra and let it do the rest of the job.
 
-![](https://hackolympus.files.wordpress.com/2020/10/image-4.png?w=1024)
 
+<img src="/images/b99/image-4.png" class="center_img", style="width: 60%">
 we have found a password lets try to connect using that password
 
 **LOGIN SUCCESSFUL**
@@ -51,14 +51,14 @@ Lets enumerate this machine.
 
 In the user folder of jake. We found nothing interesting. I ran **sudo -l** command to see if I have any admin rights and yes i was right.
 
-![](https://hackolympus.files.wordpress.com/2020/10/image-6.png?w=1024)
 
+<img src="/images/b99/image-5.png" class="center_img", style="width: 60%">
 we can run **less** command with sudo rights.
 
 From here I went to **holt** user folder where I found user.txt but only **holt** could open it from his user but as we all know we have sudo privileges on less command so I viewed it with less.
 
-![](https://hackolympus.files.wordpress.com/2020/10/image-8.png?w=427)
 
+<img src="/images/b99/image-6.png" class="center_img", style="width: 60%">
 And here we go, we found our first flag.
 
 ##### **Privilege Escalation**
@@ -69,22 +69,22 @@ We will use this file for privilege escalation
 
 We will open this file with sudo privileges using less
 
-![](https://hackolympus.files.wordpress.com/2020/10/image-9.png?w=620)
 
+<img src="/images/b99/image-7.png" class="center_img", style="width: 60%">
 We will run the following command to open shell:
 
 ```
 !/bin/bash
 ```
 
-![](https://hackolympus.files.wordpress.com/2020/10/image-10.png?w=637)
 
+<img src="/images/b99/image-8.png" class="center_img", style="width: 60%">
 And here we go, we got a root shell.
 
-![](https://hackolympus.files.wordpress.com/2020/10/image-11.png?w=792)
 
+<img src="/images/b99/image-9.png" class="center_img", style="width: 60%">
 Now just go to root folder and we will get **root.txt**
 
-![](https://hackolympus.files.wordpress.com/2020/10/image-12.png?w=1024)
 
+<img src="/images/b99/image-10.png" class="center_img", style="width: 60%">
 This is my first writeup so any suggestions will be highly appreciated

@@ -1,32 +1,28 @@
 ---
 title: "Magic Number"
 date: "2020-10-16"
-tags: 
-  - "file-header"
-  - "file-signature"
+categories: 
   - "forensics"
-  - "head-command"
-  - "magic-number"
-  - "xxd"
+
 ---
 
 Ever heard of file signatures or magic number of a file ?
 
-\-> File Signature or magic number are special parts in the starting of hex-dump through which we can interpret the file type/extension
+- File Signature or magic number are special parts in the starting of hex-dump through which we can interpret the file type/extension
 
-\-> We can use magic number to solve ctf challenges and forensics.
+- We can use magic number to solve ctf challenges and forensics.
 
-\->Sometimes files get corrupt because there is a change in magic number. Solving this problem can un-corrupt that respective file.
+- Sometimes files get corrupt because there is a change in magic number. Solving this problem can un-corrupt that respective file.
 
-\->to see magic number we use any hexadecimal editor or viewer.
+- to see magic number we use any hexadecimal editor or viewer.
 
 for this tutorial I'll use xxd but windows users can use [HxD](https://mh-nexus.de/en/hxd/).
 
-**xxd**
+### xxd
 
 xxd is a tool to make hexdump or reverse that is convert hexdumpt to binary.
 
-**general syntax**: _xxd <flag> <filename>_
+**general syntax**: `xxd <flag> <filename>`
 
 When no flag is given xxd, standard output is printed by xxd.
 
@@ -38,11 +34,11 @@ When no flag is given xxd, standard output is printed by xxd.
 
 Now I would like to introduce you to a command **_'head'_**.
 
-**Head** **command**
+### Head command
 
 This command basically outputs few starting lines of the file.
 
-**general syntax**: _head <flag> <file>_
+**general syntax**: `head <flag> <file>`
 
 If no flag is given then by default this will print the first 10 lines of a file
 
@@ -64,9 +60,11 @@ I have a file.
 
 ![](https://hackolympus.files.wordpress.com/2020/11/image-3.png?w=495)
 
+<img src="/images/magic-number/image-3.png">
+
 I don't know the file type so what I'll do, I will check its hexdump.
 
-![](https://hackolympus.files.wordpress.com/2020/11/image-5.png?w=826)
+<img src="/images/magic-number/image-5.png">
 
 through its hex dump I can easily see its a jpeg file as we know that magic number for jpeg is **`ffd8 ffe0 0010 4a96`**. Sure we could have also checked this without using hexdump and using _**file**_ command but file command also uses the same logic.
 
@@ -76,7 +74,7 @@ Now lets look another example.
 
 I have a file named file2 I don't know its file type. So I use magic number to find out what file extension it has.
 
-![](https://hackolympus.files.wordpress.com/2020/11/image-7.png?w=818)
+<img src="/images/magic-number/image-7.png">
 
 And there we go, we found it its a pdf file.
 
