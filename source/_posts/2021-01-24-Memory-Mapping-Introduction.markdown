@@ -25,7 +25,8 @@ For the smooth running of a process linux memory is divided into 4 logical segme
 
 Now before moving ahead I would like to discuss about 2 types of memory - **logical and physical**. **The segmentation is done in the logical part** of the memory because it can vary but the **pages(blocks) are the part of physical part** of the memory as a block size remains constant.
 
-![](https://hackolympus.files.wordpress.com/2020/12/process-memory-dia.png?w=82)
+<img src="/images/process-memory-dia.png" align="left">
+<br>
 
 **Text** - In assembly text segment is indicated by `.text` , It contains the machine instructions of a program. It basically tells the story of what program does.
 

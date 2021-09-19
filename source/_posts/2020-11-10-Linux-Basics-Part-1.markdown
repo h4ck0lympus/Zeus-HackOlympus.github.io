@@ -43,7 +43,7 @@ Some important flags :
 
 we use './' followed by the name of the file to run the file in Linux.
 
-<img src="/images/linux-basics-1/image.png" class="center_img" style="width:60%">
+<img src="/images/linux-basics-1/image.png" class="center" style="width:60%">
 
 ### su
 
@@ -83,7 +83,7 @@ To copy entire directory we use **"-r"** flag
 
 **wc (word count)** - used to count total number of words and lines in a file
 
-<img src="/images/linux-basics-1/wc.png" class="center_img" style="width: 60%">
+<img src="/images/linux-basics-1/wc.png" class="center" style="width: 60%">
 
 **First Column** − Represents the **total number of lines in the file**.
 

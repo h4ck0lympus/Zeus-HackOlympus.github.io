@@ -27,7 +27,7 @@ now if we want to give only **writing and execution rights to groups**. **Our 2n
 
 if we want to give **only execution rights to everyone** (except user and group) **3rd digit of chmod permissions will be 1**.
 
-![](https://hackolympus.files.wordpress.com/2020/11/image-2.png?w=608)
+<img src="/images/linux-basics-2/image-2.png" class="center" style="width: 60%">
 
 **So our command will be: _chmod 751 <file>._**
 

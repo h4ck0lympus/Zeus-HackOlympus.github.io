@@ -18,7 +18,9 @@ Every Computer has a processor, that processor as we have already guessed by its
 
 Assembly language is often called _symbolic machine code_. It consists of a lot of short forms which is converted to machine language(1s and 0s) when passed through assembler. The following image was found online on the net, it will help you all to understand this concept more clearly.
 
-![](/images/Assembly-Language-vs-Machine-Language-1.png)
+<img src="/images/Assembly-Language-vs-Machine-Language-1.png" class="center" style="width: 50%">
+
+
 
 The above process of converting assembly language to machine code is called as **_assembly_**.
 
