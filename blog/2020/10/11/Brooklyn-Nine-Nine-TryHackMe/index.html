@@ -1,0 +1,74 @@
+<p>Hello guys. This is my first tryhackme writeup so please give your honest reviews. Since I am not a professional, your honest reviews will charge my batteries.</p>
+
+<p>To attempt this machine go to this link : <a href="https://tryhackme.com/room/brooklynninenine">Brooklyn99</a></p>
+
+<p>So let the hacking begin.</p>
+
+<p>Lets start by doing reconnaissance.</p>
+
+<p>First, I ran a basic nmap version scan on the box.</p>
+
+<p><img src="/images/b99/image-1.png" class="center", style="width: 60%"></p>
+
+<p>As we can see there are 3 ports open. First, I went to the webpage of the machine.</p>
+
+<p><img src="/images/b99/image-2.png" class="center", style="width: 60%"></p>
+
+<p>uff, A rabbit hole I viewed the page source but i found nothing special.</p>
+
+<p>Next I inspected FTP port. I tried anonymous login and it worked:</p>
+
+<p><img src="/images/b99/image-3.png" class="center", style="width: 60%"></p>
+
+<p>And we found a file: <strong>note_to_jake.txt</strong>. I downloaded the file by using get file command</p>
+
+<p>Lets see what is written in that file:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>From Amy,Jake please change your password. It is too weak and holt will be mad if someone hacks into the nine nine</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Looks like we have found a vulnerable username - <strong>jake</strong></p>
+
+<p>lets fire up hydra and let it do the rest of the job.</p>
+
+<p><img src="/images/b99/image-4.png" class="center", style="width: 60%">
+we have found a password lets try to connect using that password</p>
+
+<p><strong>LOGIN SUCCESSFUL</strong></p>
+
+<p>Lets enumerate this machine.</p>
+
+<p>In the user folder of jake. We found nothing interesting. I ran <strong>sudo -l</strong> command to see if I have any admin rights and yes i was right.</p>
+
+<p><img src="/images/b99/image-5.png" class="center", style="width: 60%">
+we can run <strong>less</strong> command with sudo rights.</p>
+
+<p>From here I went to <strong>holt</strong> user folder where I found user.txt but only <strong>holt</strong> could open it from his user but as we all know we have sudo privileges on less command so I viewed it with less.</p>
+
+<p><img src="/images/b99/image-6.png" class="center", style="width: 60%">
+And here we go, we found our first flag.</p>
+
+<h5><strong>Privilege Escalation</strong></h5>
+
+<p>Time for privilege escalation. In the <strong>holt</strong> user folder I found another file: <strong>nano.save</strong></p>
+
+<p>We will use this file for privilege escalation</p>
+
+<p>We will open this file with sudo privileges using less</p>
+
+<p><img src="/images/b99/image-7.png" class="center", style="width: 60%">
+We will run the following command to open shell:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>!/bin/bash</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/b99/image-8.png" class="center", style="width: 60%">
+And here we go, we got a root shell.</p>
+
+<p><img src="/images/b99/image-9.png" class="center", style="width: 60%">
+Now just go to root folder and we will get <strong>root.txt</strong></p>
+
+<p><img src="/images/b99/image-10.png" class="center", style="width: 60%">
+This is my first writeup so any suggestions will be highly appreciated</p>

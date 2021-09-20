@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: asm | Zeus@HackOlympus:~$]]></title>
+  <link href="http://zeus-hackolympus.github.io/blog/categories/asm/atom.xml" rel="self"/>
+  <link href="http://zeus-hackolympus.github.io/"/>
+  <updated>2021-09-20T12:44:50+05:30</updated>
+  <id>http://zeus-hackolympus.github.io/</id>
+  <author>
+    <name><![CDATA[Zeus]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Memory Mapping Introduction]]></title>
+    <link href="http://zeus-hackolympus.github.io/blog/2021/01/24/Memory-Mapping-Introduction/"/>
+    <updated>2021-01-24T00:00:00+05:30</updated>
+    <id>http://zeus-hackolympus.github.io/blog/2021/01/24/Memory-Mapping-Introduction</id>
+    <content type="html"><![CDATA[<h4><strong>Memory mapping</strong></h4>
+
+<p>Memory of computer has addresses for its smooth working. These addresses are same for everyone and does not change from use to use. The first byte is at address 0, the second byte is at address 1, and so on until the last byte of the computer&rsquo;s memory. Basically if I want to explain memory mapping in short there are memory registers that map memory. First a &ldquo;logical&rdquo; address is given to these processes which are currently running on the computer by CPU. This &ldquo;logical&rdquo; address is completely temporary and is not same for all users, its completely virtual. This process when becomes a permanent process, is assigned a &ldquo;physical&rdquo; address on the memory itself.</p>
+
+<p>How exciting huh ? Well for me these things are very exciting 😁</p>
+
+<p><strong>These mapping registers can only map data of 2 different size - 4096 bytes and 2 megabytes. Linux uses 2MB for the kernel and 4Kb for most other uses</strong>. Recent CPUs can support up to 1GB !!</p>
+
+<p>To understand these concepts more clearly, you all can read this book (<a href="http://library.bagrintsev.me/ASM/Introduction%20to%2064bit%20Intel%20Assembly%20Language%20Programming%20for%20Linux.2011.pdf">link</a>) and watch this Youtube video by Ted-Ed <a href="https://www.youtube.com/watch?v=p3q5zWCw8J4&amp;t=22s">link</a></p>
+
+<p>I have ended memory mapping in very short and has just given you a little overview because I can&rsquo;t explain everything here but you all can look the links that I have given you all.</p>
+
+<p>So now comes the more exciting part. Ever heard of stack, heap etc. Well in this article you will be explained everything. That&rsquo;s why I just love assembly, It completely builds all the concepts clear related to working of computers.</p>
+
+<h4><strong>Process Memory Model</strong></h4>
+
+<p>For the smooth running of a process linux memory is divided into 4 logical segments- text, data, heap and stack. A process is mapped from lowest address i.e. <strong>text</strong> to the highest address i.e. <strong>stack</strong>.</p>
+
+<p>Now before moving ahead I would like to discuss about 2 types of memory - <strong>logical and physical</strong>. <strong>The segmentation is done in the logical part</strong> of the memory because it can vary but the <strong>pages(blocks) are the part of physical part</strong> of the memory as a block size remains constant.</p>
+
+<p><img src="http://zeus-hackolympus.github.io/images/process-memory-dia.png" align="left">
+<br></p>
+
+<p><strong>Text</strong> - In assembly text segment is indicated by <code>.text</code> , It contains the machine instructions of a program. It basically tells the story of what program does.</p>
+
+<p><strong>Data</strong> - Data segment contains all the <strong>static data</strong>. It is represented by <code>.data</code> .Which means it contains all variables that have been initialized in the program.</p>
+
+<p><strong>.bss</strong> - Above data segment, there is <code>.bss</code> segment which stands for &ldquo;block started by symbol&rdquo;. Ths segment contains data which is statistically allocated in a process, but is not stored in the executable file. Instead this data is allocated when the process is loaded into <strong>memory</strong>.</p>
+
+<p>.<strong>rodata</strong> - Sometimes <code>.rodata</code> is also seen. Basically <code>.rodata</code> is a segment where all the constants are placed and <code>.data</code> is a segment where all the variable are placed.</p>
+
+<p><strong>Heap</strong> - Heap is basically some space reserved by the program so that it can use it for future purposes when calling functions like <code>malloc</code>.</p>
+
+<p><strong>Stack</strong> - It is basically temporary storage space for a process. The size of stack is set by the linux kernel, typically to 16 MB. This is enough for our processes.</p>
+
+<p>Now the above segments is for a page(block) of memory. So basically the minimum size of segments depends on page size.</p>
+
+<p>The size of segments vary according to usage but the ultimate size of the page will remain same. for example Sometimes, you will see that processor is processing a lot of information in that case we can assume that .text part is large but other parts is small.Sometimes processing done is less but still <code>.data</code> is large but others are small. Sometimes a process needs more temporary storage for later use so stack will be more in size.</p>
+
+<p><strong>Hello world program in assembly.</strong></p>
+
+<p>I do not want you to understand the whole code below. Just observe how segmentation has been performed in the code and keep this code in the back of your mind so that you can understand and write codes yourself in the upcoming articles.</p>
+
+<pre><code class="asm">.section .text
+    .intel_syntax noprefix 
+    .global _start
+    _start:
+        mov rax, 1
+        mov rdi, 1
+        lea rsi, [rip+msg]
+        mov rdx, 13
+        syscall
+
+        mov rax, 60
+        mov rdi, 0
+        syscall
+    msg:
+        .ascii "Hello world\n\0" 
+</code></pre>
+
+<p>To run this:</p>
+
+<pre><code class="sh">gcc helloworld.s -nostdlib --static -o helloworld
+./helloworld
+</code></pre>
+
+<p>I have not added a lot of things in this article. So please read and view the following sources.</p>
+
+<p><strong>Sources:</strong></p>
+
+<p>Book link given in the <strong>previous article.</strong></p>
+
+<p><a href="http://www.cs.uwm.edu/classes/cs315/Bacon/Lecture/HTML/ch10s04.html">http://www.cs.uwm.edu/classe</a><a href="http://www.cs.uwm.edu/classes/cs315/Bacon/Lecture/HTML/ch10s04.html">s/cs315/Bacon/Lecture/HTML/ch10s04.htm</a><a href="http://www.cs.uwm.edu/classes/cs315/Bacon/Lecture/HTML/ch10s04.html">l</a></p>
+
+<p><a href="https://jameshfisher.com/2018/03/10/linux-assembly-hello-world/">https://jameshfisher.com/2018/03/10/linux-assembly-hello-world/</a></p>
+
+<p><a href="https://web.stanford.edu/class/archive/cs/cs107/cs107.1212/schedule.html">https://web.stanford.edu/class/archive/cs/cs107/cs107.1212/schedule.html</a></p>
+
+<p><a href="https://www.youtube.com/watch?v=HWwNTWY1rxo">https://www.youtube.com/watch?v=HWwNTWY1rxo</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Introduction To Assembly Language]]></title>
+    <link href="http://zeus-hackolympus.github.io/blog/2021/01/24/Introduction-To-Assembly-Language/"/>
+    <updated>2021-01-24T00:00:00+05:30</updated>
+    <id>http://zeus-hackolympus.github.io/blog/2021/01/24/Introduction-To-Assembly-Language</id>
+    <content type="html"><![CDATA[<p>Every Computer has a processor, that processor as we have already guessed by its name, processes the information given to the computer. It performs basic operations like arithmetic calculations, logical and control operations for the computer. This processor understands 1s and 0s but for us humans to write code in 1s and 0s is very difficult and tedious so for this purpose assembly language was introduced. Assembly language makes it easy for us to communicate with computer and understand it more clearly.</p>
+
+<p>Assembly language is often called <em>symbolic machine code</em>. It consists of a lot of short forms which is converted to machine language(1s and 0s) when passed through assembler. The following image was found online on the net, it will help you all to understand this concept more clearly.</p>
+
+<p><img src="http://zeus-hackolympus.github.io/images/Assembly-Language-vs-Machine-Language-1.png" class="center" style="width: 50%"></p>
+
+<p>The above process of converting assembly language to machine code is called as <strong><em>assembly</em></strong>.</p>
+
+<p>Ok, so up till now I think I have made my point clear that main purpose of assembly language or should I say every programming language is to understand computer and give it commands.</p>
+
+<p>Now a assembly language is designed depending upon which processor we are using so in short it is processor specific. So it is possible that processor found in one PC may able to assemble code written in it but processor of other PC may not.</p>
+
+<p>Assembly language is a low level language and is often abbreviated as <strong><em>asm</em></strong>. So first of all what is a low level language ?</p>
+
+<p>Low level language does not mean that it is easy to learn or anything. Basically low level language basically means that it is a language that it is very similar to actual machine language and has less abstraction. By abstraction I mean changes added to that language so it becomes less complex and more understandable. The converse of it can be applied for high level languages like python, C, Java etc.</p>
+
+<p>So What exactly are these 1&rsquo;s and 0&rsquo;s ?</p>
+
+<p>These 1s and 0s are called <em>bits</em>. It is the smallest possible storage unit of computer.</p>
+
+<h4>Bytes</h4>
+
+<p>So we have understood bits but what are bytes ? Are they the same thing or different. Well many people think that bits and bytes are same but its false.</p>
+
+<p>Nowadays processor interpret a specific number of bits at a time. They interpret 8 bits at a time. <strong>This cluster of 8 bits is known as <em>a byte</em></strong>. The main memory of the computer is composed of an array of bytes, with each byte having a separate memory address. The first byte address is 0 and the last address depends on the hardware and software in use. Any byte that is identified as a machine instruction is pushed into <strong>rbp register</strong> onto the run-time stack.</p>
+
+<p><strong>After this you all must study the following concepts as it will make your concepts more clear:</strong></p>
+
+<ul>
+<li>Binary numbers</li>
+<li>Binary arithmetic - addition, subtraction, multiplication and division</li>
+<li>Hexadecimal numbers</li>
+<li>Floating point numbers</li>
+</ul>
+
+
+<p>I learned the above topics from this book :</p>
+
+<p><a href="http://library.bagrintsev.me/ASM/Introduction%20to%2064bit%20Intel%20Assembly%20Language%20Programming%20for%20Linux.2011.pdf">Introduction to 64 Bit Intel Assembly Language Programming for Linux</a></p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,263 @@
+<p><strong>Before beginning, I suggest all the readers, to try the following commands yourself as you read them</strong>.</p>
+
+<h5><strong>Advanced File operators</strong></h5>
+
+<p>recall using <em><strong>ls &ndash;all</strong></em> command privileges and various other attributes of <strong>files</strong> in that directory<br/>
+<strong>Chmod</strong><br/>
+chmod  allows to set different permissions for a file, and control who can read it. The syntax of this command is typically <em><strong>chmod <permissions> <file></strong></em>.Permission setting system is very interesting and powerful. They are set in 3 digits</p>
+
+<ul>
+<li>first digit controls the <strong>permissions of a user</strong>.</li>
+<li>second digit controls the <strong>permissions of a  group</strong>.</li>
+<li>third digit controls the <strong>permissions of everyone that&rsquo;s not the part of user or group</strong>.</li>
+</ul>
+
+
+<table><tbody><tr><td class="has-text-align-center" data-align="center"><sup>Digit</sup></td><td class="has-text-align-center" data-align="center"><sup>meaning&nbsp;</sup></td></tr><tr><td class="has-text-align-center" data-align="center"><sup>1</sup></td><td class="has-text-align-center" data-align="center"><sup>the file can be executed&nbsp;</sup></td></tr><tr><td class="has-text-align-center" data-align="center"><sup>2</sup></td><td class="has-text-align-center" data-align="center"><sup>the file can be written to</sup></td></tr><tr><td class="has-text-align-center" data-align="center"><sup>4</sup></td><td class="has-text-align-center" data-align="center"><sup>the file can be read</sup></td></tr></tbody></table>
+
+
+<p>Now how to give permission to the file using above logic.</p>
+
+<p>Suppose we have to give all rights to the users and by all rights we mean <strong>execution, writing and reading</strong> in that case the number for this permission will be <strong>1+2+4 = 7</strong> so <strong>first number of chmod permission will be 7</strong>.</p>
+
+<p>now if we want to give only <strong>writing and execution rights to groups</strong>. <strong>Our 2nd digit of chmod rights will be 1 + 4 = 5</strong></p>
+
+<p>if we want to give <strong>only execution rights to everyone</strong> (except user and group) <strong>3rd digit of chmod permissions will be 1</strong>.</p>
+
+<p><img src="/images/linux-basics-2/image-2.png" class="center" style="width: 60%"></p>
+
+<p><strong>So our command will be: <em>chmod 751 <file>.</em></strong></p>
+
+<p><strong>U</strong>-user <strong>G</strong>-group <strong>E</strong>-everyone that are not in group or user</p>
+
+<p>now <strong><em>rw</em></strong> means &ldquo;read and write&rdquo; , meaning the user has read-write permissions to the file.</p>
+
+<p><strong><em>r</em></strong> means read so group and everyone else has read privileges.</p>
+
+<p>now if we look the <em>&lsquo;Downloads&rsquo;</em> folder we see <strong>drwxr-xr-x</strong></p>
+
+<p>now what this means, <strong>d</strong> means directory,<strong>rw</strong> means read-write <strong>xr</strong> means execution rights and <strong>r</strong> means read. So user can access this directory and can read, write and execute the files in it. Group can execute and read and everyone else can execute.</p>
+
+<p><strong>Note:</strong> It is possible to give someone no perms to a file, You can just put 0 as the digit. 770 Means that everyone that isn&rsquo;t a part of the user or group cant do anything to the file.</p>
+
+<h5><strong>Chown</strong></h5>
+
+<p>chown means change owner.It allows us to change <strong>the user and group for any file</strong>.The syntax is:</p>
+
+<p><strong><em>chown user:group file</em></strong></p>
+
+<p><strong>Note: chown is best used with sudo privivliges</strong></p>
+
+<p>We can also change only user/group. For just we just write:</p>
+
+<p><em><strong>chown <user>/<group> file</strong></em></p>
+
+<p>important flag:</p>
+
+<p><strong>&lsquo;-R&rsquo;</strong> - allows us to operate with every file in the directory at once.</p>
+
+<h5>rm</h5>
+
+<p><strong>rm means remove</strong>. So it removes the respective file <strong>permanently</strong>.So it is a very dangerous command.</p>
+
+<p>To avoid any mishap. we either use -i or -I flag.</p>
+
+<p><strong>Important Flags:</strong></p>
+
+<p><strong>-i</strong> - asks for user&rsquo;s consent every time a file is deleted.</p>
+
+<p><strong>-I</strong> asks for users&rsquo;s consent for deletion of every 3 files.</p>
+
+<p><strong>-r</strong> used to delete a whole directory</p>
+
+<h5>Find</h5>
+
+<p>find is one my most favorite commands. It is simple and incredibly powerful. As it says, it allows user to find files.</p>
+
+<p>True power of this command though comes from the parameters you provide it For example you can use <em><strong>find dir -user <username></strong></em> to list every file owned by a  specific user; you can use <em><strong>find  <dir> -group</strong> <strong><group name></strong></em> to list every file owned by a specific group. The sheer customizability of the command is its most powerful.</p>
+
+<p>Important flags:</p>
+
+<p><strong>To search the entire directory</strong> - /</p>
+
+<p><strong>To search current folder</strong> - <strong>.</strong></p>
+
+<p><strong>to search file belonging to a group/user</strong> - <em>find <dir> -user/group <username>/<groupname></em></p>
+
+<p><strong>to find that is executable -</strong><em>find <dir> -executable</em></p>
+
+<p><strong>To find a empty file and folders -</strong><em>find <dir> -empty</em></p>
+
+<p><strong>to find all readable file -</strong> <em>find <dir> -readable</em></p>
+
+<p><strong>to find a file with particular extension -</strong> <em>find <dir> -name *.mp3</em></p>
+
+<p><strong>Output of find command to a file -</strong> <em>find <dir> -name *.txt -fprint <file name to print to></em></p>
+
+<p><strong>Find all directories whose name contains the word &ldquo;flag&rdquo; -</strong> <em>find / -type d -name &ldquo;*flag&rdquo;</em></p>
+
+<p>now here type followed by d means directory if it was followed by f it meant files</p>
+
+<p><em><strong>-name</strong></em> means name of the file/directory depending upon the <em>-type</em> flag</p>
+
+<p><strong>error reduction (exclude all permission denied or error commands from the output) -</strong> <em>find <dir> <filename> 2> /dev/null</em> </p>
+
+<p>&ldquo;2>&rdquo; is common standard error (stderr) redirection method. I have redirected all the standard error to <strong>/dev/null</strong>, which is a device file. In comming writeups I&rsquo;ll be talking more on this</p>
+
+<p><strong>/dev/null</strong> is like a null space or &ldquo;black hole&rdquo; of linux.</p>
+
+<p>&ldquo;*&rdquo; is a wildcard operator, it generally means all.</p>
+
+<p><strong>find size related file/directory search</strong></p>
+
+<p>Now if we want to find file of a specific size, or near to (more or less) to that size, we use <strong><em>-size</em></strong> flag with some other important attributes.</p>
+
+<table>
+<thead>
+<tr>
+<th> Keyword </th>
+<th> meaning </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> c  </td>
+<td> bytes </td>
+</tr>
+<tr>
+<td> k </td>
+<td> kilobytes </td>
+</tr>
+<tr>
+<td> M </td>
+<td> Megabytes </td>
+</tr>
+<tr>
+<td> G </td>
+<td> Gigabytes </td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Now using the above table understand the following command.</p>
+
+<p>if I want to find file named &ldquo;password&rdquo; my command will be which is less than 1 my command will be:</p>
+
+<p><strong><em>find -type f -name &ldquo;password&rdquo; -size -1k</em></strong> <strong><em>2> /dev/null</em></strong></p>
+
+<p>notice that I have redirected stderr (standard error) to /dev/null for error reduction</p>
+
+<p>what if we want to find a file which is greater than 1 Mb but less than 5 Mb:</p>
+
+<p><strong><em>find -type f -size +1M -size -5M</em></strong></p>
+
+<p>so in short we use &ldquo;+&rdquo; for more than and &ldquo;-&rdquo; for less than.</p>
+
+<p><strong>time related commmands</strong></p>
+
+<p>Now there are 3 attributes for time related commands:</p>
+
+<ul>
+<li><strong>-atime</strong> : access time</li>
+<li><strong>-mtime</strong> : modification time</li>
+<li><strong>-ctime</strong> : change time</li>
+</ul>
+
+
+<p>now if I want to find a file <strong>that is accessed precisely 4 days ago</strong> then we will use: <em><strong>-atime 4</strong></em></p>
+
+<p>if I want to find a file that is accesse_d<em> <strong>within last 4 days</strong></em>: <strong>-atime -4</strong>_</p>
+
+<p>If we want to find file that was <strong>accessed recently(within 24 hours)</strong> then we use <strong>-atime 0</strong></p>
+
+<p>if I want to find a file that is accessed <strong>after 4 da_ys_</strong><em>: <strong>-atime +4</strong></em></p>
+
+<p>the same logic applies for <strong><em>-mtime</em></strong> and <strong><em>-ctime</em></strong></p>
+
+<p>Now what if, we don&rsquo;t want to find files using hours but minutes, then we use <strong><em>-min</em> using the above attributes - a,c or m</strong> and everything else is also same.</p>
+
+<p><strong>-perm</strong> flag</p>
+
+<p>As I have written earlier in chmod:</p>
+
+<table><tbody><tr><td class="has-text-align-center" data-align="center"><sup>Digit</sup></td><td class="has-text-align-center" data-align="center"><sup>meaning&nbsp;</sup></td></tr><tr><td class="has-text-align-center" data-align="center"><sup>1</sup></td><td class="has-text-align-center" data-align="center"><sup>the file can be executed&nbsp;</sup></td></tr><tr><td class="has-text-align-center" data-align="center"><sup>2</sup></td><td class="has-text-align-center" data-align="center"><sup>the file can be written to</sup></td></tr><tr><td class="has-text-align-center" data-align="center"><sup>4</sup></td><td class="has-text-align-center" data-align="center"><sup>the file can be read</sup></td></tr></tbody></table>
+
+
+<p><strong><em>-perm</em></strong> also uses the above digits with same meaning to search for permission.</p>
+
+<p><strong><em>-perm</em></strong> accept 4 bit input which means a 4 digit number.</p>
+
+<ul>
+<li>1st bit - special privileges like SUID</li>
+<li>2nd bit - owner privileges</li>
+<li>3rd bit - group privileges</li>
+<li>4th bit for everyone else</li>
+</ul>
+
+
+<p><strong>general syntax :</strong> <em>find -perm <mode></em></p>
+
+<p>there are 3 different modes:</p>
+
+<ul>
+<li>if we just give permission through bits(example -perm 444), files with that <strong>particular permissions</strong> will be shown.</li>
+<li>If we use &ldquo;-&rdquo; as prefix to bit-permission, files <strong>with at least one of the permission will be shown</strong>(for example if we search for 666 and some file has 776 then it will be shown)</li>
+<li>If we use &ldquo;/&rdquo; either the owner the group or other should have the permission to the file For example, if we do <code>find -perm /555</code>, and if a file has <code>544</code> then it will be shown because user privileges are satisfied.</li>
+</ul>
+
+
+<p><strong>Using Symbolic Notation</strong> <strong>to search for permissions</strong></p>
+
+<p>In symbolic notations</p>
+
+<p><strong>u -> user g -> group o -> others</strong></p>
+
+<p><strong>r -> read w -> write x -> executable</strong></p>
+
+<p>for instance:</p>
+
+<p>if we want to find file with all user having executable permission then:</p>
+
+<p><em><strong>find -perm -u=x</strong></em></p>
+
+<p>if we want to find file with all user having read write and groups having executable permission then:</p>
+
+<p><em><strong>find -perm -u=rw,-g=x</strong></em></p>
+
+<p><strong>Note</strong>: we can use &ldquo;=&rdquo; or &ldquo;+&rdquo; the output will be same</p>
+
+<p><strong>-not</strong> flag</p>
+
+<p>Suppose we have to find all files except the ones having provided permission then we use <em><strong>-not</strong></em> flag.</p>
+
+<p>for instance all files except the one having permission 777 then:</p>
+
+<p><em><strong>find -type f -not -perm 777</strong></em></p>
+
+<p><strong>*Combining find commands with linux operators can be really helpful.</strong></p>
+
+<p>**<strong>Find command really helps in solving CTF challenges. There are many other find commands. I suggest you all to look over the man page of this command.</strong></p>
+
+<h5>Grep</h5>
+
+<p>This command allows you to find specific string inside data.</p>
+
+<p>The syntax of this command is:</p>
+
+<p><strong>grep <string> <file></strong></p>
+
+<p><strong>for multiple files:grep <string> <file1> <file2> &hellip;..</strong></p>
+
+<p>Using grep with find makes the it usability to increase by tenfolds.</p>
+
+<h4>Standard Unix Streams</h4>
+
+<p>If you have not understood what I did during <strong>find</strong> command, this will probably help you</p>
+
+<ul>
+<li><strong>stdin</strong> − This is referred to as the <em>standard input</em> and the associated file descriptor is 0. This is also represented as STDIN. The Unix program will read the default input from STDIN.</li>
+<li><strong>stdout</strong> − This is referred to as the <em>standard output</em> and the associated file descriptor is 1. This is also represented as STDOUT. The Unix program will write the default output at STDOUT</li>
+<li><strong>stderr</strong> − This is referred to as the <em>standard error</em> and the associated file descriptor is 2. This is also represented as STDERR. The Unix program will write all the error messages at STDERR.</li>
+</ul>
+
