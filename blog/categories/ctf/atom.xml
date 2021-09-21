@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ctf | Zeus@HackOlympus:~$]]></title>
   <link href="http://zeus-hackolympus.github.io/blog/categories/ctf/atom.xml" rel="self"/>
   <link href="http://zeus-hackolympus.github.io/"/>
-  <updated>2021-09-21T12:44:01+05:30</updated>
+  <updated>2021-09-21T12:45:35+05:30</updated>
   <id>http://zeus-hackolympus.github.io/</id>
   <author>
     <name><![CDATA[Zeus]]></name>
@@ -22,9 +22,9 @@
 
 <p>I am writing this writeup mainly for <strong>pyjail</strong> challenges so my main focus will be on them only but I&rsquo;ll be providing the writeups for other challenges also.</p>
 
-<h2><strong>Jails</strong></h2>
+<h4><strong>Jails</strong></h4>
 
-<h3>Pyjailgolf1</h3>
+<h4>Pyjailgolf1</h4>
 
 <p>So in this challenge we were given the following code which was running on the shell server <code>nc chal.b01lers.com 1334</code> :
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
