@@ -11,9 +11,9 @@ So recently I played Bo1ler CTF. Normally I don't write writeups for a CTF (due 
 
 I am writing this writeup mainly for **pyjail** challenges so my main focus will be on them only but I'll be providing the writeups for other challenges also.
 
-## **Jails**
+#### **Jails**
 
-### Pyjailgolf1
+#### Pyjailgolf1
 
 So in this challenge we were given the following code which was running on the shell server `nc chal.b01lers.com 1334` :
 ```python
