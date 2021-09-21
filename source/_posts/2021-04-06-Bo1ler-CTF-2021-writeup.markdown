@@ -95,18 +95,9 @@ It then looks for a number such that the bitwise XOR of param1, uvar1(storing fi
 So I first made a script to do the reverse of all these operations in python (A nooby mistake, I know ). Python's random number function does not work in the same way like C rand function. So my team mate ([DaBaddest](https://ctftime.org/user/82627)) made the reverse script in C and that worked :
 
 His script :
-```c
 
-#include <stdio.h>
-#include <stdlib.h>
-int main(){
-  srand(0x11C4);
+{% include_code boiler.c %}
 
-  printf("bctf{ %d }\n",rand() ^ rand() ^ 0x3597B741);
-  return 0;
-}
-
-```
 And this returned us the flag
 
 **Flag** : `bctf{1432175799}`
@@ -120,6 +111,7 @@ Given files can be found from this [link](https://ctf.b01lers.com/download?file_
 Ok first lets look at the given files it was a png picture file nothing special. Lets look at the given link.
 
 Main function of the site was to take a picture and "swirl" it so that no one can look at its contents. It was JS reverse engineering and was no big thing. I copied the source code of the site and used [https://jsfiddle.net/](https://jsfiddle.net/) to deploy it and 'fiddle' with source code side by side to see how it works.
+
 ```javascript
 const fsSource = `
     precision highp float;
@@ -153,7 +145,9 @@ const fsSource = `
       gl_FragColor = diffuse;
     }
   \`;
+
 ```
+
 This was the vulnerable script I just converted the following code block :
 ```javascript
 if (dist < uRadius) {
@@ -164,6 +158,7 @@ if (dist < uRadius) {
           rotmat = mat2(cosa, sina, -sina, cosa);
 ```
 to :
+
 ```javascript
 if (dist < uRadius) {
           float percent = (uRadius - dist) / uRadius;
