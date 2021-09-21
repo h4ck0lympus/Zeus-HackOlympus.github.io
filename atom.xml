@@ -4,7 +4,7 @@
   <title><![CDATA[Zeus@HackOlympus:~$]]></title>
   <link href="http://zeus-hackolympus.github.io/atom.xml" rel="self"/>
   <link href="http://zeus-hackolympus.github.io/"/>
-  <updated>2021-09-21T10:41:47+05:30</updated>
+  <updated>2021-09-21T12:44:01+05:30</updated>
   <id>http://zeus-hackolympus.github.io/</id>
   <author>
     <name><![CDATA[Zeus]]></name>
@@ -12,15 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[hello world]]></title>
-    <link href="http://zeus-hackolympus.github.io/blog/2021/09/20/hello-world/"/>
-    <updated>2021-09-20T13:03:44+05:30</updated>
-    <id>http://zeus-hackolympus.github.io/blog/2021/09/20/hello-world</id>
-    <content type="html"><![CDATA[<p>Hello world</p>
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[Bo1ler CTF -2021  writeup]]></title>
