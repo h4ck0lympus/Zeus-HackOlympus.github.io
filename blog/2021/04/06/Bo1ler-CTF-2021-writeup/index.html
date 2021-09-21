@@ -110,7 +110,8 @@
 
 <p>His script :</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span> (boiler.c)</span> <a href='/downloads/code/boiler.c'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -118,13 +119,17 @@
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
 </pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
 </span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
-</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
-</span><span class='line'>  <span class="n">srand</span><span class="p">(</span><span class="mh">0x11C4</span><span class="p">);</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;bctf{ %d }</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">rand</span><span class="p">()</span> <span class="o">^</span> <span class="n">rand</span><span class="p">()</span> <span class="o">^</span> <span class="mh">0x3597B741</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">srand</span><span class="p">(</span><span class="mh">0x11C4</span><span class="p">)</span> <span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot; %d </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">rand</span><span class="p">()</span>  <span class="o">^</span> <span class="n">rand</span><span class="p">()</span> <span class="o">^</span> <span class="mh">0x3597B741</span><span class="p">)</span> <span class="p">;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span> <span class="p">;</span>
 </span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
