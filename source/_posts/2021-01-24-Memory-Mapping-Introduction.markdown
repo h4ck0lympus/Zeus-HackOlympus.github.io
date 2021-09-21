@@ -1,4 +1,6 @@
 ---
+layout: post
+comments: true
 title: "Memory Mapping Introduction"
 date: "2021-01-24"
 categories: 

@@ -1,4 +1,6 @@
 ---
+layout: post
+comments: true
 title: "Magic Number"
 date: "2020-10-16"
 categories: 

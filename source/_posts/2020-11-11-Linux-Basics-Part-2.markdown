@@ -1,4 +1,6 @@
 ---
+layout: post
+comments: true
 title: "Linux Basics Part- 2"
 date: "2020-11-11"
 tags: 

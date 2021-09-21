@@ -1,0 +1,3 @@
+[submodule ".themes/cleanpress-modern"]
+	path = .themes/cleanpress-modern
+	url = git://github.com/seabre/cleanpress-modern.git

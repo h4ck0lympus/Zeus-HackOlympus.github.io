@@ -1,6 +1,8 @@
 ---
+layout: post
 title: "Bo1ler CTF -2021  writeup"
 date: "2021-04-06"
+comments: true
 categories: 
   - "ctf"
 tags: 

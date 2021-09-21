@@ -1,4 +1,6 @@
 ---
+layout: post
+comments: true
 title: "Gotta Catch'em All! TryHackMe WriteUp"
 date: "2020-11-13"
 categories: 
