@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ctf | Zeus@HackOlympus:~$]]></title>
   <link href="http://zeus-hackolympus.github.io/blog/categories/ctf/atom.xml" rel="self"/>
   <link href="http://zeus-hackolympus.github.io/"/>
-  <updated>2021-09-21T12:45:35+05:30</updated>
+  <updated>2021-09-21T12:48:18+05:30</updated>
   <id>http://zeus-hackolympus.github.io/</id>
   <author>
     <name><![CDATA[Zeus]]></name>
@@ -170,13 +170,13 @@ uniform float uRadius;
 uniform float uSwirlFactor;
 
 void main(void) {
-  vec2 uv = gl\_FragCoord.xy / uResolution.xy;
+  vec2 uv = gl_FragCoord.xy / uResolution.xy;
 
   float dist = distance(uv, vec2(0.5));
   mat2 rotmat;
   if (dist &lt; uRadius) {
       float percent = (uRadius - dist) / uRadius;
-      float angle = percent \* percent \* uSwirlFactor \* uTime;
+      float angle = percent * percent * uSwirlFactor * uTime;
       float sina = sin(angle);
       float cosa = cos(angle);
       rotmat = mat2(cosa, sina, -sina, cosa);
@@ -184,9 +184,9 @@ void main(void) {
       rotmat = mat2(1, 0, 0, 1);
   }
 
-  vec2 texCoord = rotmat \* (uv - vec2(0.5)) + vec2(0.5);
+  vec2 texCoord = rotmat * (uv - vec2(0.5)) + vec2(0.5);
   vec4 diffuse = texture2D(uSampler, texCoord);
-  gl\_FragColor = diffuse;
+  gl_FragColor = diffuse;
 }
 </code></pre>
 
