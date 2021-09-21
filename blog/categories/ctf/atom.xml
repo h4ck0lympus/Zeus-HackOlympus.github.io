@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ctf | Zeus@HackOlympus:~$]]></title>
   <link href="http://zeus-hackolympus.github.io/blog/categories/ctf/atom.xml" rel="self"/>
   <link href="http://zeus-hackolympus.github.io/"/>
-  <updated>2021-09-21T12:48:18+05:30</updated>
+  <updated>2021-09-21T12:55:36+05:30</updated>
   <id>http://zeus-hackolympus.github.io/</id>
   <author>
     <name><![CDATA[Zeus]]></name>
@@ -27,61 +27,35 @@
 <h4>Pyjailgolf1</h4>
 
 <p>So in this challenge we were given the following code which was running on the shell server <code>nc chal.b01lers.com 1334</code> :
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">line</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="o">&gt;&gt;&gt;</span> <span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;)</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">flag</span><span class="o">=&amp;</span><span class="n">ldquo</span><span class="p">;[</span><span class="n">REDACTED</span><span class="p">]</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
-</span><span class='line'>    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">()</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">try</span><span class="p">:</span>
-</span><span class='line'>    <span class="nb">eval</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-</span><span class='line'><span class="k">except</span><span class="p">:</span>
-</span><span class='line'>    <span class="k">pass</span>
-</span><span class='line'><span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="sb">``</span>
-</span><span class='line'><span class="n">Basically</span> <span class="n">there</span> <span class="ow">is</span> <span class="n">an</span> <span class="o">**&lt;/</span><span class="n">code</span><span class="o">&gt;</span><span class="nb">eval</span><span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;**</span> <span class="n">function</span> <span class="n">which</span> <span class="ow">is</span> <span class="n">vulnerable</span><span class="o">.</span> <span class="n">You</span> <span class="n">will</span> <span class="nb">input</span> <span class="nb">any</span> <span class="n">python</span> <span class="n">command</span> <span class="ow">and</span> <span class="n">it</span> <span class="n">will</span> <span class="n">be</span> <span class="n">executed</span><span class="o">.</span> <span class="n">But</span> <span class="n">this</span> <span class="n">was</span> <span class="ow">not</span> <span class="n">the</span> <span class="n">problem</span><span class="p">,</span> <span class="n">problem</span> <span class="n">was</span> <span class="n">that</span> <span class="n">we</span> <span class="n">have</span> <span class="n">to</span> <span class="k">print</span> <span class="n">the</span> <span class="n">value</span> <span class="n">of</span> <span class="n">variable</span> <span class="n">flag</span> <span class="n">by</span> <span class="n">running</span> <span class="n">a</span> <span class="n">command</span> <span class="n">whose</span> <span class="n">length</span> <span class="ow">is</span> <span class="n">less</span> <span class="n">than</span> <span class="mi">10</span> <span class="n">chars</span><span class="o">.</span> <span class="n">Now</span> <span class="k">if</span> <span class="n">you</span> <span class="n">simply</span> <span class="n">do</span><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;</span><span class="k">print</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span><span class="err">`</span> <span class="n">it</span> <span class="n">will</span> <span class="ow">not</span> <span class="n">work</span> <span class="ow">and</span> <span class="n">will</span> <span class="k">raise</span> <span class="n">an</span> <span class="ne">Exception</span><span class="o">.</span> <span class="n">All</span> <span class="n">other</span> <span class="n">commands</span> <span class="n">like</span> <span class="nb">hex</span><span class="p">(),</span> <span class="nb">id</span><span class="p">(),</span> <span class="k">exec</span><span class="p">()</span> <span class="n">etc</span> <span class="n">will</span> <span class="ow">not</span> <span class="n">work</span> <span class="n">because</span> <span class="n">they</span> <span class="n">are</span> <span class="n">functions</span> <span class="ow">and</span> <span class="n">they</span> <span class="k">return</span> <span class="n">the</span> <span class="n">value</span> <span class="n">rather</span> <span class="n">than</span> <span class="n">printing</span> <span class="n">it</span><span class="o">.</span> <span class="n">So</span> <span class="n">calling</span> <span class="n">them</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">good</span> <span class="k">for</span> <span class="n">us</span><span class="o">.&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">Now</span> <span class="n">you</span> <span class="n">see</span> <span class="n">why</span> <span class="n">I</span> <span class="n">am</span> <span class="n">writing</span> <span class="n">a</span> <span class="n">writeup</span> <span class="k">for</span> <span class="n">this</span> <span class="n">challenge</span><span class="o">.</span> <span class="n">Because</span> <span class="n">its</span> <span class="n">so</span> <span class="n">small</span><span class="p">,</span> <span class="n">simple</span> <span class="ow">and</span> <span class="n">cute</span> <span class="n">yet</span> <span class="n">challenging</span><span class="o">.</span> <span class="n">Its</span> <span class="n">a</span> <span class="n">pure</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">out</span> <span class="n">of</span> <span class="n">the</span> <span class="n">box</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;</span> <span class="n">thinking</span> <span class="n">challenge</span><span class="o">.</span> <span class="n">Every</span> <span class="n">beginner</span> <span class="n">can</span> <span class="n">approach</span> <span class="n">this</span> <span class="n">because</span> <span class="n">it</span> <span class="n">doesn</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span><span class="n">t</span> <span class="n">require</span> <span class="n">a</span> <span class="n">specific</span> <span class="n">skillset</span> <span class="n">like</span> <span class="n">pwn</span> <span class="p">(</span><span class="n">binary</span> <span class="n">exploitation</span><span class="p">)</span> <span class="n">challenges</span> <span class="p">(</span><span class="k">except</span> <span class="n">python</span> <span class="n">but</span> <span class="n">lets</span> <span class="n">be</span> <span class="n">honest</span><span class="p">,</span> <span class="n">who</span> <span class="n">doesn</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span><span class="n">t</span> <span class="n">know</span> <span class="n">it</span> <span class="err">😬</span><span class="p">)</span> <span class="o">.&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">Well</span> <span class="n">after</span> <span class="n">going</span> <span class="n">through</span> <span class="n">my</span> <span class="n">python</span> <span class="n">notes</span> <span class="ow">and</span> <span class="n">doing</span> <span class="n">some</span> <span class="n">research</span> <span class="n">work</span> <span class="n">on</span> <span class="n">google</span> <span class="n">I</span> <span class="n">found</span> <span class="n">a</span> <span class="n">command</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">help</span><span class="p">()</span><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;.</span> <span class="n">Yup</span><span class="err">!</span> <span class="n">the</span> <span class="n">answer</span> <span class="n">was</span> <span class="n">help</span> <span class="n">command</span> <span class="err">!!</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;&lt;</span><span class="n">img</span> <span class="n">src</span><span class="o">=</span><span class="s">&quot;http://zeus-hackolympus.github.io/images/boiler/image-1.png&quot;</span> <span class="n">class</span><span class="o">=</span><span class="s">&quot;center&quot;</span> <span class="n">style</span><span class="o">=</span><span class="s">&quot;width: 60%&quot;</span><span class="o">&gt;&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;&lt;</span><span class="n">strong</span><span class="o">&gt;</span><span class="n">Flag</span><span class="p">:</span><span class="o">&lt;/</span><span class="n">strong</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">pctf</span><span class="p">{</span><span class="n">JusT_a5k_4_h3lP</span><span class="err">!</span><span class="p">}</span><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">See</span> <span class="n">the</span> <span class="n">most</span> <span class="n">basic</span> <span class="n">commands</span> <span class="n">which</span> <span class="n">we</span> <span class="n">neglect</span> <span class="n">during</span> <span class="n">our</span> <span class="n">learning</span> <span class="n">period</span> <span class="n">helped</span> <span class="n">us</span> <span class="ow">in</span> <span class="n">this</span> <span class="n">challenge</span><span class="o">.</span> <span class="n">After</span> <span class="n">this</span> <span class="n">I</span> <span class="n">researched</span> <span class="n">more</span> <span class="n">on</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">help</span><span class="p">()</span><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="n">command</span> <span class="ow">and</span> <span class="n">by</span> <span class="n">luck</span> <span class="nb">next</span> <span class="n">jail</span> <span class="n">challenge</span> <span class="n">could</span> <span class="n">be</span> <span class="n">done</span> <span class="n">using</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">help</span><span class="p">()</span><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="n">command</span> <span class="n">itself</span><span class="o">.&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h3</span><span class="o">&gt;</span><span class="n">Pyjailgolf2</span><span class="o">&lt;/</span><span class="n">h3</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">This</span> <span class="n">challenge</span> <span class="ow">is</span> <span class="n">almost</span> <span class="n">same</span> <span class="k">as</span> <span class="n">the</span> <span class="n">last</span> <span class="n">one</span> <span class="n">the</span> <span class="n">only</span> <span class="n">difference</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">char</span> <span class="n">limit</span><span class="o">.</span> <span class="n">This</span> <span class="n">time</span> <span class="n">we</span> <span class="n">have</span> <span class="n">to</span> <span class="n">do</span> <span class="nb">all</span> <span class="n">our</span> <span class="n">work</span> <span class="ow">in</span> <span class="n">just</span> <span class="mi">9</span> <span class="n">chars</span><span class="o">.</span> <span class="n">Lets</span> <span class="n">take</span> <span class="n">a</span> <span class="n">look</span> <span class="n">at</span> <span class="n">the</span> <span class="n">script</span> <span class="p">:</span>
-</span></code></pre></td></tr></table></div></figure>python
+```python
+line = input(&lsquo;>>> &rsquo;)</p>
+
+<p>flag=&ldquo;[REDACTED]&rdquo;</p>
+
+<p>if len(line) > 10:
+    raise Exception()</p>
+
+<p>try:
+    eval(line)
+except:
+    pass
+<code>``
+Basically there is an **</code>eval<code>** function which is vulnerable. You will input any python command and it will be executed. But this was not the problem, problem was that we have to print the value of variable flag by running a command whose length is less than 10 chars. Now if you simply do</code>print(flag)` it will not work and will raise an Exception. All other commands like hex(), id(), exec() etc will not work because they are functions and they return the value rather than printing it. So calling them is no good for us.</p>
+
+<p>Now you see why I am writing a writeup for this challenge. Because its so small, simple and cute yet challenging. Its a pure &ldquo;out of the box&rdquo; thinking challenge. Every beginner can approach this because it doesn&rsquo;t require a specific skillset like pwn (binary exploitation) challenges (except python but lets be honest, who doesn&rsquo;t know it 😬) .</p>
+
+<p>Well after going through my python notes and doing some research work on google I found a command <code>help()</code>. Yup! the answer was help command !!</p>
+
+<p><img src="http://zeus-hackolympus.github.io/images/boiler/image-1.png" class="center" style="width: 60%"></p>
+
+<p><strong>Flag:</strong> <code>pctf{JusT_a5k_4_h3lP!}</code></p>
+
+<p>See the most basic commands which we neglect during our learning period helped us in this challenge. After this I researched more on <code>help()</code> command and by luck next jail challenge could be done using <code>help()</code> command itself.</p>
+
+<h3>Pyjailgolf2</h3>
+
+<p>This challenge is almost same as the last one the only difference is the char limit. This time we have to do all our work in just 9 chars. Lets take a look at the script :
+```python
 line = input(&lsquo;>>> &rsquo;)</p>
 
 <p>flag=&ldquo;[REDACTED]&rdquo;</p>
@@ -157,7 +131,7 @@ Ok first lets look at the given files it was a png picture file nothing special.
 Main function of the site was to take a picture and "swirl" it so that no one can look at its contents. It was JS reverse engineering and was no big thing. I copied the source code of the site and used [https://jsfiddle.net/](https://jsfiddle.net/) to deploy it and 'fiddle' with source code side by side to see how it works.
 </code></pre>
 
-<p>const fsSource = `
+<p>const fsSource = &lsquo;
     precision highp float;</p>
 
 <pre><code>varying vec2 vPos;
@@ -190,7 +164,7 @@ void main(void) {
 }
 </code></pre>
 
-<p>  `;
+<p>  &lsquo;;
 <code>
 This was the vulnerable script I just converted the following code block :
 </code>javascript
@@ -200,17 +174,18 @@ if (dist &lt; uRadius) {
           float sina = sin(angle);
           float cosa = cos(angle);
           rotmat = mat2(cosa, sina, -sina, cosa);
-<code>
-to :
-</code>javascript
-if (dist &lt; uRadius) {
+```
+to :</p>
+
+<pre><code class="javascript">if (dist &lt; uRadius) {
           float percent = (uRadius - dist) / uRadius;
           float angle = percent * percent * -uSwirlFactor * uTime;
           float sina = sin(angle);
           float cosa = cos(angle);
           rotmat = mat2(cosa, sina, -sina, cosa);
-<code>``
-and ran the code with</code>flag.png` and we got a qrcode</p>
+</code></pre>
+
+<p>and ran the code with <code>flag.png</code> and we got a qrcode</p>
 
 <p><img src="http://zeus-hackolympus.github.io/images/boiler/canvas.png" class="center" style="width: 60%"></p>
 
