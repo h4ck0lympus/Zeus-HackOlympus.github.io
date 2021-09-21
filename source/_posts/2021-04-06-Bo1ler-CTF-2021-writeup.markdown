@@ -102,7 +102,7 @@ His script :
 int main(){
   srand(0x11C4);
 
-  printf("bctf{ %d }\\n",rand() ^ rand() ^ 0x3597B741);
+  printf("bctf{ %d }\n",rand() ^ rand() ^ 0x3597B741);
   return 0;
 }
 
@@ -121,7 +121,7 @@ Ok first lets look at the given files it was a png picture file nothing special.
 
 Main function of the site was to take a picture and "swirl" it so that no one can look at its contents. It was JS reverse engineering and was no big thing. I copied the source code of the site and used [https://jsfiddle.net/](https://jsfiddle.net/) to deploy it and 'fiddle' with source code side by side to see how it works.
 ```javascript
-const fsSource = \`
+const fsSource = `
     precision highp float;
 
     varying vec2 vPos;
@@ -134,13 +134,13 @@ const fsSource = \`
     uniform float uSwirlFactor;
 
     void main(void) {
-      vec2 uv = gl\_FragCoord.xy / uResolution.xy;
+      vec2 uv = gl_FragCoord.xy / uResolution.xy;
 
       float dist = distance(uv, vec2(0.5));
       mat2 rotmat;
       if (dist < uRadius) {
           float percent = (uRadius - dist) / uRadius;
-          float angle = percent \* percent \* uSwirlFactor \* uTime;
+          float angle = percent * percent * uSwirlFactor * uTime;
           float sina = sin(angle);
           float cosa = cos(angle);
           rotmat = mat2(cosa, sina, -sina, cosa);
@@ -148,9 +148,9 @@ const fsSource = \`
           rotmat = mat2(1, 0, 0, 1);
       }
 
-      vec2 texCoord = rotmat \* (uv - vec2(0.5)) + vec2(0.5);
+      vec2 texCoord = rotmat * (uv - vec2(0.5)) + vec2(0.5);
       vec4 diffuse = texture2D(uSampler, texCoord);
-      gl\_FragColor = diffuse;
+      gl_FragColor = diffuse;
     }
   \`;
 ```
@@ -158,7 +158,7 @@ This was the vulnerable script I just converted the following code block :
 ```javascript
 if (dist < uRadius) {
           float percent = (uRadius - dist) / uRadius;
-          float angle = percent \* percent \* uSwirlFactor \* uTime;
+          float angle = percent * percent * uSwirlFactor * uTime;
           float sina = sin(angle);
           float cosa = cos(angle);
           rotmat = mat2(cosa, sina, -sina, cosa);
@@ -167,7 +167,7 @@ to :
 ```javascript
 if (dist < uRadius) {
           float percent = (uRadius - dist) / uRadius;
-          float angle = percent \* percent \* -uSwirlFactor \* uTime;
+          float angle = percent * percent * -uSwirlFactor * uTime;
           float sina = sin(angle);
           float cosa = cos(angle);
           rotmat = mat2(cosa, sina, -sina, cosa);
