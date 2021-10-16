@@ -7,7 +7,7 @@
 
 	<meta name="author" content="Zeus"> 
 	
-	<meta name="description" content="Hello guys. This is my first tryhackme writeup so please give your honest reviews. Since I am not a professional, your honest reviews will charge my &hellip;"> <meta name="keywords" content="">
+	<meta name="description" content="Ever heard of file signatures or magic number of a file ? File Signature or magic number are special parts in the starting of hex-dump through which &hellip;"> <meta name="keywords" content="">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -40,85 +40,94 @@
     <article class="post">
 	<h2 class="title">
 		
-		<a href="/blog/2020/10/11/Brooklyn-Nine-Nine-TryHackMe/">
+		<a href="/blog/2020/10/16/Magic-Number/">
 		
-			Brooklyn Nine Nine - TryHackMe</a>
+			Magic Number</a>
 	</h2>
 	<div class="entry-content">
-		<p>Hello guys. This is my first tryhackme writeup so please give your honest reviews. Since I am not a professional, your honest reviews will charge my batteries.</p>
+		<p>Ever heard of file signatures or magic number of a file ?</p>
 
-<p>To attempt this machine go to this link : <a href="https://tryhackme.com/room/brooklynninenine">Brooklyn99</a></p>
-
-<p>So let the hacking begin.</p>
-
-<p>Lets start by doing reconnaissance.</p>
-
-<p>First, I ran a basic nmap version scan on the box.</p>
-
-<p><img src="/images/b99/image-1.png" class="center", style="width: 60%"></p>
-
-<p>As we can see there are 3 ports open. First, I went to the webpage of the machine.</p>
-
-<p><img src="/images/b99/image-2.png" class="center", style="width: 60%"></p>
-
-<p>uff, A rabbit hole I viewed the page source but i found nothing special.</p>
-
-<p>Next I inspected FTP port. I tried anonymous login and it worked:</p>
-
-<p><img src="/images/b99/image-3.png" class="center", style="width: 60%"></p>
-
-<p>And we found a file: <strong>note_to_jake.txt</strong>. I downloaded the file by using get file command</p>
-
-<p>Lets see what is written in that file:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>From Amy,Jake please change your password. It is too weak and holt will be mad if someone hacks into the nine nine</span></code></pre></td></tr></table></div></figure>
+<ul>
+<li><p>File Signature or magic number are special parts in the starting of hex-dump through which we can interpret the file type/extension</p></li>
+<li><p>We can use magic number to solve ctf challenges and forensics.</p></li>
+<li><p>Sometimes files get corrupt because there is a change in magic number. Solving this problem can un-corrupt that respective file.</p></li>
+<li><p>to see magic number we use any hexadecimal editor or viewer.</p></li>
+</ul>
 
 
-<p>Looks like we have found a vulnerable username - <strong>jake</strong></p>
+<p>for this tutorial I&rsquo;ll use xxd but windows users can use <a href="https://mh-nexus.de/en/hxd/">HxD</a>.</p>
 
-<p>lets fire up hydra and let it do the rest of the job.</p>
+<h3>xxd</h3>
 
-<p><img src="/images/b99/image-4.png" class="center", style="width: 60%">
-we have found a password lets try to connect using that password</p>
+<p>xxd is a tool to make hexdump or reverse that is convert hexdumpt to binary.</p>
 
-<p><strong>LOGIN SUCCESSFUL</strong></p>
+<p><strong>general syntax</strong>: <code>xxd &lt;flag&gt; &lt;filename&gt;</code></p>
 
-<p>Lets enumerate this machine.</p>
+<p>When no flag is given xxd, standard output is printed by xxd.</p>
 
-<p>In the user folder of jake. We found nothing interesting. I ran <strong>sudo -l</strong> command to see if I have any admin rights and yes i was right.</p>
+<p><strong>Important flags</strong>:</p>
 
-<p><img src="/images/b99/image-5.png" class="center", style="width: 60%">
-we can run <strong>less</strong> command with sudo rights.</p>
-
-<p>From here I went to <strong>holt</strong> user folder where I found user.txt but only <strong>holt</strong> could open it from his user but as we all know we have sudo privileges on less command so I viewed it with less.</p>
-
-<p><img src="/images/b99/image-6.png" class="center", style="width: 60%">
-And here we go, we found our first flag.</p>
-
-<h5><strong>Privilege Escalation</strong></h5>
-
-<p>Time for privilege escalation. In the <strong>holt</strong> user folder I found another file: <strong>nano.save</strong></p>
-
-<p>We will use this file for privilege escalation</p>
-
-<p>We will open this file with sudo privileges using less</p>
-
-<p><img src="/images/b99/image-7.png" class="center", style="width: 60%">
-We will run the following command to open shell:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>!/bin/bash</span></code></pre></td></tr></table></div></figure>
+<ul>
+<li><strong><em>-b</em></strong> - show binary dump instead of hexdump</li>
+<li><strong><em>-c</em></strong> - output is in the form of &lsquo;C&rsquo; include file style</li>
+<li><strong><em>-ps</em></strong> - detailed hexdump</li>
+</ul>
 
 
-<p><img src="/images/b99/image-8.png" class="center", style="width: 60%">
-And here we go, we got a root shell.</p>
+<p>Now I would like to introduce you to a command <strong><em>&lsquo;head&rsquo;</em></strong>.</p>
 
-<p><img src="/images/b99/image-9.png" class="center", style="width: 60%">
-Now just go to root folder and we will get <strong>root.txt</strong></p>
+<h3>Head command</h3>
 
-<p><img src="/images/b99/image-10.png" class="center", style="width: 60%">
-This is my first writeup so any suggestions will be highly appreciated</p>
+<p>This command basically outputs few starting lines of the file.</p>
+
+<p><strong>general syntax</strong>: <code>head &lt;flag&gt; &lt;file&gt;</code></p>
+
+<p>If no flag is given then by default this will print the first 10 lines of a file</p>
+
+<p><strong>important flags</strong>:</p>
+
+<ul>
+<li><strong><em>-n</em></strong> <num> - &ldquo;-n&rdquo; followed by a number, will print that respective number of lines.</li>
+<li><strong>-q</strong> - this will never print header of file containing its name</li>
+<li><strong>-c</strong> <num>- &ldquo;-c&rdquo; followed by a number will print the given number of bytes of a file from the start.</li>
+</ul>
+
+
+<p>So now you know the necessary commands lets get back to magic number.</p>
+
+<p>So as I was saying that starting bytes of a file will tell us about the extension of the file.</p>
+
+<p>so what we do with <em>xxd</em> and <em>head</em> is, we print the first few lines of hexdump. This few lines contains our magic number.We look for a special sequence of hex this special sequence is known as magic number and this will tell us the extension of file.</p>
+
+<p>You&rsquo;ll understand it more clearly by the following example.</p>
+
+<p>I have a file.</p>
+
+<p><img src="https://hackolympus.files.wordpress.com/2020/11/image-3.png?w=495" alt="" /></p>
+
+<p><img src="/images/magic-number/image-3.png"></p>
+
+<p>I don&rsquo;t know the file type so what I&rsquo;ll do, I will check its hexdump.</p>
+
+<p><img src="/images/magic-number/image-5.png"></p>
+
+<p>through its hex dump I can easily see its a jpeg file as we know that magic number for jpeg is <strong><code>ffd8 ffe0 0010 4a96</code></strong>. Sure we could have also checked this without using hexdump and using <em><strong>file</strong></em> command but file command also uses the same logic.</p>
+
+<p>But sometimes(specially in ctf challenges) hexdump is modified and file becomes corrupt hence unreadable so to fix that we modify the hashdump.</p>
+
+<p>Now lets look another example.</p>
+
+<p>I have a file named file2 I don&rsquo;t know its file type. So I use magic number to find out what file extension it has.</p>
+
+<p><img src="/images/magic-number/image-7.png"></p>
+
+<p>And there we go, we found it its a pdf file.</p>
+
+<p>I suggest you to practice with some of the files by yourself.</p>
+
+<p>Check out this link to view the file signatures of different files.</p>
+
+<p><a href="https://en.wikipedia.org/wiki/List_of_file_signatures">https://en.wikipedia.org/wiki/List_of_file_signatures</a></p>
 
 		
 		
@@ -139,12 +148,12 @@ This is my first writeup so any suggestions will be highly appreciated</p>
 
 
 
-<time datetime="2020-10-11T00:00:00+05:30" pubdate data-updated="true">Oct 11th, 2020</time></div>
+<time datetime="2020-10-16T00:00:00+05:30" pubdate data-updated="true">Oct 16th, 2020</time></div>
 	
 
 <div class="tags">
 
-	<a class='category' href='/blog/categories/ctf/'>ctf</a>, <a class='category' href='/blog/categories/easy/'>easy</a>
+	<a class='category' href='/blog/categories/forensics/'>forensics</a>
 
 </div>
 

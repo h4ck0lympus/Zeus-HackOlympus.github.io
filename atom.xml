@@ -4,7 +4,7 @@
   <title><![CDATA[Zeus@HackOlympus:~$]]></title>
   <link href="http://zeus-hackolympus.github.io/atom.xml" rel="self"/>
   <link href="http://zeus-hackolympus.github.io/"/>
-  <updated>2021-09-23T00:11:05+05:30</updated>
+  <updated>2021-10-16T22:56:06+05:30</updated>
   <id>http://zeus-hackolympus.github.io/</id>
   <author>
     <name><![CDATA[Zeus]]></name>
@@ -12,6 +12,64 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Make your task easy with bitwise operators]]></title>
+    <link href="http://zeus-hackolympus.github.io/blog/2021/10/16/make-your-task-easy-with-bitwise-operators/"/>
+    <updated>2021-10-16T20:32:09+05:30</updated>
+    <id>http://zeus-hackolympus.github.io/blog/2021/10/16/make-your-task-easy-with-bitwise-operators</id>
+    <content type="html"><![CDATA[<p><em>I&rsquo;ll keep on updating this as I find more interesting tricks</em></p>
+
+<p>So recently I was going through my notes of C programming and for some reason I wanted to see the header file for ctype.h when I discovered this easter egg:</p>
+
+<p><img src="http://zeus-hackolympus.github.io/images/ctype.png" class="center" style="width: 60%"></p>
+
+<p>Now many of you might know about this but for me this was completely new !! And it truly amazed me. So here I am, writing a short blog about it.</p>
+
+<p>Though its completely clear.</p>
+
+<h3>Fast to lowercase method</h3>
+
+<p>To convert an ascii character to lower case we can do bitwise OR with 0x20 (32) which is space charater.</p>
+
+<p>In practical :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * @author      : HackOlympus (zeus@hackolympus)</span>
+</span><span class='line'><span class="cm"> * @file        : tolower</span>
+</span><span class='line'><span class="cm"> * @created     : Saturday Oct 16, 2021 20:42:42 IST</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%c</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="sc">&#39;C&#39;</span> <span class="o">|</span> <span class="mh">0x20</span><span class="p">)</span> <span class="p">;</span>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%c</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="sc">&#39;c&#39;</span> <span class="o">|</span> <span class="mh">0x20</span><span class="p">)</span> <span class="p">;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span> <span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Bo1ler CTF -2021  writeup]]></title>
