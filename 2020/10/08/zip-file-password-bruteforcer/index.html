@@ -1,0 +1,153 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>zip file password bruteforcer  | Zeus@HackOlympus:~$</title>
+
+	<meta name="author" content="Zeus"> 
+	
+	<meta name="description" content="Sometime we know a lot about our victim. Now consider a situation where victim has created a zip file but has protected it with a password. You don’t &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Zeus@HackOlympus:~$" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><a href="/"><h1>Zeus@HackOlympus:~$</h1></a>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/archives">Archive</a></li>
+	<li><a href="/contact">Contact</a></li>
+</ul>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Zip File Password Bruteforcer</h2>
+	<div class="entry-content"><p>Sometime we know a lot about our victim. Now consider a situation where victim has created a zip file but has protected it with a password. You don’t know what exactly the password is but you surely what password he/she can use (considering you have done enough reconnaissance on your victim).</p>
+
+<p>So what to do in these kinds of situations ? Should we test the every possible password, well that’s a good option but sometimes our wordlist is so long the it becomes tedious to test them by our self. So what we can do is, we can build a simple script which will test all the password in a file and will return us the correct password.</p>
+
+<ol>
+<li>For this, we will be using Python’s built in <em><strong>zipfile</strong></em> module and sys module as we want to take arguments from the user.</li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">zipfile</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">sys</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.Now we will check if user has given correct intput or not.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">sys</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">zipfile</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Usage : python3 zipfile.py &lt;wordlist&gt; &lt;zipfile&gt;&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.If input is correct then:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">sys</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">zipfile</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Usage : python3 zipfile.py &lt;wordlist&gt; &lt;zipfile&gt;&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+</span><span class='line'>    <span class="nb">file</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span>\<span class="p">[</span><span class="mi">1</span>\<span class="p">]</span>
+</span><span class='line'>    <span class="n">zf</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span>\<span class="p">[</span><span class="mi">2</span>\<span class="p">])</span>
+</span><span class='line'>    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">words</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
+</span><span class='line'>        <span class="n">pwd</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</span><span class='line'>        <span class="k">try</span><span class="p">:</span>
+</span><span class='line'>            <span class="n">zf</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">pwd</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">pwd</span><span class="p">))</span>
+</span><span class='line'>            <span class="k">print</span><span class="p">(</span><span class="s">&quot;\[+\] Password found: {} Success&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pwd</span><span class="p">))</span>
+</span><span class='line'>            <span class="k">break</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">except</span><span class="p">:</span>
+</span><span class='line'>            <span class="k">continue</span>
+</span><span class='line'>        <span class="k">else</span><span class="p">:</span><span class="k">print</span><span class="p">(</span><span class="s">&quot;\[-\] Not Found use more dense wordlist&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now what the code does is:</p>
+
+<p>first it opens the wordlist and then executes a &lsquo;for&rsquo; loop. Through this for loop it tries string in each line as password of the file. If the password is correct, it will extract the files of the zip file and then it will extract that zip file. If not then, We&rsquo;ll have to use more dense wordlist i.e. wordlist containing more possibilities</p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2020-10-08T00:00:00+05:30" pubdate data-updated="true">Oct 8th, 2020</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/categories/python-for-pentesting/'>python-for-pentesting</a>
+
+</div>
+
+
+</div>
+</article>
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2021
+ Zeus 
+<br>
+</footer>
+	
+
+</body>
+</html>

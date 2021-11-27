@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Zeus@HackOlympus:~$]]></title>
-  <link href="http://zeus-hackolympus.github.io/atom.xml" rel="self"/>
-  <link href="http://zeus-hackolympus.github.io/"/>
-  <updated>2021-11-25T02:52:14+05:30</updated>
-  <id>http://zeus-hackolympus.github.io/</id>
+  <link href="http://hackolympus.com/atom.xml" rel="self"/>
+  <link href="http://hackolympus.com/"/>
+  <updated>2021-11-28T05:17:40+05:30</updated>
+  <id>http://hackolympus.com/</id>
   <author>
     <name><![CDATA[Zeus]]></name>
     
@@ -14,15 +14,128 @@
 
   
   <entry>
+    <title type="html"><![CDATA[x86-64 Assembly Language]]></title>
+    <link href="http://hackolympus.com/2021/11/25/x86-64-assembly-language/"/>
+    <updated>2021-11-25T10:07:42+05:30</updated>
+    <id>http://hackolympus.com/2021/11/25/x86-64-assembly-language</id>
+    <content type="html"><![CDATA[<h4>Prerequisite: Knowledge about simple programming language terms like variables, functions etc.</h4>
+
+<h3>Registers</h3>
+
+<p>ASM works a lot around registers, I try to think of them as variables which only store data types up to 8 bytes.Now there are special registers and register for general use.</p>
+
+<p>In the start (during 8 bit days) we only had 4 general purpose registers - a,b,c,d.</p>
+
+<p>And Other 2 special purpose registers - sp (stack pointer) and bp (base pointer).</p>
+
+<p>But now (in 64 bit mode) we have a total of 11 general purpose registers and 4 special purpose registers:</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align:center;"> Register </th>
+<th style="text-align:center;">          Purpose         </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">    rax   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    rbx   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    rcx   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    rdx   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r8    </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r9    </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r10   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r11   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r12   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r13   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r14   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r15   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    rsp   </td>
+<td style="text-align:center;"> Special Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    rbp   </td>
+<td style="text-align:center;"> Special Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    rsi   </td>
+<td style="text-align:center;"> Special Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    rdi   </td>
+<td style="text-align:center;"> Special Purpose Register </td>
+</tr>
+</tbody>
+</table>
+
+
+<p>In above registers &lsquo;r&rsquo; means 64 bit register. If we want to use 32 bit register we use &lsquo;e&rsquo; prefix. <strong>We can also use 32/16/8 bit registers in 64 bit mode</strong> . The following illustration will explain it clearly :</p>
+
+<p><img src="http://hackolympus.com/images/x86-64/Registers.drawio.png" class="center" style="width: 70%"></p>
+
+<h3>Syscall</h3>
+
+<p>Behind the working of every program, there are syscalls involved; These syscalls are permissions which the program ask for from the &ldquo;supreme authority&rdquo; - the kernel. Now why this happens ? Because the program does not directly run in the privileged mode for security reasons.</p>
+
+<p>In C language we have glibc that provide us functions like <code>printf</code>, <code>scanf</code> etc. which performs syscalls for us in the background.Now before making a syscall we have to set some parameters to define the syscall and its behaviour. We define the syscall using &ldquo;codes&rdquo;, for example <code>write</code> syscall has code 1 in x86-64. Now <code>write</code> takes 3 arguments: <code>fd</code>(file descriptor we have to write), <code>buf</code> (stuff we have to write), and <code>count</code> (How many characters to write). How do we know this ? using <code>man 3 write</code> which return the man page of write.</p>
+
+<p>We set these arguments using different register and all this follows a calling convention. The calling convention is as follows:</p>
+
+<p><img src="http://hackolympus.com/images/x86-64/Calling_convention.png" class="center" style="width: 60%"></p>
+
+<p>To get a list of all the syscalls : <code>cat /usr/include/x86_64-linux-gnu/asm/unistd_64.h</code> We don&rsquo;t need to remember this path. I mean if you ever forget this path simply investigate this using other techniques like preprocessor output and printing predefined standard macros like this: <code>echo SYS_write | gcc -include sys/syscall.h -E -</code> here we are just asking the compiler to return the preprocessor output to stdout.</p>
+
+<p>That&rsquo;s all folks. In next article we&rsquo;ll write our first assembly program.</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Make your task easy with bitwise operators]]></title>
-    <link href="http://zeus-hackolympus.github.io/blog/2021/10/16/make-your-task-easy-with-bitwise-operators/"/>
+    <link href="http://hackolympus.com/2021/10/16/make-your-task-easy-with-bitwise-operators/"/>
     <updated>2021-10-16T20:32:09+05:30</updated>
-    <id>http://zeus-hackolympus.github.io/blog/2021/10/16/make-your-task-easy-with-bitwise-operators</id>
+    <id>http://hackolympus.com/2021/10/16/make-your-task-easy-with-bitwise-operators</id>
     <content type="html"><![CDATA[<p><em>I&rsquo;ll keep on updating this as I find more interesting tricks</em></p>
 
 <p>So recently I was going through my notes of C programming and for some reason I wanted to see the header file for ctype.h when I discovered this easter egg:</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/ctype.png" class="center" style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/ctype.png" class="center" style="width: 60%"></p>
 
 <p>Now many of you might know about this but for me this was completely new !! And it truly amazed me. So here I am, writing a short blog about it.</p>
 
@@ -73,9 +186,9 @@
   
   <entry>
     <title type="html"><![CDATA[Bo1ler CTF -2021  writeup]]></title>
-    <link href="http://zeus-hackolympus.github.io/blog/2021/04/06/Bo1ler-CTF-2021-writeup/"/>
+    <link href="http://hackolympus.com/2021/04/06/Bo1ler-CTF-2021-writeup/"/>
     <updated>2021-04-06T00:00:00+05:30</updated>
-    <id>http://zeus-hackolympus.github.io/blog/2021/04/06/Bo1ler-CTF-2021-writeup</id>
+    <id>http://hackolympus.com/2021/04/06/Bo1ler-CTF-2021-writeup</id>
     <content type="html"><![CDATA[<p>So recently I played Bo1ler CTF. Normally I don&rsquo;t write writeups for a CTF (due to time constraints) but this time I decided to write one as I found the challenges quite good and informative for beginners like me. Well hats off to Bo1ler CTF team.</p>
 
 <p>I am writing this writeup mainly for <strong>pyjail</strong> challenges so my main focus will be on them only but I&rsquo;ll be providing the writeups for other challenges also.</p>
@@ -117,7 +230,7 @@
 
 <p>Well after going through my python notes and doing some research work on google I found a command <code>help()</code>. Yup! the answer was help command !!</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/boiler/image-1.png" class="center" style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/boiler/image-1.png" class="center" style="width: 60%"></p>
 
 <p><strong>Flag:</strong> <code>pctf{JusT_a5k_4_h3lP!}</code></p>
 
@@ -156,7 +269,7 @@
 
 <p>So as I said before this time we will use <code>help()</code> command like before but there is a little change of plans. Rather than using <code>help(flag)</code> to read the value of variable flag we will use <code>help()</code> interactive version.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/boiler/image-2.png" class="center" style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/boiler/image-2.png" class="center" style="width: 60%"></p>
 
 <p>So the,</p>
 
@@ -178,7 +291,7 @@
 
 <p>Upon opening in ghidra I found a function <code>trytorev</code>. After reading and understanding the code it was pretty obvious what it does. See for yourself:</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/boiler/image-3.png" class="center" style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/boiler/image-3.png" class="center" style="width: 60%"></p>
 
 <p>it first initializes a seed to get psedurandom number from rand function.</p>
 
@@ -188,7 +301,7 @@
 
 <p>His script :</p>
 
-<figure class='code'><figcaption><span> (boiler.c)</span> <a href='http://zeus-hackolympus.github.io/downloads/code/boiler.c'>download</a></figcaption>
+<figure class='code'><figcaption><span> (boiler.c)</span> <a href='http://hackolympus.com/downloads/code/boiler.c'>download</a></figcaption>
 <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -329,7 +442,7 @@
 
 <p>and ran the code with <code>flag.png</code> and we got a qrcode</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/boiler/canvas.png" class="center" style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/boiler/canvas.png" class="center" style="width: 60%"></p>
 
 <p>after scanning we got the flag :</p>
 
@@ -343,13 +456,13 @@
 
 <p>After opening the site It opened a page like this :</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/boiler/image-4.png" class="center" style="width: 60%">
+<p><img src="http://hackolympus.com/images/boiler/image-4.png" class="center" style="width: 60%">
 If you look closely when the page is loaded it covers some content. So I disabled the JS on my browser to check what it is and it loaded a page like this :</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/boiler/image-5.png" class="center" style="width: 60%">
+<p><img src="http://hackolympus.com/images/boiler/image-5.png" class="center" style="width: 60%">
 After visiting the link we got the flag</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/boiler/image-6.png" class="center" style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/boiler/image-6.png" class="center" style="width: 60%"></p>
 
 <p><strong>Flag</strong>: <code>bctf{annoying_but_good?}</code></p>
 
@@ -363,9 +476,9 @@ After visiting the link we got the flag</p>
   
   <entry>
     <title type="html"><![CDATA[Memory Mapping Introduction]]></title>
-    <link href="http://zeus-hackolympus.github.io/blog/2021/01/24/Memory-Mapping-Introduction/"/>
+    <link href="http://hackolympus.com/2021/01/24/Memory-Mapping-Introduction/"/>
     <updated>2021-01-24T00:00:00+05:30</updated>
-    <id>http://zeus-hackolympus.github.io/blog/2021/01/24/Memory-Mapping-Introduction</id>
+    <id>http://hackolympus.com/2021/01/24/Memory-Mapping-Introduction</id>
     <content type="html"><![CDATA[<h4><strong>Memory mapping</strong></h4>
 
 <p>Memory of computer has addresses for its smooth working. These addresses are same for everyone and does not change from use to use. The first byte is at address 0, the second byte is at address 1, and so on until the last byte of the computer&rsquo;s memory. Basically if I want to explain memory mapping in short there are memory registers that map memory. First a &ldquo;logical&rdquo; address is given to these processes which are currently running on the computer by CPU. This &ldquo;logical&rdquo; address is completely temporary and is not same for all users, its completely virtual. This process when becomes a permanent process, is assigned a &ldquo;physical&rdquo; address on the memory itself.</p>
@@ -386,7 +499,7 @@ After visiting the link we got the flag</p>
 
 <p>Now before moving ahead I would like to discuss about 2 types of memory - <strong>logical and physical</strong>. <strong>The segmentation is done in the logical part</strong> of the memory because it can vary but the <strong>pages(blocks) are the part of physical part</strong> of the memory as a block size remains constant.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/process-memory-dia.png" align="left">
+<p><img src="http://hackolympus.com/images/process-memory-dia.png" align="left">
 <br></p>
 
 <p><strong>Text</strong> - In assembly text segment is indicated by <code>.text</code> , It contains the machine instructions of a program. It basically tells the story of what program does.</p>
@@ -425,20 +538,20 @@ After visiting the link we got the flag</p>
 <span class='line-number'>14</span>
 <span class='line-number'>15</span>
 </pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="na">.section</span> <span class="no">.text</span>
-</span><span class='line'>    <span class="na">.intel_syntax</span> <span class="no">noprefix</span>
+</span><span class='line'>    <span class="no">.intel_syntax</span> <span class="no">noprefix</span>
 </span><span class='line'>    <span class="no">.global</span> <span class="no">_start</span>
-</span><span class='line'>    <span class="nl">_start:</span>
+</span><span class='line'>    <span class="no">_start</span><span class="p">:</span>
 </span><span class='line'>        <span class="nf">mov</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">1</span>
-</span><span class='line'>        <span class="nf">mov</span> <span class="no">rdi</span><span class="p">,</span> <span class="mi">1</span>
-</span><span class='line'>        <span class="nf">lea</span> <span class="no">rsi</span><span class="p">,</span> <span class="err">[</span><span class="no">rip</span><span class="err">+</span><span class="no">msg</span><span class="err">]</span>
-</span><span class='line'>        <span class="nf">mov</span> <span class="no">rdx</span><span class="p">,</span> <span class="mi">13</span>
+</span><span class='line'>        <span class="no">lea</span> <span class="no">rsi</span><span class="p">,</span> <span class="err">[</span><span class="no">rip</span><span class="err">+</span><span class="no">str</span><span class="err">]</span>
+</span><span class='line'>        <span class="no">mov</span> <span class="no">rdx</span><span class="p">,</span> <span class="mi">13</span>
 </span><span class='line'>        <span class="nf">syscall</span>
 </span><span class='line'>
-</span><span class='line'>        <span class="nf">mov</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">60</span>
-</span><span class='line'>        <span class="nf">mov</span> <span class="no">rdi</span><span class="p">,</span> <span class="mi">0</span>
+</span><span class='line'>        <span class="no">mov</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">60</span>
+</span><span class='line'>        <span class="no">mov</span> <span class="no">rdi</span><span class="p">,</span> <span class="mi">0</span>
 </span><span class='line'>        <span class="nf">syscall</span>
-</span><span class='line'>    <span class="nl">msg:</span>
-</span><span class='line'>        <span class="na">.ascii</span> <span class="s">&quot;Hello world\n\0&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="no">str</span><span class="p">:</span>
+</span><span class='line'>        <span class="na">.string</span> <span class="s">&quot;Hello world\n&quot;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -469,14 +582,14 @@ After visiting the link we got the flag</p>
   
   <entry>
     <title type="html"><![CDATA[Introduction To Assembly Language]]></title>
-    <link href="http://zeus-hackolympus.github.io/blog/2021/01/24/Introduction-To-Assembly-Language/"/>
+    <link href="http://hackolympus.com/2021/01/24/Introduction-To-Assembly-Language/"/>
     <updated>2021-01-24T00:00:00+05:30</updated>
-    <id>http://zeus-hackolympus.github.io/blog/2021/01/24/Introduction-To-Assembly-Language</id>
+    <id>http://hackolympus.com/2021/01/24/Introduction-To-Assembly-Language</id>
     <content type="html"><![CDATA[<p>Every Computer has a processor, that processor as we have already guessed by its name, processes the information given to the computer. It performs basic operations like arithmetic calculations, logical and control operations for the computer. This processor understands 1s and 0s but for us humans to write code in 1s and 0s is very difficult and tedious so for this purpose assembly language was introduced. Assembly language makes it easy for us to communicate with computer and understand it more clearly.</p>
 
 <p>Assembly language is often called <em>symbolic machine code</em>. It consists of a lot of short forms which is converted to machine language(1s and 0s) when passed through assembler. The following image was found online on the net, it will help you all to understand this concept more clearly.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/Assembly-Language-vs-Machine-Language-1.png" class="center" style="width: 50%"></p>
+<p><img src="http://hackolympus.com/images/Assembly-Language-vs-Machine-Language-1.png" class="center" style="width: 50%"></p>
 
 <p>The above process of converting assembly language to machine code is called as <strong><em>assembly</em></strong>.</p>
 
@@ -516,9 +629,9 @@ After visiting the link we got the flag</p>
   
   <entry>
     <title type="html"><![CDATA[Mr.Robot - TryHackMe]]></title>
-    <link href="http://zeus-hackolympus.github.io/blog/2020/11/17/mr-Robot-TryHackMe/"/>
+    <link href="http://hackolympus.com/2020/11/17/mr-Robot-TryHackMe/"/>
     <updated>2020-11-17T00:00:00+05:30</updated>
-    <id>http://zeus-hackolympus.github.io/blog/2020/11/17/mr-Robot-TryHackMe</id>
+    <id>http://hackolympus.com/2020/11/17/mr-Robot-TryHackMe</id>
     <content type="html"><![CDATA[<p>Hello guys, Mr.Robot is one of my most favorite series and today we will be solving its CTF.</p>
 
 <p><strong>Level - Medium</strong></p>
@@ -531,7 +644,7 @@ After visiting the link we got the flag</p>
 
 <p>First lets start with <strong>reconnaissance</strong> therefore a <strong><em>nmap scan</em></strong>.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/21.png" class="center" style="width: 70%"></p>
+<p><img src="http://hackolympus.com/images/MrRobot/21.png" class="center" style="width: 70%"></p>
 
 <p>Image of nmap scan</p>
 
@@ -539,7 +652,7 @@ After visiting the link we got the flag</p>
 
 <p>Lets head to the Webserver.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/22.png" class="center" style="width: 70%"></p>
+<p><img src="http://hackolympus.com/images/MrRobot/22.png" class="center" style="width: 70%"></p>
 
 <p>Well, as expected from this CTF box, we got a cool, terminal look webpage.</p>
 
@@ -563,20 +676,20 @@ After visiting the link we got the flag</p>
 
 <p>I went to all the sceptical URL&rsquo;s like <em>license, login, phpmyadmin</em> etc. and most of them provided me some good results and hints that we are looking in the right direction. Like the license one:</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/24.png" class="center" style="width: 70%">
+<p><img src="http://hackolympus.com/images/MrRobot/24.png" class="center" style="width: 70%">
 Or the readme :</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/25.png" class="center" style="width: 70%">
+<p><img src="http://hackolympus.com/images/MrRobot/25.png" class="center" style="width: 70%">
 Well, I think you all have got an idea from where we&rsquo;ll be getting the best results and if not, don&rsquo;t worry as it is <em><strong>robots</strong></em> file of the webserver.</p>
 
 <h5>The Robots file</h5>
 
 <p>When going at <strong>robots</strong> file:</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/26.png" class="center" style="width: 70%">
+<p><img src="http://hackolympus.com/images/MrRobot/26.png" class="center" style="width: 70%">
 We see two locations on the webserver which were not discovered before. Now, here <em><strong>fsocity.dic</strong></em> is a wordlist and <strong>key-1-of-3.txt</strong> will reveal our first flag.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/27.png" class="center" style="width: 70%">
+<p><img src="http://hackolympus.com/images/MrRobot/27.png" class="center" style="width: 70%">
 Now, we have got a dictionary. Lets use it somewhere. I know that I can&rsquo;t use it for <em>ssh</em> brute forcing as the port is closed, so only one place is left where it can be used i.e., <em>the wordpress admin panel.</em></p>
 
 <p>Now, the <em><strong>.dic</strong></em> file is of around 5 MB which means approx. 5 lakh usernames and password respectively to try out but we don&rsquo;t have that much time, we&rsquo;ll have to filter our possibilities. If somehow we get to know the username, 50% of the total possibilities can be reduced, that&rsquo;s a lot of reduction and time saving.</p>
@@ -585,19 +698,19 @@ Now, we have got a dictionary. Lets use it somewhere. I know that I can&rsquo;t 
 
 <p>You can compare the sizes before and after the filter operation.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/30.png" class="center" style="width: 70%">
+<p><img src="http://hackolympus.com/images/MrRobot/30.png" class="center" style="width: 70%">
 So lets see how I enumerated the right user from the dictionary file.</p>
 
 <p>I passed a lot of random credential pair like admin:admin , user:pass etc that are very common and I got common response: <em><strong>invalid username</strong></em>.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/29.png" class="center" style="width: 70%">
+<p><img src="http://hackolympus.com/images/MrRobot/29.png" class="center" style="width: 70%">
 I used this to enumerate the correct user using <strong><em>hydra</em></strong> tool. <strong><em>Hydra</em></strong> is a tool through which we can brute force password for different services.</p>
 
 <p>We have got an idea that the &lsquo;<em>F</em>&rsquo; parameter of hydra command is <em>Invalid Username</em>. If username would have been correct, It wouldn&rsquo;t have shown us this message instead, it would have given us a message regarding <em>invalid password</em>.</p>
 
 <p>I&rsquo;ll gather the required information using <em>burp suite.</em></p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/31.png" class="center" style="width: 70%">
+<p><img src="http://hackolympus.com/images/MrRobot/31.png" class="center" style="width: 70%">
 From the above data our command will be:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -606,36 +719,36 @@ From the above data our command will be:</p>
 
 <p>After some time:</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/32.png" class="center" style="width: 70%"></p>
+<p><img src="http://hackolympus.com/images/MrRobot/32.png" class="center" style="width: 70%"></p>
 
 <p>As you can see we found 3 usernames.</p>
 
 <p>Lets run this <strong><em>Hydra</em></strong> again using username <strong><em>elliot</em></strong> but this time we will be using our wordlist in password field.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/33.png" class="center" style="width: 70%">
+<p><img src="http://hackolympus.com/images/MrRobot/33.png" class="center" style="width: 70%">
 So there we go, we found out the password of user <strong>elliot</strong>.</p>
 
 <p>We have now got full control over the wordpress website. Lets see how can we exploit this to gain control over the system.</p>
 
 <p>After exploring the wordpress dashboard, I explored that we can change the code of pre uploaded php files. I changed the code of one of the php file and changed it to already provided php-reverse-shell code in <strong><em>/usr/share/webshells/php</em></strong> directory. I copy-pasted the code after doing the required changes (host IP and port) and started a <strong><em>nc</em></strong> (<em>netcat listener</em>) .</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/34.png" class="center" style="width: 70%">
+<p><img src="http://hackolympus.com/images/MrRobot/34.png" class="center" style="width: 70%">
 Visit the page that you have edited and get back to <strong><em>nc</em></strong> reverse shell and you&rsquo;ll see we have got back our reverse shell.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/35.png" class="center" style="width: 70%"></p>
+<p><img src="http://hackolympus.com/images/MrRobot/35.png" class="center" style="width: 70%"></p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/36.png" class="center" style="width: 70%">
+<p><img src="http://hackolympus.com/images/MrRobot/36.png" class="center" style="width: 70%">
 <strong>Note</strong>: <em>If you are unable to get a reverse shell, probably it is because of host&rsquo;s firewall.</em></p>
 
 <p>At last, we have got a reverse shell. I navigated to the <strong>home</strong> directory where I found a user named <strong>robot</strong>. I checked his directory and I can see that we have successfully found our 2nd flag but we don&rsquo;t have the permission to read it. We have another file that basically contains the credential pair of robot user. But, here the password is encrypted.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/37.png" class="center" style="width: 70%">
+<p><img src="http://hackolympus.com/images/MrRobot/37.png" class="center" style="width: 70%">
 Lets try to Identify the hash type using <strong>hashid</strong> command. The top 3 possibilities are MD2, MD5 and MD4. I cracked the hash using this site: <a href="https://crackstation.net/">crackstation</a></p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/38.png" class="center" style="width: 70%">
+<p><img src="http://hackolympus.com/images/MrRobot/38.png" class="center" style="width: 70%">
 I changed the user to robot using <strong>su</strong> command. User <strong>robot</strong> can read that file and there we go we found our <strong>2nd flag</strong>.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/40.png" class="center" style="width: 70%"></p>
+<p><img src="http://hackolympus.com/images/MrRobot/40.png" class="center" style="width: 70%"></p>
 
 <p>Now, I want the root access of the system and for that I&rsquo;ll have to do <strong>privilege escalation.</strong></p>
 
@@ -645,12 +758,12 @@ I changed the user to robot using <strong>su</strong> command. User <strong>robo
 
 <p>I saw the privilege escalation of nmap from <a href="https://gtfobins.github.io/gtfobins/nmap/">gtfobins</a>. So, I tried the privilege escalation and bingo !! We did it.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/41.png" class="center" style="width: 70%">
+<p><img src="http://hackolympus.com/images/MrRobot/41.png" class="center" style="width: 70%">
 We now have root access !</p>
 
 <p>I found the third flag in the root directory.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/MrRobot/42.png" class="center" style="width: 70%"></p>
+<p><img src="http://hackolympus.com/images/MrRobot/42.png" class="center" style="width: 70%"></p>
 
 <hr />
 
@@ -660,9 +773,9 @@ We now have root access !</p>
   
   <entry>
     <title type="html"><![CDATA[Gotta Catch'em All! TryHackMe WriteUp]]></title>
-    <link href="http://zeus-hackolympus.github.io/blog/2020/11/13/Gotta-Catch-em-All-TryHackMe-writeUp/"/>
+    <link href="http://hackolympus.com/2020/11/13/Gotta-Catch-em-All-TryHackMe-writeUp/"/>
     <updated>2020-11-13T00:00:00+05:30</updated>
-    <id>http://zeus-hackolympus.github.io/blog/2020/11/13/Gotta-Catch-em-All-TryHackMe-writeUp</id>
+    <id>http://hackolympus.com/2020/11/13/Gotta-Catch-em-All-TryHackMe-writeUp</id>
     <content type="html"><![CDATA[<p>Hello guys, I am not a professional so feedback will be appreciated.</p>
 
 <p><strong>level - very easy</strong></p>
@@ -673,17 +786,17 @@ We now have root access !</p>
 
 <p>Lets start with a nmap scan on the box.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/gottacatchemallTHM/8.png" class="center" style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/gottacatchemallTHM/8.png" class="center" style="width: 60%"></p>
 
 <p>As you can see we found port <strong>22 (ssh) and 80 (webserver)</strong> open.</p>
 
 <p>As usual we go to the webpage and we found Apache default webpage running on it.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/gottacatchemallTHM/9.png" class="center" style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/gottacatchemallTHM/9.png" class="center" style="width: 60%"></p>
 
 <p>now I started inspecting elements and believe me this step took me a great amount of time. The author was very clever, he/she camouflaged the ssh credentials in inspect element itself just above the &ldquo;check the console&rdquo; comment</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/gottacatchemallTHM/10.png" class="center" style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/gottacatchemallTHM/10.png" class="center" style="width: 60%"></p>
 
 <p>It was right in front of my eyes all the time but I was not able to find it but at last we found it.</p>
 
@@ -691,13 +804,13 @@ We now have root access !</p>
 
 <p>In <em><strong>Desktop</strong></em> directory I found a zip file. I unzip it and we found our first flag but its encoded and it looks like its in <strong>hex.</strong></p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/gottacatchemallTHM/16.png" class="center" style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/gottacatchemallTHM/16.png" class="center" style="width: 60%"></p>
 
 <p>I decoded this using this webite:</p>
 
 <p><a href="https://www.asciitohex.com/">https://www.asciitohex.com/</a></p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/gottacatchemallTHM/17.png" class="center" style="width: 60%">
+<p><img src="http://hackolympus.com/images/gottacatchemallTHM/17.png" class="center" style="width: 60%">
 So here we go our first flag.</p>
 
 <p>After finding first flag I looked more into the home directory for some other interesting stuff and in videos I accessed a couple of subfolders after that I found a &lsquo;.cplusplus&rsquo; file.</p>
@@ -706,7 +819,7 @@ So here we go our first flag.</p>
 
 <p><img src="https://hackolympus.files.wordpress.com/2020/11/image-12.png?w=1024" alt="" /></p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/gottacatchemallTHM/12.png" class="center" style="width: 60%">
+<p><img src="http://hackolympus.com/images/gottacatchemallTHM/12.png" class="center" style="width: 60%">
 Now exit from ssh and login into user ash.</p>
 
 <p>ash had a un-interactive shell</p>
@@ -715,14 +828,14 @@ Now exit from ssh and login into user ash.</p>
 
 <p>so I took no time to change my user into root.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/gottacatchemallTHM/18.png" class="center" style="width: 60%">
+<p><img src="http://hackolympus.com/images/gottacatchemallTHM/18.png" class="center" style="width: 60%">
 Now we know that all flags are in this machine, we just have to search for it.</p>
 
 <p>So I began my search and I found 2nd flag in in webserver folder in <em><strong>/var/www/html</strong></em></p>
 
 <p>now if we run cat command we see</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/gottacatchemallTHM/14.png" class="center" style="width: 60%">
+<p><img src="http://hackolympus.com/images/gottacatchemallTHM/14.png" class="center" style="width: 60%">
 Now this is encoded and if you look closely it appears that words are rotated so its a rot algorithm. So I used the following site to decode it:</p>
 
 <p>and there we go we found our second flag.</p>
@@ -731,7 +844,7 @@ Now this is encoded and if you look closely it appears that words are rotated so
 
 <p>so if we decode it the rot 1 gives us understandable results</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/gottacatchemallTHM/15.png" class="center" style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/gottacatchemallTHM/15.png" class="center" style="width: 60%"></p>
 
 <p>I looked into <em><strong>ash user</strong></em> folder but I found nothing interesting over there.</p>
 
@@ -743,11 +856,11 @@ Now this is encoded and if you look closely it appears that words are rotated so
 
 <p>so I ran the <em><strong>find</strong></em> command</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/gottacatchemallTHM/19.png" class="center" style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/gottacatchemallTHM/19.png" class="center" style="width: 60%"></p>
 
 <p>reading the above file we found that its also encoded and its base64 so I decoded it and we found our last flag.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/gottacatchemallTHM/20.png" class="center" style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/gottacatchemallTHM/20.png" class="center" style="width: 60%"></p>
 
 <p>Hope you enjoyed this writeup. Thanks all for reading.</p>
 
@@ -757,9 +870,9 @@ Now this is encoded and if you look closely it appears that words are rotated so
   
   <entry>
     <title type="html"><![CDATA[Linux Basics Part- 2]]></title>
-    <link href="http://zeus-hackolympus.github.io/blog/2020/11/11/Linux-Basics-Part-2/"/>
+    <link href="http://hackolympus.com/2020/11/11/Linux-Basics-Part-2/"/>
     <updated>2020-11-11T00:00:00+05:30</updated>
-    <id>http://zeus-hackolympus.github.io/blog/2020/11/11/Linux-Basics-Part-2</id>
+    <id>http://hackolympus.com/2020/11/11/Linux-Basics-Part-2</id>
     <content type="html"><![CDATA[<p><strong>Before beginning, I suggest all the readers, to try the following commands yourself as you read them</strong>.</p>
 
 <h5><strong>Advanced File operators</strong></h5>
@@ -786,7 +899,7 @@ chmod  allows to set different permissions for a file, and control who can read
 
 <p>if we want to give <strong>only execution rights to everyone</strong> (except user and group) <strong>3rd digit of chmod permissions will be 1</strong>.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/linux-basics-2/image-2.png" class="center" style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/linux-basics-2/image-2.png" class="center" style="width: 60%"></p>
 
 <p><strong>So our command will be: <em>chmod 751 <file>.</em></strong></p>
 
@@ -1028,9 +1141,9 @@ chmod  allows to set different permissions for a file, and control who can read
   
   <entry>
     <title type="html"><![CDATA[Linux Basics Part-1]]></title>
-    <link href="http://zeus-hackolympus.github.io/blog/2020/11/10/Linux-Basics-Part-1/"/>
+    <link href="http://hackolympus.com/2020/11/10/Linux-Basics-Part-1/"/>
     <updated>2020-11-10T00:00:00+05:30</updated>
-    <id>http://zeus-hackolympus.github.io/blog/2020/11/10/Linux-Basics-Part-1</id>
+    <id>http://hackolympus.com/2020/11/10/Linux-Basics-Part-1</id>
     <content type="html"><![CDATA[<p><strong>Before beginning, I suggest all the readers, to try the following commands yourself as you read them.</strong></p>
 
 <h3>Man</h3>
@@ -1071,7 +1184,7 @@ chmod  allows to set different permissions for a file, and control who can read
 
 <p>we use &lsquo;./&rsquo; followed by the name of the file to run the file in Linux.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/linux-basics-1/image.png" class="center" style="width:60%"></p>
+<p><img src="http://hackolympus.com/images/linux-basics-1/image.png" class="center" style="width:60%"></p>
 
 <h3>su</h3>
 
@@ -1111,7 +1224,7 @@ chmod  allows to set different permissions for a file, and control who can read
 
 <p><strong>wc (word count)</strong> - used to count total number of words and lines in a file</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/linux-basics-1/wc.png" class="center" style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/linux-basics-1/wc.png" class="center" style="width: 60%"></p>
 
 <p><strong>First Column</strong> − Represents the <strong>total number of lines in the file</strong>.</p>
 
@@ -1139,9 +1252,9 @@ chmod  allows to set different permissions for a file, and control who can read
   
   <entry>
     <title type="html"><![CDATA[Magic Number]]></title>
-    <link href="http://zeus-hackolympus.github.io/blog/2020/10/16/Magic-Number/"/>
+    <link href="http://hackolympus.com/2020/10/16/Magic-Number/"/>
     <updated>2020-10-16T00:00:00+05:30</updated>
-    <id>http://zeus-hackolympus.github.io/blog/2020/10/16/Magic-Number</id>
+    <id>http://hackolympus.com/2020/10/16/Magic-Number</id>
     <content type="html"><![CDATA[<p>Ever heard of file signatures or magic number of a file ?</p>
 
 <ul>
@@ -1202,11 +1315,11 @@ chmod  allows to set different permissions for a file, and control who can read
 
 <p><img src="https://hackolympus.files.wordpress.com/2020/11/image-3.png?w=495" alt="" /></p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/magic-number/image-3.png"></p>
+<p><img src="http://hackolympus.com/images/magic-number/image-3.png"></p>
 
 <p>I don&rsquo;t know the file type so what I&rsquo;ll do, I will check its hexdump.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/magic-number/image-5.png"></p>
+<p><img src="http://hackolympus.com/images/magic-number/image-5.png"></p>
 
 <p>through its hex dump I can easily see its a jpeg file as we know that magic number for jpeg is <strong><code>ffd8 ffe0 0010 4a96</code></strong>. Sure we could have also checked this without using hexdump and using <em><strong>file</strong></em> command but file command also uses the same logic.</p>
 
@@ -1216,7 +1329,7 @@ chmod  allows to set different permissions for a file, and control who can read
 
 <p>I have a file named file2 I don&rsquo;t know its file type. So I use magic number to find out what file extension it has.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/magic-number/image-7.png"></p>
+<p><img src="http://hackolympus.com/images/magic-number/image-7.png"></p>
 
 <p>And there we go, we found it its a pdf file.</p>
 
@@ -1230,9 +1343,9 @@ chmod  allows to set different permissions for a file, and control who can read
   
   <entry>
     <title type="html"><![CDATA[Brooklyn Nine Nine - TryHackMe]]></title>
-    <link href="http://zeus-hackolympus.github.io/blog/2020/10/11/Brooklyn-Nine-Nine-TryHackMe/"/>
+    <link href="http://hackolympus.com/2020/10/11/Brooklyn-Nine-Nine-TryHackMe/"/>
     <updated>2020-10-11T00:00:00+05:30</updated>
-    <id>http://zeus-hackolympus.github.io/blog/2020/10/11/Brooklyn-Nine-Nine-TryHackMe</id>
+    <id>http://hackolympus.com/2020/10/11/Brooklyn-Nine-Nine-TryHackMe</id>
     <content type="html"><![CDATA[<p>Hello guys. This is my first tryhackme writeup so please give your honest reviews. Since I am not a professional, your honest reviews will charge my batteries.</p>
 
 <p>To attempt this machine go to this link : <a href="https://tryhackme.com/room/brooklynninenine">Brooklyn99</a></p>
@@ -1243,17 +1356,17 @@ chmod  allows to set different permissions for a file, and control who can read
 
 <p>First, I ran a basic nmap version scan on the box.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/b99/image-1.png" class="center", style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/b99/image-1.png" class="center", style="width: 60%"></p>
 
 <p>As we can see there are 3 ports open. First, I went to the webpage of the machine.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/b99/image-2.png" class="center", style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/b99/image-2.png" class="center", style="width: 60%"></p>
 
 <p>uff, A rabbit hole I viewed the page source but i found nothing special.</p>
 
 <p>Next I inspected FTP port. I tried anonymous login and it worked:</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/b99/image-3.png" class="center", style="width: 60%"></p>
+<p><img src="http://hackolympus.com/images/b99/image-3.png" class="center", style="width: 60%"></p>
 
 <p>And we found a file: <strong>note_to_jake.txt</strong>. I downloaded the file by using get file command</p>
 
@@ -1267,7 +1380,7 @@ chmod  allows to set different permissions for a file, and control who can read
 
 <p>lets fire up hydra and let it do the rest of the job.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/b99/image-4.png" class="center", style="width: 60%">
+<p><img src="http://hackolympus.com/images/b99/image-4.png" class="center", style="width: 60%">
 we have found a password lets try to connect using that password</p>
 
 <p><strong>LOGIN SUCCESSFUL</strong></p>
@@ -1276,12 +1389,12 @@ we have found a password lets try to connect using that password</p>
 
 <p>In the user folder of jake. We found nothing interesting. I ran <strong>sudo -l</strong> command to see if I have any admin rights and yes i was right.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/b99/image-5.png" class="center", style="width: 60%">
+<p><img src="http://hackolympus.com/images/b99/image-5.png" class="center", style="width: 60%">
 we can run <strong>less</strong> command with sudo rights.</p>
 
 <p>From here I went to <strong>holt</strong> user folder where I found user.txt but only <strong>holt</strong> could open it from his user but as we all know we have sudo privileges on less command so I viewed it with less.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/b99/image-6.png" class="center", style="width: 60%">
+<p><img src="http://hackolympus.com/images/b99/image-6.png" class="center", style="width: 60%">
 And here we go, we found our first flag.</p>
 
 <h5><strong>Privilege Escalation</strong></h5>
@@ -1292,29 +1405,29 @@ And here we go, we found our first flag.</p>
 
 <p>We will open this file with sudo privileges using less</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/b99/image-7.png" class="center", style="width: 60%">
+<p><img src="http://hackolympus.com/images/b99/image-7.png" class="center", style="width: 60%">
 We will run the following command to open shell:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>!/bin/bash</span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://zeus-hackolympus.github.io/images/b99/image-8.png" class="center", style="width: 60%">
+<p><img src="http://hackolympus.com/images/b99/image-8.png" class="center", style="width: 60%">
 And here we go, we got a root shell.</p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/b99/image-9.png" class="center", style="width: 60%">
+<p><img src="http://hackolympus.com/images/b99/image-9.png" class="center", style="width: 60%">
 Now just go to root folder and we will get <strong>root.txt</strong></p>
 
-<p><img src="http://zeus-hackolympus.github.io/images/b99/image-10.png" class="center", style="width: 60%">
+<p><img src="http://hackolympus.com/images/b99/image-10.png" class="center", style="width: 60%">
 This is my first writeup so any suggestions will be highly appreciated</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[zip file password bruteforcer]]></title>
-    <link href="http://zeus-hackolympus.github.io/blog/2020/10/08/zip-file-password-bruteforcer/"/>
+    <link href="http://hackolympus.com/2020/10/08/zip-file-password-bruteforcer/"/>
     <updated>2020-10-08T00:00:00+05:30</updated>
-    <id>http://zeus-hackolympus.github.io/blog/2020/10/08/zip-file-password-bruteforcer</id>
+    <id>http://hackolympus.com/2020/10/08/zip-file-password-bruteforcer</id>
     <content type="html"><![CDATA[<p>Sometime we know a lot about our victim. Now consider a situation where victim has created a zip file but has protected it with a password. You don’t know what exactly the password is but you surely what password he/she can use (considering you have done enough reconnaissance on your victim).</p>
 
 <p>So what to do in these kinds of situations ? Should we test the every possible password, well that’s a good option but sometimes our wordlist is so long the it becomes tedious to test them by our self. So what we can do is, we can build a simple script which will test all the password in a file and will return us the correct password.</p>

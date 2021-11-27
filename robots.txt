@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: 
 
-Sitemap: http://zeus-hackolympus.github.io/sitemap.xml 
+Sitemap: http://hackolympus.com/sitemap.xml 
