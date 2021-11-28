@@ -1,0 +1,167 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Gotta Catch'em All! TryHackMe WriteUp  | Zeus@HackOlympus:~$</title>
+
+	<meta name="author" content="Zeus"> 
+	
+	<meta name="description" content="Hello guys, I am not a professional so feedback will be appreciated. level - very easy You can attempt this CTF challenge here: Gotta Catch em' all &hellip;"> <meta name="keywords" content="">
+    
+    <meta name="keywords" content="" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Zeus@HackOlympus:~$" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><a href="/"><h1>Zeus@HackOlympus:~$</h1></a>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/archives">Archive</a></li>
+	<li><a href="/contact">Contact</a></li>
+</ul>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Gotta Catch'em All! TryHackMe WriteUp</h2>
+	<div class="entry-content"><p>Hello guys, I am not a professional so feedback will be appreciated.</p>
+
+<p><strong>level - very easy</strong></p>
+
+<p><strong>You can attempt this CTF challenge here</strong>: <a href="https://tryhackme.com/room/pokemon">Gotta Catch em' all</a></p>
+
+<p>So let the hacking begin.</p>
+
+<p>Lets start with a nmap scan on the box.</p>
+
+<p><img src="/images/gottacatchemallTHM/8.png" class="center" style="width: 60%"></p>
+
+<p>As you can see we found port <strong>22 (ssh) and 80 (webserver)</strong> open.</p>
+
+<p>As usual we go to the webpage and we found Apache default webpage running on it.</p>
+
+<p><img src="/images/gottacatchemallTHM/9.png" class="center" style="width: 60%"></p>
+
+<p>now I started inspecting elements and believe me this step took me a great amount of time. The author was very clever, he/she camouflaged the ssh credentials in inspect element itself just above the &ldquo;check the console&rdquo; comment</p>
+
+<p><img src="/images/gottacatchemallTHM/10.png" class="center" style="width: 60%"></p>
+
+<p>It was right in front of my eyes all the time but I was not able to find it but at last we found it.</p>
+
+<p>lets login through ssh with the found credentials.</p>
+
+<p>In <em><strong>Desktop</strong></em> directory I found a zip file. I unzip it and we found our first flag but its encoded and it looks like its in <strong>hex.</strong></p>
+
+<p><img src="/images/gottacatchemallTHM/16.png" class="center" style="width: 60%"></p>
+
+<p>I decoded this using this webite:</p>
+
+<p><a href="https://www.asciitohex.com/">https://www.asciitohex.com/</a></p>
+
+<p><img src="/images/gottacatchemallTHM/17.png" class="center" style="width: 60%">
+So here we go our first flag.</p>
+
+<p>After finding first flag I looked more into the home directory for some other interesting stuff and in videos I accessed a couple of subfolders after that I found a &lsquo;.cplusplus&rsquo; file.</p>
+
+<p>I looked into it and voilà we found credentials for other user- <em>ash</em>.</p>
+
+<p><img src="https://hackolympus.files.wordpress.com/2020/11/image-12.png?w=1024" alt="" /></p>
+
+<p><img src="/images/gottacatchemallTHM/12.png" class="center" style="width: 60%">
+Now exit from ssh and login into user ash.</p>
+
+<p>ash had a un-interactive shell</p>
+
+<p>I checked my <strong>sudo</strong> privileges and here we go we can use all sudo commands for this user.</p>
+
+<p>so I took no time to change my user into root.</p>
+
+<p><img src="/images/gottacatchemallTHM/18.png" class="center" style="width: 60%">
+Now we know that all flags are in this machine, we just have to search for it.</p>
+
+<p>So I began my search and I found 2nd flag in in webserver folder in <em><strong>/var/www/html</strong></em></p>
+
+<p>now if we run cat command we see</p>
+
+<p><img src="/images/gottacatchemallTHM/14.png" class="center" style="width: 60%">
+Now this is encoded and if you look closely it appears that words are rotated so its a rot algorithm. So I used the following site to decode it:</p>
+
+<p>and there we go we found our second flag.</p>
+
+<p><a href="http://theblob.org/rot.cgi">http://theblob.org/rot.</a><a href="http://theblob.org/rot.cgi">cgi</a></p>
+
+<p>so if we decode it the rot 1 gives us understandable results</p>
+
+<p><img src="/images/gottacatchemallTHM/15.png" class="center" style="width: 60%"></p>
+
+<p>I looked into <em><strong>ash user</strong></em> folder but I found nothing interesting over there.</p>
+
+<p>I searched into <strong>/home</strong> directory and I found <strong>roots-pokemon.txt</strong></p>
+
+<p>I looked into it and we found the answer of <strong>task4 root&rsquo;s favorite pokemon.</strong></p>
+
+<p>So I searched more but I could not find the last flag.</p>
+
+<p>so I ran the <em><strong>find</strong></em> command</p>
+
+<p><img src="/images/gottacatchemallTHM/19.png" class="center" style="width: 60%"></p>
+
+<p>reading the above file we found that its also encoded and its base64 so I decoded it and we found our last flag.</p>
+
+<p><img src="/images/gottacatchemallTHM/20.png" class="center" style="width: 60%"></p>
+
+<p>Hope you enjoyed this writeup. Thanks all for reading.</p>
+
+<p>Again I am not a professional so feedback is much appreciated.</p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2020-11-13T00:00:00+05:30" pubdate data-updated="true">Nov 13th, 2020</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='//blog/categories/ctf/'>ctf</a>, <a class='category' href='//blog/categories/easy/'>easy</a>
+
+</div>
+
+
+</div>
+</article>
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2021
+ Zeus 
+<br>
+</footer>
+	
+
+</body>
+</html>
