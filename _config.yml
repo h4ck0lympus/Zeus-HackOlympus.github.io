@@ -1,14 +1,13 @@
-# ----------------------- #
+#----------------------- #
 #      Main Configs       #
 # ----------------------- #
 
-url: http://zeus-hackolympus.github.io
+url: http://hackolympus.com
 title: Zeus@HackOlympus:~$ 
 subtitle: A Computer Science blog
 author: Zeus
 simple_search: https://www.google.com/search
-description:
-
+description: 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
 # http://www.ruby-doc.org/core-1.9.2/Time.html#method-i-strftime
@@ -21,9 +20,13 @@ subscribe_email:
 # RSS feeds can list your email address if you like
 email: 
 
+#  /blog/:year/:month/:day/:title/
 # ----------------------- #
 #    Jekyll & Plugins     #
 # ----------------------- #
+
+gems:
+  - octopress-paginate
 
 # If publishing to a subdirectory as in http://site.com/project set 'root: /project'
 root: /
@@ -32,7 +35,7 @@ source: source
 destination: public
 plugins: plugins
 code_dir: downloads/code
-category_dir: blog/categories
+category_dir: /blog/categories
 markdown: rdiscount
 rdiscount:
   extensions:
@@ -40,6 +43,7 @@ rdiscount:
     - footnotes
     - smart
 highlighter: pygments # default python pygments have been replaced by pygments.rb
+sitemap: true
 
 paginate: 1          # Posts per page on the blog index
 paginate_path: "posts/:num"  # Directory base for pagination URLs eg. /posts/2/

@@ -3,6 +3,7 @@ layout: post
 title: "Make your task easy with bitwise operators"
 date: 2021-10-16 20:32:09 +0530
 comments: true
+paginate: true
 categories: 
 ---
 

@@ -2,6 +2,7 @@
 layout: post
 comments: true
 title: "Linux Basics Part-1"
+paginate: true
 date: "2020-11-10"
 tags: 
   - "linux"

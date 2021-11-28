@@ -3,6 +3,7 @@ layout: post
 comments: true
 title: "Memory Mapping Introduction"
 date: "2021-01-24"
+paginate: true
 categories: 
   - "asm"
 ---
@@ -51,21 +52,21 @@ The size of segments vary according to usage but the ultimate size of the page w
 I do not want you to understand the whole code below. Just observe how segmentation has been performed in the code and keep this code in the back of your mind so that you can understand and write codes yourself in the upcoming articles.
 
 ```asm
-.section .text
+.section .text 
     .intel_syntax noprefix 
-    .global _start
+    .global _start 
     _start:
-        mov rax, 1
-        mov rdi, 1
-        lea rsi, [rip+msg]
+        mov rax, 1 
+        lea rsi, [rip+str]   
         mov rdx, 13
-        syscall
-        
-        mov rax, 60
+        syscall 
+
+        mov rax, 60 
         mov rdi, 0
-        syscall
-    msg:
-        .ascii "Hello world\n\0" 
+        syscall 
+
+    str:
+        .string "Hello world\n"
 ```
 To run this:
 

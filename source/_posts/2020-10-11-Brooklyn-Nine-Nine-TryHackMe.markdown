@@ -3,6 +3,7 @@ layout: post
 comments: true
 title: "Brooklyn Nine Nine - TryHackMe"
 date: "2020-10-11"
+paginate: true
 categories: 
   - "ctf"
   - "easy"

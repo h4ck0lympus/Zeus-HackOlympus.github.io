@@ -3,6 +3,7 @@ layout: post
 comments: true
 title: "Introduction To Assembly Language"
 date: "2021-01-24"
+paginate: true
 categories: 
   - "asm"
 tags: 
