@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Writing programs in x86-64 Assembly Language"
+title: "Writing programs in x86-64 ASM and pwncollege embryoasm writeup"
 date: 2022-01-04 15:28:24 +0530
 comments: true
 categories: asm
@@ -156,7 +156,58 @@ So to putting all the pieces together and we get our assembly code :
 
 I hope after reading this, you would have understood assembly and basic concepts related to memory. Now like any other language, assembly is just about practice, pratice and practice. Once you master it, I guarantee, assembly and C will become your favorite language. 
 
-In future I'll write some interesting articles on file operations through assembly, shellcoding and operating system design.  
+
+### [Pwn.College Embryoasm](https://dojo.pwn.college/challenges/asm)  Writeup
+
+I have already started the instance, so let' connnect `ssh -i ~/.ssh/key.pub hacker@dojo.pwn.college` . 
+
+<img src="/images/x86-64/asm_1.png" class="center" style="width: 90%"> 
+
+So this is easy. As explained above. We can just do `mov rdi, 0x1337`
+
+full code : 
+
+```asm 
+.section .text 
+    .intel_syntax noprefix 
+    .global _start 
+    _start : 
+        mov rdi, 0x1337
+```
+
+First we assemble it and compile it into an ELF then we will convert copy bytes of that ELF in a different file. 
+
+to do so : 
+```
+gcc -nostdlib -static exp.s -o exp
+objcopy --dump-section .text=exp.bin exp
+```
+
+Then we will pipe the bytes into the challenge. 
+
+<img src="/images/x86-64/asm_1_flag.png" class="center" style="width: 90%"> 
+
+We can also do this using python script through pwntools. 
+
+Python script : 
+
+```py
+#!/usr/bin/env python3
+import pwn
+pwn.context.log_level = "INFO"
+pwn.context.encoding = "latin"
+pwn.context.arch = "amd64"
+pwn.warnings.simplefilter("ignore")
+
+assembly = """mov rdi, 0x1337"""
+
+proc = pwn.process("/challenge/embryoasm_level1")
+print(proc.readrepeat(1).decode())
+proc.send(pwn.asm(assembly))
+print(proc.readrepeat(1).decode())
+```
+
+In future I'll write some interesting articles on some more instructions in ASM, file operations through assembly, shellcoding and operating system design.  
 
 A [wise man](https://deut-erium.github.io/about.html)👨‍💻 (check out his [blog](https://deut-erium.github.io/)) once said to me, "its almost like playing lego ... you have to put the pieces together ..." 
 
