@@ -44,7 +44,7 @@
 		
 		<a href="/blog/2022/01/04/writing-programs-in-x86-64-assembly-language/">
 		
-			Writing Programs in X86-64 Assembly Language</a>
+			Writing Programs in X86-64 ASM and Pwncollege Embryoasm Writeup</a>
 	</h2>
 	<div class="entry-content">
 		<p>Before reading this, it&rsquo;s an advice to please read <a href="/blog/2021/11/25/x86-64-assembly-language/">previous article</a> of ASM series.</p>
@@ -248,7 +248,78 @@ This is also used extensively because we are loading effective address, So we ca
 
 <p>I hope after reading this, you would have understood assembly and basic concepts related to memory. Now like any other language, assembly is just about practice, pratice and practice. Once you master it, I guarantee, assembly and C will become your favorite language.</p>
 
-<p>In future I&rsquo;ll write some interesting articles on file operations through assembly, shellcoding and operating system design.</p>
+<h3><a href="https://dojo.pwn.college/challenges/asm">Pwn.College Embryoasm</a>  Writeup</h3>
+
+<p>I have already started the instance, so let' connnect <code>ssh -i ~/.ssh/key.pub hacker@dojo.pwn.college</code> .</p>
+
+<p><img src="/images/x86-64/asm_1.png" class="center" style="width: 90%"></p>
+
+<p>So this is easy. As explained above. We can just do <code>mov rdi, 0x1337</code></p>
+
+<p>full code :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="na">.section</span> <span class="no">.text</span>
+</span><span class='line'>    <span class="no">.intel_syntax</span> <span class="no">noprefix</span>
+</span><span class='line'>    <span class="no">.global</span> <span class="no">_start</span>
+</span><span class='line'>    <span class="no">_start</span> <span class="p">:</span>
+</span><span class='line'>        <span class="no">mov</span> <span class="no">rdi</span><span class="p">,</span> <span class="mi">0x1337</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>First we assemble it and compile it into an ELF then we will convert copy bytes of that ELF in a different file.</p>
+
+<p>to do so :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="nf">gcc</span> <span class="p">-</span><span class="no">nostdlib</span> <span class="p">-</span><span class="no">static</span> <span class="no">exp.s</span> <span class="p">-</span><span class="no">o</span> <span class="no">exp</span>
+</span><span class='line'><span class="nf">objcopy</span> <span class="p">--</span><span class="no">dump-section</span> <span class="no">.text</span><span class="err">=</span><span class="no">exp.bin</span> <span class="no">exp</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then we will pipe the bytes into the challenge.</p>
+
+<p><img src="/images/x86-64/asm_1_flag.png" class="center" style="width: 90%"></p>
+
+<p>We can also do this using python script through pwntools.</p>
+
+<p>Python script :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='py'><span class='line'><span class="c">#!/usr/bin/env python3</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">pwn</span>
+</span><span class='line'><span class="n">pwn</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="s">&quot;INFO&quot;</span>
+</span><span class='line'><span class="n">pwn</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="s">&quot;latin&quot;</span>
+</span><span class='line'><span class="n">pwn</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">arch</span> <span class="o">=</span> <span class="s">&quot;amd64&quot;</span>
+</span><span class='line'><span class="n">pwn</span><span class="o">.</span><span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s">&quot;ignore&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">assembly</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;mov rdi, 0x1337&quot;&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">proc</span> <span class="o">=</span> <span class="n">pwn</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="s">&quot;/challenge/embryoasm_level1&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">readrepeat</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+</span><span class='line'><span class="n">proc</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">pwn</span><span class="o">.</span><span class="n">asm</span><span class="p">(</span><span class="n">assembly</span><span class="p">))</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">readrepeat</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In future I&rsquo;ll write some interesting articles on some more instructions in ASM, file operations through assembly, shellcoding and operating system design.</p>
 
 <p>A <a href="https://deut-erium.github.io/about.html">wise man</a>👨‍💻 (check out his <a href="https://deut-erium.github.io/">blog</a>) once said to me, &ldquo;its almost like playing lego &hellip; you have to put the pieces together &hellip;&rdquo;</p>
 

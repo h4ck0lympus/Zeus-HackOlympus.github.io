@@ -4,7 +4,7 @@
   <title><![CDATA[Category: asm | Zeus@HackOlympus:~$]]></title>
   <link href="http://hackolympus.com//blog/categories/asm/atom.xml" rel="self"/>
   <link href="http://hackolympus.com/"/>
-  <updated>2022-01-04T20:34:26+05:30</updated>
+  <updated>2022-01-04T22:55:38+05:30</updated>
   <id>http://hackolympus.com/</id>
   <author>
     <name><![CDATA[Zeus]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Writing programs in x86-64 Assembly Language]]></title>
+    <title type="html"><![CDATA[Writing programs in x86-64 ASM and pwncollege embryoasm writeup]]></title>
     <link href="http://hackolympus.com/blog/2022/01/04/writing-programs-in-x86-64-assembly-language/"/>
     <updated>2022-01-04T15:28:24+05:30</updated>
     <id>http://hackolympus.com/blog/2022/01/04/writing-programs-in-x86-64-assembly-language</id>
@@ -155,7 +155,55 @@ syscall     # perform syscall
 
 <p>I hope after reading this, you would have understood assembly and basic concepts related to memory. Now like any other language, assembly is just about practice, pratice and practice. Once you master it, I guarantee, assembly and C will become your favorite language.</p>
 
-<p>In future I&rsquo;ll write some interesting articles on file operations through assembly, shellcoding and operating system design.</p>
+<h3><a href="https://dojo.pwn.college/challenges/asm">Pwn.College Embryoasm</a>  Writeup</h3>
+
+<p>I have already started the instance, so let' connnect <code>ssh -i ~/.ssh/key.pub hacker@dojo.pwn.college</code> .</p>
+
+<p><img src="http://hackolympus.com/images/x86-64/asm_1.png" class="center" style="width: 90%"></p>
+
+<p>So this is easy. As explained above. We can just do <code>mov rdi, 0x1337</code></p>
+
+<p>full code :</p>
+
+<pre><code class="asm ">.section .text 
+    .intel_syntax noprefix 
+    .global _start 
+    _start : 
+        mov rdi, 0x1337
+</code></pre>
+
+<p>First we assemble it and compile it into an ELF then we will convert copy bytes of that ELF in a different file.</p>
+
+<p>to do so :
+<code>
+gcc -nostdlib -static exp.s -o exp
+objcopy --dump-section .text=exp.bin exp
+</code></p>
+
+<p>Then we will pipe the bytes into the challenge.</p>
+
+<p><img src="http://hackolympus.com/images/x86-64/asm_1_flag.png" class="center" style="width: 90%"></p>
+
+<p>We can also do this using python script through pwntools.</p>
+
+<p>Python script :</p>
+
+<pre><code class="py">#!/usr/bin/env python3
+import pwn
+pwn.context.log_level = "INFO"
+pwn.context.encoding = "latin"
+pwn.context.arch = "amd64"
+pwn.warnings.simplefilter("ignore")
+
+assembly = """mov rdi, 0x1337"""
+
+proc = pwn.process("/challenge/embryoasm_level1")
+print(proc.readrepeat(1).decode())
+proc.send(pwn.asm(assembly))
+print(proc.readrepeat(1).decode())
+</code></pre>
+
+<p>In future I&rsquo;ll write some interesting articles on some more instructions in ASM, file operations through assembly, shellcoding and operating system design.</p>
 
 <p>A <a href="https://deut-erium.github.io/about.html">wise man</a>👨‍💻 (check out his <a href="https://deut-erium.github.io/">blog</a>) once said to me, &ldquo;its almost like playing lego &hellip; you have to put the pieces together &hellip;&rdquo;</p>
 
