@@ -4,7 +4,7 @@
   <title><![CDATA[Category: asm | Zeus@HackOlympus:~$]]></title>
   <link href="http://hackolympus.com//blog/categories/asm/atom.xml" rel="self"/>
   <link href="http://hackolympus.com/"/>
-  <updated>2022-01-04T19:57:42+05:30</updated>
+  <updated>2022-01-04T20:34:26+05:30</updated>
   <id>http://hackolympus.com/</id>
   <author>
     <name><![CDATA[Zeus]]></name>
@@ -18,7 +18,7 @@
     <link href="http://hackolympus.com/blog/2022/01/04/writing-programs-in-x86-64-assembly-language/"/>
     <updated>2022-01-04T15:28:24+05:30</updated>
     <id>http://hackolympus.com/blog/2022/01/04/writing-programs-in-x86-64-assembly-language</id>
-    <content type="html"><![CDATA[<p>Before reading this, it&rsquo;s an advise to please read <a href="/blog/2021/11/25/x86-64-assembly-language/">previous article</a> of ASM series.</p>
+    <content type="html"><![CDATA[<p>Before reading this, it&rsquo;s an advice to please read <a href="/blog/2021/11/25/x86-64-assembly-language/">previous article</a> of ASM series.</p>
 
 <p>So now that we know some basics of registers and syscalls. We will move onto the part where we use our newfound knowledge to write some assembly code.</p>
 
@@ -47,9 +47,9 @@
 
 <p>In the above <em>hello world</em> program, we are only using the <code>.text</code> section and keeping the code as minimal and simple as possible.</p>
 
-<p>So in the first line we are defining the section. So to define a section we do <code>.section &lt;section name&gt;</code></p>
+<p>So in the first line we are defining the section. In order to define a section we do <code>.section &lt;section name&gt;</code></p>
 
-<p>In our case, because we are only using <code>.text</code> :</p>
+<p>In our case, as we are only using <code>.text</code> :</p>
 
 <pre><code class="asm ">.section .text 
 </code></pre>
@@ -67,7 +67,7 @@
 _start : # then we mark the entry point 
 </code></pre>
 
-<p>Oh ! and by the way, we use <code>#</code> in GAS for comments.</p>
+<p>Oh ! by the way, we use <code>#</code> in GAS for comments.</p>
 
 <h3>MOV instruction</h3>
 
@@ -76,7 +76,7 @@ _start : # then we mark the entry point
 <pre><code class="">mov &lt;destination register&gt; , &lt;source register&gt;
 </code></pre>
 
-<p>So for example we need to copy number 6263 in register <code>rax</code>, We&rsquo;ll do :</p>
+<p>For example we need to copy number 6263 in register <code>rax</code>, We&rsquo;ll do :</p>
 
 <pre><code class="asm ">mov rax, 6263 # rax = 6263
 </code></pre>
@@ -108,7 +108,7 @@ _start : # then we mark the entry point
 
 <p><code>echo SYS_write | gcc -include sys/syscall.h -E -</code></p>
 
-<p>So to put everything together and write a subroutine for write syscall :</p>
+<p>So, putting everything together and writing a subroutine for <code>write</code> syscall</p>
 
 <p><strong>1st argument :</strong> fd (File descriptor which in our case is 1 for stdout) <br>
 <strong>2nd argument :</strong> buf (Buffer, Address of info which has to be written on screen ?) <br>
@@ -157,7 +157,7 @@ syscall     # perform syscall
 
 <p>In future I&rsquo;ll write some interesting articles on file operations through assembly, shellcoding and operating system design.</p>
 
-<p>A <a href="https://deut-erium.github.io/">wise man</a>👨‍💻 once said to me, &ldquo;its almost like playing lego &hellip; you have to put the pieces together &hellip;&rdquo;</p>
+<p>A <a href="https://deut-erium.github.io/about.html">wise man</a>👨‍💻 (check out his <a href="https://deut-erium.github.io/">blog</a>) once said to me, &ldquo;its almost like playing lego &hellip; you have to put the pieces together &hellip;&rdquo;</p>
 
 <p>On that note,</p>
 

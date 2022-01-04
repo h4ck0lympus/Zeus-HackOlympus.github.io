@@ -7,7 +7,7 @@
 
 	<meta name="author" content="Zeus"> 
 	
-	<meta name="description" content="Before reading this, it&rsquo;s an advise to please read previous article of ASM series. So now that we know some basics of registers and syscalls. &hellip;"> <meta name="keywords" content="">
+	<meta name="description" content="Before reading this, it&rsquo;s an advice to please read previous article of ASM series. So now that we know some basics of registers and syscalls. &hellip;"> <meta name="keywords" content="">
     
     <meta name="keywords" content="" />
 
@@ -47,7 +47,7 @@
 			Writing Programs in X86-64 Assembly Language</a>
 	</h2>
 	<div class="entry-content">
-		<p>Before reading this, it&rsquo;s an advise to please read <a href="/blog/2021/11/25/x86-64-assembly-language/">previous article</a> of ASM series.</p>
+		<p>Before reading this, it&rsquo;s an advice to please read <a href="/blog/2021/11/25/x86-64-assembly-language/">previous article</a> of ASM series.</p>
 
 <p>So now that we know some basics of registers and syscalls. We will move onto the part where we use our newfound knowledge to write some assembly code.</p>
 
@@ -92,9 +92,9 @@
 
 <p>In the above <em>hello world</em> program, we are only using the <code>.text</code> section and keeping the code as minimal and simple as possible.</p>
 
-<p>So in the first line we are defining the section. So to define a section we do <code>.section &lt;section name&gt;</code></p>
+<p>So in the first line we are defining the section. In order to define a section we do <code>.section &lt;section name&gt;</code></p>
 
-<p>In our case, because we are only using <code>.text</code> :</p>
+<p>In our case, as we are only using <code>.text</code> :</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="na">.section</span> <span class="no">.text</span>
@@ -123,7 +123,7 @@
 
 <p></p>
 
-<p>Oh ! and by the way, we use <code>#</code> in GAS for comments.</p>
+<p>Oh ! by the way, we use <code>#</code> in GAS for comments.</p>
 
 <h3>MOV instruction</h3>
 
@@ -136,7 +136,7 @@
 
 <p></p>
 
-<p>So for example we need to copy number 6263 in register <code>rax</code>, We&rsquo;ll do :</p>
+<p>For example we need to copy number 6263 in register <code>rax</code>, We&rsquo;ll do :</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="nf">mov</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">6263</span> <span class="c"># rax = 6263</span>
@@ -173,7 +173,7 @@ This is also used extensively because we are loading effective address, So we ca
 
 <p><code>echo SYS_write | gcc -include sys/syscall.h -E -</code></p>
 
-<p>So to put everything together and write a subroutine for write syscall :</p>
+<p>So, putting everything together and writing a subroutine for <code>write</code> syscall</p>
 
 <p><strong>1st argument :</strong> fd (File descriptor which in our case is 1 for stdout) <br>
 <strong>2nd argument :</strong> buf (Buffer, Address of info which has to be written on screen ?) <br>
@@ -250,7 +250,7 @@ This is also used extensively because we are loading effective address, So we ca
 
 <p>In future I&rsquo;ll write some interesting articles on file operations through assembly, shellcoding and operating system design.</p>
 
-<p>A <a href="https://deut-erium.github.io/">wise man</a>👨‍💻 once said to me, &ldquo;its almost like playing lego &hellip; you have to put the pieces together &hellip;&rdquo;</p>
+<p>A <a href="https://deut-erium.github.io/about.html">wise man</a>👨‍💻 (check out his <a href="https://deut-erium.github.io/">blog</a>) once said to me, &ldquo;its almost like playing lego &hellip; you have to put the pieces together &hellip;&rdquo;</p>
 
 <p>On that note,</p>
 
