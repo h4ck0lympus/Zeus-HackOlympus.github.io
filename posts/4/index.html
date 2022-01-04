@@ -7,7 +7,7 @@
 
 	<meta name="author" content="Zeus"> 
 	
-	<meta name="description" content="Memory mapping Memory of computer has addresses for its smooth working. These addresses are same for everyone and does not change from use to use. &hellip;"> <meta name="keywords" content="">
+	<meta name="description" content="So recently I played Bo1ler CTF. Normally I don&rsquo;t write writeups for a CTF (due to time constraints) but this time I decided to write one as I &hellip;"> <meta name="keywords" content="">
     
     <meta name="keywords" content="" />
 
@@ -42,53 +42,160 @@
     <article class="post">
 	<h2 class="title">
 		
-		<a href="/blog/2021/01/24/Memory-Mapping-Introduction/">
+		<a href="/blog/2021/04/06/Bo1ler-CTF-2021-writeup/">
 		
-			Memory Mapping Introduction</a>
+			Bo1ler CTF -2021 Writeup</a>
 	</h2>
 	<div class="entry-content">
-		<h4><strong>Memory mapping</strong></h4>
+		<p>So recently I played Bo1ler CTF. Normally I don&rsquo;t write writeups for a CTF (due to time constraints) but this time I decided to write one as I found the challenges quite good and informative for beginners like me. Well hats off to Bo1ler CTF team.</p>
 
-<p>Memory of computer has addresses for its smooth working. These addresses are same for everyone and does not change from use to use. The first byte is at address 0, the second byte is at address 1, and so on until the last byte of the computer&rsquo;s memory. Basically if I want to explain memory mapping in short there are memory registers that map memory. First a &ldquo;logical&rdquo; address is given to these processes which are currently running on the computer by CPU. This &ldquo;logical&rdquo; address is completely temporary and is not same for all users, its completely virtual. This process when becomes a permanent process, is assigned a &ldquo;physical&rdquo; address on the memory itself.</p>
+<p>I am writing this writeup mainly for <strong>pyjail</strong> challenges so my main focus will be on them only but I&rsquo;ll be providing the writeups for other challenges also.</p>
 
-<p>How exciting huh ? Well for me these things are very exciting 😁</p>
+<h4><strong>Jails</strong></h4>
 
-<p><strong>These mapping registers can only map data of 2 different size - 4096 bytes and 2 megabytes. Linux uses 2MB for the kernel and 4Kb for most other uses</strong>. Recent CPUs can support up to 1GB !!</p>
+<h4>Pyjailgolf1</h4>
 
-<p>To understand these concepts more clearly, you all can read this book (<a href="http://library.bagrintsev.me/ASM/Introduction%20to%2064bit%20Intel%20Assembly%20Language%20Programming%20for%20Linux.2011.pdf">link</a>) and watch this Youtube video by Ted-Ed <a href="https://www.youtube.com/watch?v=p3q5zWCw8J4&amp;t=22s">link</a></p>
+<p>So in this challenge we were given the following code which was running on the shell server <code>nc chal.b01lers.com 1334</code> :</p>
 
-<p>I have ended memory mapping in very short and has just given you a little overview because I can&rsquo;t explain everything here but you all can look the links that I have given you all.</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">line</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">&#39;&gt;&gt;&gt; &#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">flag</span><span class="o">=</span><span class="s">&quot;\[REDACTED\]&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">try</span><span class="p">:</span>
+</span><span class='line'>    <span class="nb">eval</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+</span><span class='line'><span class="k">except</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">pass</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>So now comes the more exciting part. Ever heard of stack, heap etc. Well in this article you will be explained everything. That&rsquo;s why I just love assembly, It completely builds all the concepts clear related to working of computers.</p>
 
-<h4><strong>Process Memory Model</strong></h4>
+<p>Basically there is an <strong><code>eval</code></strong> function which is vulnerable. You will input any python command and it will be executed. But this was not the problem, problem was that we have to print the value of variable flag by running a command whose length is less than 10 chars. Now if you simply do <code>print(flag)</code> it will not work and will raise an Exception. All other commands like hex(), id(), exec() etc will not work because they are functions and they return the value rather than printing it. So calling them is no good for us.</p>
 
-<p>For the smooth running of a process linux memory is divided into 4 logical segments- text, data, heap and stack. A process is mapped from lowest address i.e. <strong>text</strong> to the highest address i.e. <strong>stack</strong>.</p>
+<p>Now you see why I am writing a writeup for this challenge. Because its so small, simple and cute yet challenging. Its a pure &ldquo;out of the box&rdquo; thinking challenge. Every beginner can approach this because it doesn&rsquo;t require a specific skillset like pwn (binary exploitation) challenges (except python but lets be honest, who doesn&rsquo;t know it 😬) .</p>
 
-<p>Now before moving ahead I would like to discuss about 2 types of memory - <strong>logical and physical</strong>. <strong>The segmentation is done in the logical part</strong> of the memory because it can vary but the <strong>pages(blocks) are the part of physical part</strong> of the memory as a block size remains constant.</p>
+<p>Well after going through my python notes and doing some research work on google I found a command <code>help()</code>. Yup! the answer was help command !!</p>
 
-<p><img src="/images/process-memory-dia.png" align="left">
-<br></p>
+<p><img src="/images/boiler/image-1.png" class="center" style="width: 60%"></p>
 
-<p><strong>Text</strong> - In assembly text segment is indicated by <code>.text</code> , It contains the machine instructions of a program. It basically tells the story of what program does.</p>
+<p><strong>Flag:</strong> <code>pctf{JusT_a5k_4_h3lP!}</code></p>
 
-<p><strong>Data</strong> - Data segment contains all the <strong>static data</strong>. It is represented by <code>.data</code> .Which means it contains all variables that have been initialized in the program.</p>
+<p>See the most basic commands which we neglect during our learning period helped us in this challenge. After this I researched more on <code>help()</code> command and by luck next jail challenge could be done using <code>help()</code> command itself.</p>
 
-<p><strong>.bss</strong> - Above data segment, there is <code>.bss</code> segment which stands for &ldquo;block started by symbol&rdquo;. Ths segment contains data which is statistically allocated in a process, but is not stored in the executable file. Instead this data is allocated when the process is loaded into <strong>memory</strong>.</p>
+<h3>Pyjailgolf2</h3>
 
-<p>.<strong>rodata</strong> - Sometimes <code>.rodata</code> is also seen. Basically <code>.rodata</code> is a segment where all the constants are placed and <code>.data</code> is a segment where all the variable are placed.</p>
+<p>This challenge is almost same as the last one the only difference is the char limit. This time we have to do all our work in just 9 chars. Lets take a look at the script :</p>
 
-<p><strong>Heap</strong> - Heap is basically some space reserved by the program so that it can use it for future purposes when calling functions like <code>malloc</code>.</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">line</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">&#39;&gt;&gt;&gt; &#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">flag</span><span class="o">=</span><span class="s">&quot;\[REDACTED\]&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">9</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">try</span><span class="p">:</span>
+</span><span class='line'>    <span class="nb">eval</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+</span><span class='line'><span class="k">except</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">pass</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p><strong>Stack</strong> - It is basically temporary storage space for a process. The size of stack is set by the linux kernel, typically to 16 MB. This is enough for our processes.</p>
 
-<p>Now the above segments is for a page(block) of memory. So basically the minimum size of segments depends on page size.</p>
+<p><code>nc chal.b01lers.com 1335</code></p>
 
-<p>The size of segments vary according to usage but the ultimate size of the page will remain same. for example Sometimes, you will see that processor is processing a lot of information in that case we can assume that .text part is large but other parts is small.Sometimes processing done is less but still <code>.data</code> is large but others are small. Sometimes a process needs more temporary storage for later use so stack will be more in size.</p>
+<p>So as I said before this time we will use <code>help()</code> command like before but there is a little change of plans. Rather than using <code>help(flag)</code> to read the value of variable flag we will use <code>help()</code> interactive version.</p>
 
-<p><strong>Hello world program in assembly.</strong></p>
+<p><img src="/images/boiler/image-2.png" class="center" style="width: 60%"></p>
 
-<p>I do not want you to understand the whole code below. Just observe how segmentation has been performed in the code and keep this code in the back of your mind so that you can understand and write codes yourself in the upcoming articles.</p>
+<p>So the,</p>
+
+<p><strong>Flag</strong> <code>pctf{Un1c0d3_i5_sw34t}</code></p>
+
+<p>I don&rsquo;t know if this is the intended method to solve because by looking at the flag it doesn&rsquo;t look like it but whatever, we got the flag ¯\_(ツ)_/¯ .</p>
+
+<p>Well this is it I was only able to do the first 2 pyjails. So lets move to other challenge categories .</p>
+
+<h2><strong>Reverse Engineering</strong></h2>
+
+<h3>weenie_hut_general</h3>
+
+<p>This challenge was an easy reverse engineering challenge. I am not a reverse engineering player myself but I was able to do it easily.</p>
+
+<p>The given files can be found from this <a href="https://ctf.b01lers.com/download?file_key=ad1a1baf12da64c84dc72ecc9befccddec544cd0310acefb87275692d212f7a3&amp;team_key=c2e8f607c31b1896dfe445997fb87e1315424096425ea90c9b38ee0cd0b39032">link</a></p>
+
+<p>So running the file is no good as it does not contain main function and will return a Segmentation fault. Lets open it in ghidra and see the decompiled source code.</p>
+
+<p>Upon opening in ghidra I found a function <code>trytorev</code>. After reading and understanding the code it was pretty obvious what it does. See for yourself:</p>
+
+<p><img src="/images/boiler/image-3.png" class="center" style="width: 60%"></p>
+
+<p>it first initializes a seed to get psedurandom number from rand function.</p>
+
+<p>It then looks for a number such that the bitwise XOR of param1, uvar1(storing first random number) and 0x3597b741 is equal to pseudorandom number uvar2 .</p>
+
+<p>So I first made a script to do the reverse of all these operations in python (A nooby mistake, I know ). Python&rsquo;s random number function does not work in the same way like C rand function. So my team mate (<a href="https://ctftime.org/user/82627">DaBaddest</a>) made the reverse script in C and that worked :</p>
+
+<p>His script :</p>
+
+<figure class='code'><figcaption><span> (boiler.c)</span> <a href='/downloads/code/boiler.c'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">srand</span><span class="p">(</span><span class="mh">0x11C4</span><span class="p">)</span> <span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot; %d </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">rand</span><span class="p">()</span>  <span class="o">^</span> <span class="n">rand</span><span class="p">()</span> <span class="o">^</span> <span class="mh">0x3597B741</span><span class="p">)</span> <span class="p">;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span> <span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And this returned us the flag</p>
+
+<p><strong>Flag</strong> : <code>bctf{1432175799}</code></p>
+
+<h3>Swirler</h3>
+
+<p>Another Easy reverse engineering challenge for beginners like me</p>
+
+<p>Given files can be found from this <a href="https://ctf.b01lers.com/download?file_key=64844ebf04da4d9513927c3d720e00799c5db04477d7b6c496bab371edd889f3&amp;team_key=c2e8f607c31b1896dfe445997fb87e1315424096425ea90c9b38ee0cd0b39032">link</a> . With the files another <a href="http://chal.b01lers.com:8001">link</a> was also given to us .</p>
+
+<p>Ok first lets look at the given files it was a png picture file nothing special. Lets look at the given link.</p>
+
+<p>Main function of the site was to take a picture and &ldquo;swirl&rdquo; it so that no one can look at its contents. It was JS reverse engineering and was no big thing. I copied the source code of the site and used <a href="https://jsfiddle.net/">https://jsfiddle.net/</a> to deploy it and &lsquo;fiddle&rsquo; with source code side by side to see how it works.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -105,46 +212,123 @@
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
 <span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="na">.section</span> <span class="no">.text</span>
-</span><span class='line'>    <span class="no">.intel_syntax</span> <span class="no">noprefix</span>
-</span><span class='line'>    <span class="no">.global</span> <span class="no">_start</span>
-</span><span class='line'>    <span class="no">_start</span><span class="p">:</span>
-</span><span class='line'>        <span class="nf">mov</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">1</span>
-</span><span class='line'>        <span class="no">lea</span> <span class="no">rsi</span><span class="p">,</span> <span class="err">[</span><span class="no">rip</span><span class="err">+</span><span class="no">str</span><span class="err">]</span>
-</span><span class='line'>        <span class="no">mov</span> <span class="no">rdx</span><span class="p">,</span> <span class="mi">13</span>
-</span><span class='line'>        <span class="nf">syscall</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="nx">fsSource</span> <span class="o">=</span> <span class="err">`</span>
+</span><span class='line'>    <span class="nx">precision</span> <span class="nx">highp</span> <span class="kr">float</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'>        <span class="no">mov</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">60</span>
-</span><span class='line'>        <span class="no">mov</span> <span class="no">rdi</span><span class="p">,</span> <span class="mi">0</span>
-</span><span class='line'>        <span class="nf">syscall</span>
+</span><span class='line'>    <span class="nx">varying</span> <span class="nx">vec2</span> <span class="nx">vPos</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'>    <span class="no">str</span><span class="p">:</span>
-</span><span class='line'>        <span class="na">.string</span> <span class="s">&quot;Hello world\n&quot;</span>
+</span><span class='line'>    <span class="nx">uniform</span> <span class="nx">sampler2D</span> <span class="nx">uSampler</span><span class="p">;</span>
+</span><span class='line'>    <span class="nx">uniform</span> <span class="nx">vec2</span> <span class="nx">uResolution</span><span class="p">;</span>
+</span><span class='line'>    <span class="nx">uniform</span> <span class="kr">float</span> <span class="nx">uTime</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">uniform</span> <span class="kr">float</span> <span class="nx">uRadius</span><span class="p">;</span>
+</span><span class='line'>    <span class="nx">uniform</span> <span class="kr">float</span> <span class="nx">uSwirlFactor</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">void</span> <span class="nx">main</span><span class="p">(</span><span class="k">void</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">vec2</span> <span class="nx">uv</span> <span class="o">=</span> <span class="nx">gl_FragCoord</span><span class="p">.</span><span class="nx">xy</span> <span class="o">/</span> <span class="nx">uResolution</span><span class="p">.</span><span class="nx">xy</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="kr">float</span> <span class="nx">dist</span> <span class="o">=</span> <span class="nx">distance</span><span class="p">(</span><span class="nx">uv</span><span class="p">,</span> <span class="nx">vec2</span><span class="p">(</span><span class="mf">0.5</span><span class="p">));</span>
+</span><span class='line'>      <span class="nx">mat2</span> <span class="nx">rotmat</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nx">dist</span> <span class="o">&lt;</span> <span class="nx">uRadius</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="kr">float</span> <span class="nx">percent</span> <span class="o">=</span> <span class="p">(</span><span class="nx">uRadius</span> <span class="o">-</span> <span class="nx">dist</span><span class="p">)</span> <span class="o">/</span> <span class="nx">uRadius</span><span class="p">;</span>
+</span><span class='line'>          <span class="kr">float</span> <span class="nx">angle</span> <span class="o">=</span> <span class="nx">percent</span> <span class="o">*</span> <span class="nx">percent</span> <span class="o">*</span> <span class="nx">uSwirlFactor</span> <span class="o">*</span> <span class="nx">uTime</span><span class="p">;</span>
+</span><span class='line'>          <span class="kr">float</span> <span class="nx">sina</span> <span class="o">=</span> <span class="nx">sin</span><span class="p">(</span><span class="nx">angle</span><span class="p">);</span>
+</span><span class='line'>          <span class="kr">float</span> <span class="nx">cosa</span> <span class="o">=</span> <span class="nx">cos</span><span class="p">(</span><span class="nx">angle</span><span class="p">);</span>
+</span><span class='line'>          <span class="nx">rotmat</span> <span class="o">=</span> <span class="nx">mat2</span><span class="p">(</span><span class="nx">cosa</span><span class="p">,</span> <span class="nx">sina</span><span class="p">,</span> <span class="o">-</span><span class="nx">sina</span><span class="p">,</span> <span class="nx">cosa</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nx">rotmat</span> <span class="o">=</span> <span class="nx">mat2</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nx">vec2</span> <span class="nx">texCoord</span> <span class="o">=</span> <span class="nx">rotmat</span> <span class="o">*</span> <span class="p">(</span><span class="nx">uv</span> <span class="o">-</span> <span class="nx">vec2</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span> <span class="o">+</span> <span class="nx">vec2</span><span class="p">(</span><span class="mf">0.5</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">vec4</span> <span class="nx">diffuse</span> <span class="o">=</span> <span class="nx">texture2D</span><span class="p">(</span><span class="nx">uSampler</span><span class="p">,</span> <span class="nx">texCoord</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">gl_FragColor</span> <span class="o">=</span> <span class="nx">diffuse</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="err">\`</span><span class="p">;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>To run this:</p>
+<p>This was the vulnerable script I just converted the following code block :</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='sh'><span class='line'>gcc helloworld.s -nostdlib --static -o helloworld
-</span><span class='line'>./helloworld
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nx">dist</span> <span class="o">&lt;</span> <span class="nx">uRadius</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="kr">float</span> <span class="nx">percent</span> <span class="o">=</span> <span class="p">(</span><span class="nx">uRadius</span> <span class="o">-</span> <span class="nx">dist</span><span class="p">)</span> <span class="o">/</span> <span class="nx">uRadius</span><span class="p">;</span>
+</span><span class='line'>          <span class="kr">float</span> <span class="nx">angle</span> <span class="o">=</span> <span class="nx">percent</span> <span class="o">*</span> <span class="nx">percent</span> <span class="o">*</span> <span class="nx">uSwirlFactor</span> <span class="o">*</span> <span class="nx">uTime</span><span class="p">;</span>
+</span><span class='line'>          <span class="kr">float</span> <span class="nx">sina</span> <span class="o">=</span> <span class="nx">sin</span><span class="p">(</span><span class="nx">angle</span><span class="p">);</span>
+</span><span class='line'>          <span class="kr">float</span> <span class="nx">cosa</span> <span class="o">=</span> <span class="nx">cos</span><span class="p">(</span><span class="nx">angle</span><span class="p">);</span>
+</span><span class='line'>          <span class="nx">rotmat</span> <span class="o">=</span> <span class="nx">mat2</span><span class="p">(</span><span class="nx">cosa</span><span class="p">,</span> <span class="nx">sina</span><span class="p">,</span> <span class="o">-</span><span class="nx">sina</span><span class="p">,</span> <span class="nx">cosa</span><span class="p">);</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>I have not added a lot of things in this article. So please read and view the following sources.</p>
+<p>to :</p>
 
-<p><strong>Sources:</strong></p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nx">dist</span> <span class="o">&lt;</span> <span class="nx">uRadius</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="kr">float</span> <span class="nx">percent</span> <span class="o">=</span> <span class="p">(</span><span class="nx">uRadius</span> <span class="o">-</span> <span class="nx">dist</span><span class="p">)</span> <span class="o">/</span> <span class="nx">uRadius</span><span class="p">;</span>
+</span><span class='line'>          <span class="kr">float</span> <span class="nx">angle</span> <span class="o">=</span> <span class="nx">percent</span> <span class="o">*</span> <span class="nx">percent</span> <span class="o">*</span> <span class="o">-</span><span class="nx">uSwirlFactor</span> <span class="o">*</span> <span class="nx">uTime</span><span class="p">;</span>
+</span><span class='line'>          <span class="kr">float</span> <span class="nx">sina</span> <span class="o">=</span> <span class="nx">sin</span><span class="p">(</span><span class="nx">angle</span><span class="p">);</span>
+</span><span class='line'>          <span class="kr">float</span> <span class="nx">cosa</span> <span class="o">=</span> <span class="nx">cos</span><span class="p">(</span><span class="nx">angle</span><span class="p">);</span>
+</span><span class='line'>          <span class="nx">rotmat</span> <span class="o">=</span> <span class="nx">mat2</span><span class="p">(</span><span class="nx">cosa</span><span class="p">,</span> <span class="nx">sina</span><span class="p">,</span> <span class="o">-</span><span class="nx">sina</span><span class="p">,</span> <span class="nx">cosa</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>Book link given in the <strong>previous article.</strong></p>
 
-<p><a href="http://www.cs.uwm.edu/classes/cs315/Bacon/Lecture/HTML/ch10s04.html">http://www.cs.uwm.edu/classe</a><a href="http://www.cs.uwm.edu/classes/cs315/Bacon/Lecture/HTML/ch10s04.html">s/cs315/Bacon/Lecture/HTML/ch10s04.htm</a><a href="http://www.cs.uwm.edu/classes/cs315/Bacon/Lecture/HTML/ch10s04.html">l</a></p>
+<p>and ran the code with <code>flag.png</code> and we got a qrcode</p>
 
-<p><a href="https://jameshfisher.com/2018/03/10/linux-assembly-hello-world/">https://jameshfisher.com/2018/03/10/linux-assembly-hello-world/</a></p>
+<p><img src="/images/boiler/canvas.png" class="center" style="width: 60%"></p>
 
-<p><a href="https://web.stanford.edu/class/archive/cs/cs107/cs107.1212/schedule.html">https://web.stanford.edu/class/archive/cs/cs107/cs107.1212/schedule.html</a></p>
+<p>after scanning we got the flag :</p>
 
-<p><a href="https://www.youtube.com/watch?v=HWwNTWY1rxo">https://www.youtube.com/watch?v=HWwNTWY1rxo</a></p>
+<p><strong>Flag:</strong> <code>pctf{sw1rly_sw1rly_qr_c0d3}</code></p>
+
+<h2>WEB</h2>
+
+<h3>gdpr</h3>
+
+<p>This was a web challenge so a link was given : <a href="http://chal.b01lers.com:1004">chal.b01lers.com:1004</a></p>
+
+<p>After opening the site It opened a page like this :</p>
+
+<p><img src="/images/boiler/image-4.png" class="center" style="width: 60%">
+If you look closely when the page is loaded it covers some content. So I disabled the JS on my browser to check what it is and it loaded a page like this :</p>
+
+<p><img src="/images/boiler/image-5.png" class="center" style="width: 60%">
+After visiting the link we got the flag</p>
+
+<p><img src="/images/boiler/image-6.png" class="center" style="width: 60%"></p>
+
+<p><strong>Flag</strong>: <code>bctf{annoying_but_good?}</code></p>
+
+<p>Well that was it folks.</p>
+
+<p>Will come again with some another interesting writeup.</p>
+
+<p>Till then, farewell</p>
 
 		
 		
@@ -165,12 +349,12 @@
 
 
 
-<time datetime="2021-01-24T00:00:00+05:30" pubdate data-updated="true">Jan 24th, 2021</time></div>
+<time datetime="2021-04-06T00:00:00+05:30" pubdate data-updated="true">Apr 6th, 2021</time></div>
 	
 
 <div class="tags">
 
-	<a class='category' href='//blog/categories/asm/'>asm</a>
+	<a class='category' href='//blog/categories/ctf/'>ctf</a>
 
 </div>
 
@@ -189,7 +373,7 @@
 </nav>
 
 </div>
-	<footer id="footer" class="inner">Copyright &copy; 2021
+	<footer id="footer" class="inner">Copyright &copy; 2022
  Zeus 
 <br>
 </footer>

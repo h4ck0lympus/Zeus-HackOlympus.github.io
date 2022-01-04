@@ -7,7 +7,7 @@
 
 	<meta name="author" content="Zeus"> 
 	
-	<meta name="description" content="Hello guys, Mr.Robot is one of my most favorite series and today we will be solving its CTF. Level - Medium You all can attempt this CTF from this &hellip;"> <meta name="keywords" content="">
+	<meta name="description" content="Every Computer has a processor, that processor as we have already guessed by its name, processes the information given to the computer. It performs &hellip;"> <meta name="keywords" content="">
     
     <meta name="keywords" content="" />
 
@@ -42,147 +42,50 @@
     <article class="post">
 	<h2 class="title">
 		
-		<a href="/blog/2020/11/17/mr-Robot-TryHackMe/">
+		<a href="/blog/2021/01/24/Introduction-To-Assembly-Language/">
 		
-			Mr.Robot - TryHackMe</a>
+			Introduction to Assembly Language</a>
 	</h2>
 	<div class="entry-content">
-		<p>Hello guys, Mr.Robot is one of my most favorite series and today we will be solving its CTF.</p>
+		<p>Every Computer has a processor, that processor as we have already guessed by its name, processes the information given to the computer. It performs basic operations like arithmetic calculations, logical and control operations for the computer. This processor understands 1s and 0s but for us humans to write code in 1s and 0s is very difficult and tedious so for this purpose assembly language was introduced. Assembly language makes it easy for us to communicate with computer and understand it more clearly.</p>
 
-<p><strong>Level - Medium</strong></p>
+<p>Assembly language is often called <em>symbolic machine code</em>. It consists of a lot of short forms which is converted to machine language(1s and 0s) when passed through assembler. The following image was found online on the net, it will help you all to understand this concept more clearly.</p>
 
-<p>You all can attempt this CTF from this link:</p>
+<p><img src="/images/Assembly-Language-vs-Machine-Language-1.png" class="center" style="width: 50%"></p>
 
-<p><a href="https://tryhackme.com/room/mrrobot">https://tryhackme.com/room/mrrobot</a></p>
+<p>The above process of converting assembly language to machine code is called as <strong><em>assembly</em></strong>.</p>
 
-<p>So let the hacking begin.</p>
+<p>Ok, so up till now I think I have made my point clear that main purpose of assembly language or should I say every programming language is to understand computer and give it commands.</p>
 
-<p>First lets start with <strong>reconnaissance</strong> therefore a <strong><em>nmap scan</em></strong>.</p>
+<p>Now a assembly language is designed depending upon which processor we are using so in short it is processor specific. So it is possible that processor found in one PC may able to assemble code written in it but processor of other PC may not.</p>
 
-<p><img src="/images/MrRobot/21.png" class="center" style="width: 70%"></p>
+<p>Assembly language is a low level language and is often abbreviated as <strong><em>asm</em></strong>. So first of all what is a low level language ?</p>
 
-<p>Image of nmap scan</p>
+<p>Low level language does not mean that it is easy to learn or anything. Basically low level language basically means that it is a language that it is very similar to actual machine language and has less abstraction. By abstraction I mean changes added to that language so it becomes less complex and more understandable. The converse of it can be applied for high level languages like python, C, Java etc.</p>
 
-<p>I ran the nmap scan and found 2 ports - 22 (ssh - closed) 80 (webserver).</p>
+<p>So What exactly are these 1&rsquo;s and 0&rsquo;s ?</p>
 
-<p>Lets head to the Webserver.</p>
+<p>These 1s and 0s are called <em>bits</em>. It is the smallest possible storage unit of computer.</p>
 
-<p><img src="/images/MrRobot/22.png" class="center" style="width: 70%"></p>
+<h4>Bytes</h4>
 
-<p>Well, as expected from this CTF box, we got a cool, terminal look webpage.</p>
+<p>So we have understood bits but what are bytes ? Are they the same thing or different. Well many people think that bits and bytes are same but its false.</p>
 
-<p>Lets enumerate this webpage for more information.</p>
+<p>Nowadays processor interpret a specific number of bits at a time. They interpret 8 bits at a time. <strong>This cluster of 8 bits is known as <em>a byte</em></strong>. The main memory of the computer is composed of an array of bytes, with each byte having a separate memory address. The first byte address is 0 and the last address depends on the hardware and software in use. Any byte that is identified as a machine instruction is pushed into <strong>rbp register</strong> onto the run-time stack.</p>
 
-<p>After looking at the source page, we can easily see its a WordPress site. So there are 2 ways from here: <strong>wpscan</strong> or <strong>gobuster</strong>.</p>
+<p><strong>After this you all must study the following concepts as it will make your concepts more clear:</strong></p>
 
-<p>The wpscan method is better as it takes less time to solve. I will explain both the methods.</p>
-
-<h5>1st Method - wpscan</h5>
-
-<p>As I have not used wpscan in my earlier writeups, I would try and explain what it is. wpscan is an inbuilt excellent Kali Tool to enumerate wordpress sites.</p>
-
-<p>So, I enumerate it using wpscan and we found that it has a <strong><em>robots</em></strong> page. I can&rsquo;t attach the output of the command as it is too long.</p>
-
-<p><em>&hellip;..continued after method 2</em></p>
-
-<h5>2nd Method - gobuster</h5>
-
-<p>I ran a <em><strong>gobuster dir</strong></em> search on it. It resulted in many <em>time exceeding errors</em>.</p>
-
-<p>I went to all the sceptical URL&rsquo;s like <em>license, login, phpmyadmin</em> etc. and most of them provided me some good results and hints that we are looking in the right direction. Like the license one:</p>
-
-<p><img src="/images/MrRobot/24.png" class="center" style="width: 70%">
-Or the readme :</p>
-
-<p><img src="/images/MrRobot/25.png" class="center" style="width: 70%">
-Well, I think you all have got an idea from where we&rsquo;ll be getting the best results and if not, don&rsquo;t worry as it is <em><strong>robots</strong></em> file of the webserver.</p>
-
-<h5>The Robots file</h5>
-
-<p>When going at <strong>robots</strong> file:</p>
-
-<p><img src="/images/MrRobot/26.png" class="center" style="width: 70%">
-We see two locations on the webserver which were not discovered before. Now, here <em><strong>fsocity.dic</strong></em> is a wordlist and <strong>key-1-of-3.txt</strong> will reveal our first flag.</p>
-
-<p><img src="/images/MrRobot/27.png" class="center" style="width: 70%">
-Now, we have got a dictionary. Lets use it somewhere. I know that I can&rsquo;t use it for <em>ssh</em> brute forcing as the port is closed, so only one place is left where it can be used i.e., <em>the wordpress admin panel.</em></p>
-
-<p>Now, the <em><strong>.dic</strong></em> file is of around 5 MB which means approx. 5 lakh usernames and password respectively to try out but we don&rsquo;t have that much time, we&rsquo;ll have to filter our possibilities. If somehow we get to know the username, 50% of the total possibilities can be reduced, that&rsquo;s a lot of reduction and time saving.</p>
-
-<p>We can cut it down more by using <strong>uniq</strong> command by filtering out all the duplicate strings.</p>
-
-<p>You can compare the sizes before and after the filter operation.</p>
-
-<p><img src="/images/MrRobot/30.png" class="center" style="width: 70%">
-So lets see how I enumerated the right user from the dictionary file.</p>
-
-<p>I passed a lot of random credential pair like admin:admin , user:pass etc that are very common and I got common response: <em><strong>invalid username</strong></em>.</p>
-
-<p><img src="/images/MrRobot/29.png" class="center" style="width: 70%">
-I used this to enumerate the correct user using <strong><em>hydra</em></strong> tool. <strong><em>Hydra</em></strong> is a tool through which we can brute force password for different services.</p>
-
-<p>We have got an idea that the &lsquo;<em>F</em>&rsquo; parameter of hydra command is <em>Invalid Username</em>. If username would have been correct, It wouldn&rsquo;t have shown us this message instead, it would have given us a message regarding <em>invalid password</em>.</p>
-
-<p>I&rsquo;ll gather the required information using <em>burp suite.</em></p>
-
-<p><img src="/images/MrRobot/31.png" class="center" style="width: 70%">
-From the above data our command will be:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>hydra -L dict_sorted.txt -p TestPass 10.10.73.3 http-post-form "/wp-login/:log=^USER^&pwd=^PASS^&wp-submit=Log+In&redirect_to=http%3A%2F%2F10.10.73.3%2Fwp-admin%2F&testcookie=1:F=Invalid username"</span></code></pre></td></tr></table></div></figure>
+<ul>
+<li>Binary numbers</li>
+<li>Binary arithmetic - addition, subtraction, multiplication and division</li>
+<li>Hexadecimal numbers</li>
+<li>Floating point numbers</li>
+</ul>
 
 
-<p>After some time:</p>
+<p>I learned the above topics from this book :</p>
 
-<p><img src="/images/MrRobot/32.png" class="center" style="width: 70%"></p>
-
-<p>As you can see we found 3 usernames.</p>
-
-<p>Lets run this <strong><em>Hydra</em></strong> again using username <strong><em>elliot</em></strong> but this time we will be using our wordlist in password field.</p>
-
-<p><img src="/images/MrRobot/33.png" class="center" style="width: 70%">
-So there we go, we found out the password of user <strong>elliot</strong>.</p>
-
-<p>We have now got full control over the wordpress website. Lets see how can we exploit this to gain control over the system.</p>
-
-<p>After exploring the wordpress dashboard, I explored that we can change the code of pre uploaded php files. I changed the code of one of the php file and changed it to already provided php-reverse-shell code in <strong><em>/usr/share/webshells/php</em></strong> directory. I copy-pasted the code after doing the required changes (host IP and port) and started a <strong><em>nc</em></strong> (<em>netcat listener</em>) .</p>
-
-<p><img src="/images/MrRobot/34.png" class="center" style="width: 70%">
-Visit the page that you have edited and get back to <strong><em>nc</em></strong> reverse shell and you&rsquo;ll see we have got back our reverse shell.</p>
-
-<p><img src="/images/MrRobot/35.png" class="center" style="width: 70%"></p>
-
-<p><img src="/images/MrRobot/36.png" class="center" style="width: 70%">
-<strong>Note</strong>: <em>If you are unable to get a reverse shell, probably it is because of host&rsquo;s firewall.</em></p>
-
-<p>At last, we have got a reverse shell. I navigated to the <strong>home</strong> directory where I found a user named <strong>robot</strong>. I checked his directory and I can see that we have successfully found our 2nd flag but we don&rsquo;t have the permission to read it. We have another file that basically contains the credential pair of robot user. But, here the password is encrypted.</p>
-
-<p><img src="/images/MrRobot/37.png" class="center" style="width: 70%">
-Lets try to Identify the hash type using <strong>hashid</strong> command. The top 3 possibilities are MD2, MD5 and MD4. I cracked the hash using this site: <a href="https://crackstation.net/">crackstation</a></p>
-
-<p><img src="/images/MrRobot/38.png" class="center" style="width: 70%">
-I changed the user to robot using <strong>su</strong> command. User <strong>robot</strong> can read that file and there we go we found our <strong>2nd flag</strong>.</p>
-
-<p><img src="/images/MrRobot/40.png" class="center" style="width: 70%"></p>
-
-<p>Now, I want the root access of the system and for that I&rsquo;ll have to do <strong>privilege escalation.</strong></p>
-
-<p>I tried to inspect my sudo privileges but unfortunately, I can&rsquo;t run any command with sudo through user robot.</p>
-
-<p>Lets see if we have any SUID privileges. We see from the output that <strong>nmap</strong> has SUID privileges. So lets exploit it.</p>
-
-<p>I saw the privilege escalation of nmap from <a href="https://gtfobins.github.io/gtfobins/nmap/">gtfobins</a>. So, I tried the privilege escalation and bingo !! We did it.</p>
-
-<p><img src="/images/MrRobot/41.png" class="center" style="width: 70%">
-We now have root access !</p>
-
-<p>I found the third flag in the root directory.</p>
-
-<p><img src="/images/MrRobot/42.png" class="center" style="width: 70%"></p>
-
-<hr />
-
-<p>I am not a professional, so only feedback can make me better.</p>
+<p><a href="http://library.bagrintsev.me/ASM/Introduction%20to%2064bit%20Intel%20Assembly%20Language%20Programming%20for%20Linux.2011.pdf">Introduction to 64 Bit Intel Assembly Language Programming for Linux</a></p>
 
 		
 		
@@ -203,12 +106,12 @@ We now have root access !</p>
 
 
 
-<time datetime="2020-11-17T00:00:00+05:30" pubdate data-updated="true">Nov 17th, 2020</time></div>
+<time datetime="2021-01-24T00:00:00+05:30" pubdate data-updated="true">Jan 24th, 2021</time></div>
 	
 
 <div class="tags">
 
-	<a class='category' href='//blog/categories/ctf/'>ctf</a>, <a class='category' href='//blog/categories/medium/'>medium</a>
+	<a class='category' href='//blog/categories/asm/'>asm</a>
 
 </div>
 
@@ -227,7 +130,7 @@ We now have root access !</p>
 </nav>
 
 </div>
-	<footer id="footer" class="inner">Copyright &copy; 2021
+	<footer id="footer" class="inner">Copyright &copy; 2022
  Zeus 
 <br>
 </footer>

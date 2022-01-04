@@ -4,7 +4,7 @@
   <title><![CDATA[Zeus@HackOlympus:~$]]></title>
   <link href="http://hackolympus.com/atom.xml" rel="self"/>
   <link href="http://hackolympus.com/"/>
-  <updated>2021-12-04T03:11:00+05:30</updated>
+  <updated>2022-01-04T19:57:42+05:30</updated>
   <id>http://hackolympus.com/</id>
   <author>
     <name><![CDATA[Zeus]]></name>
@@ -12,6 +12,222 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Writing programs in x86-64 Assembly Language]]></title>
+    <link href="http://hackolympus.com/blog/2022/01/04/writing-programs-in-x86-64-assembly-language/"/>
+    <updated>2022-01-04T15:28:24+05:30</updated>
+    <id>http://hackolympus.com/blog/2022/01/04/writing-programs-in-x86-64-assembly-language</id>
+    <content type="html"><![CDATA[<p>Before reading this, it&rsquo;s an advise to please read <a href="http://hackolympus.com/blog/2021/11/25/x86-64-assembly-language/">previous article</a> of ASM series.</p>
+
+<p>So now that we know some basics of registers and syscalls. We will move onto the part where we use our newfound knowledge to write some assembly code.</p>
+
+<p><strong>The following ASM code is specific to GAS (GNU Assembler)</strong></p>
+
+<h3>Step by Step Hello world ASM program breakdown</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="na">.section</span> <span class="no">.text</span>
+</span><span class='line'>    <span class="na">.intel_syntax</span> <span class="no">noprefix</span>
+</span><span class='line'>    <span class="na">.global</span> <span class="no">_start</span>
+</span><span class='line'>    <span class="nl">_start:</span>
+</span><span class='line'>        <span class="nf">mov</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="nf">lea</span> <span class="no">rsi</span><span class="p">,</span> <span class="err">[</span><span class="no">rip</span><span class="err">+</span><span class="no">str</span><span class="err">]</span>
+</span><span class='line'>        <span class="nf">mov</span> <span class="no">rdx</span><span class="p">,</span> <span class="mi">13</span>
+</span><span class='line'>        <span class="nf">syscall</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nf">mov</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">60</span>
+</span><span class='line'>        <span class="nf">mov</span> <span class="no">rdi</span><span class="p">,</span> <span class="mi">0</span>
+</span><span class='line'>        <span class="nf">syscall</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nl">str:</span>
+</span><span class='line'>        <span class="na">.string</span> <span class="s">&quot;Hello world\n&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now in my <a href="http://hackolympus.com/blog/2021/01/24/Memory-Mapping-Introduction/">first article</a>, I explained different sections/mapping of memory. Most important sections among those are <code>.text</code> section and <code>.data</code>, because it is <code>.text</code> where we write code and <code>.data</code> where we define variables and constants.</p>
+
+<p>In the above <em>hello world</em> program, we are only using the <code>.text</code> section and keeping the code as minimal and simple as possible.</p>
+
+<p>So in the first line we are defining the section. So to define a section we do <code>.section &lt;section name&gt;</code></p>
+
+<p>In our case, because we are only using <code>.text</code> :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="na">.section</span> <span class="no">.text</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now because we are using GAS, the default ASM sytax is AT&amp;T but we are writing in intel syntax so we need to specify that to the assembler. We do this using :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="na">.intel_syntax</span> <span class="no">noprefix</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p><code>.global</code> is GAS directive which helps in defining symbols in object file. Every ASM code must have a <code>_start</code> symbol. It defines the entry point of ASM code.</p>
+
+<p>In GAS we do all this using :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="na">.global</span> <span class="no">_start</span> <span class="c"># first we define a symbol</span>
+</span><span class='line'><span class="nf">_start</span> <span class="p">:</span> <span class="c"># then we mark the entry point </span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Oh ! and by the way, we use <code>#</code> in GAS for comments.</p>
+
+<h3>MOV instruction</h3>
+
+<p>The <code>mov</code> instruction is the very basic and is used extensively in a assembly program.  It is used to copy/move data from one register to another. In intel, it works in the following way :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="nf">mov</span> <span class="err">&lt;</span><span class="no">destination</span> <span class="no">register</span><span class="err">&gt;</span> <span class="p">,</span> <span class="err">&lt;</span><span class="no">source</span> <span class="no">register</span><span class="err">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>So for example we need to copy number 6263 in register <code>rax</code>, We&rsquo;ll do :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="nf">mov</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">6263</span> <span class="c"># rax = 6263</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>LEA instruction</h3>
+
+<p>The <code>lea</code> instruction is used to copy some <strong>address</strong> in some register.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="nf">lea</span> <span class="err">&lt;</span><span class="no">destination</span> <span class="no">register</span><span class="err">&gt;</span> <span class="p">,</span> <span class="err">&lt;</span><span class="no">source</span> <span class="no">effective</span> <span class="no">address</span><span class="err">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+This is also used extensively because we are loading effective address, So we can also do math in one instruction itself and assembler will understand it and assemble it for us. In <code>mov</code> instruction it&rsquo;s not possible.</p>
+
+<h3>SYSCALL instruction</h3>
+
+<p>syscall instruction, as name says, is used for making system calls.</p>
+
+<h3>Main Hello world code</h3>
+
+<p>Now to write something on screen, we need to write on stdout (it&rsquo;s file descriptor is 1). So in total we need to do 2 syscalls (write and exit syscalls).</p>
+
+<p>To do write syscall we need to give it some arguments. We give arguments based on calling convention (Discussed in previous <a href="http://hackolympus.com/blog/2021/11/25/x86-64-assembly-language/">article</a>) .</p>
+
+<p><img src="http://hackolympus.com/images/x86-64/Calling_convention.png" class="center" style="width: 60%"></p>
+
+<p>We can either use a good <a href="https://chromium.googlesource.com/chromiumos/docs/+/master/constants/syscalls.md">website</a> or if you are a console fan then method used in <a href="http://hackolympus.com/blog/2021/11/25/x86-64-assembly-language/">previous article</a> to get syscall number and to see arguments use 2nd page of <code>man</code> command.</p>
+
+<p><img src="http://hackolympus.com/images/x86-64/man_write.png" class="center" style="width: 90%"></p>
+
+<p><code>echo SYS_write | gcc -include sys/syscall.h -E -</code></p>
+
+<p>So to put everything together and write a subroutine for write syscall :</p>
+
+<p><strong>1st argument :</strong> fd (File descriptor which in our case is 1 for stdout) <br>
+<strong>2nd argument :</strong> buf (Buffer, Address of info which has to be written on screen ?) <br>
+<strong>3rd argument :</strong> count (Buffer size) <br></p>
+
+<p>All these arguments have to be set according to calling convention.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="nf">mov</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">1</span>         <span class="c"># syscall code is set through rax register </span>
+</span><span class='line'><span class="nf">mov</span> <span class="no">rdi</span><span class="p">,</span> <span class="mi">1</span>         <span class="c"># set fd to stdout (1)  </span>
+</span><span class='line'><span class="nf">lea</span> <span class="no">rsi</span><span class="p">,</span> <span class="err">[</span><span class="no">rip</span><span class="err">+</span><span class="no">str</span><span class="err">]</span> <span class="c"># use rip (instruction pointer) to access label str</span>
+</span><span class='line'><span class="nf">mov</span> <span class="no">rdx</span><span class="p">,</span> <span class="mi">13</span>        <span class="c"># Hello world\n\0 size = 13</span>
+</span><span class='line'><span class="nf">syscall</span>            <span class="c"># perform syscall </span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Label <code>str</code> is basically a space in memory where &ldquo;hello world&rdquo; is stored in form of bytes. <code>lea</code> instruction will calculate the address of the start of buffer using <code>rip</code> register (instruction pointer).</p>
+
+<p>I recommend you to write the <code>exit</code> subroutine without looking at my code.</p>
+
+<p><strong>Exit subroutine :</strong></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="nf">mov</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">60</span> <span class="c"># syscall code for exit is 60 </span>
+</span><span class='line'><span class="nf">mov</span> <span class="no">rdi</span><span class="p">,</span> <span class="mi">0</span>  <span class="c"># return address of exit </span>
+</span><span class='line'><span class="nf">syscall</span>     <span class="c"># perform syscall </span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So to putting all the pieces together and we get our assembly code :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='asm'><span class='line'><span class="na">.section</span> <span class="no">.text</span>
+</span><span class='line'>    <span class="na">.intel_syntax</span> <span class="no">noprefix</span>
+</span><span class='line'>    <span class="na">.global</span> <span class="no">_start</span>
+</span><span class='line'>    <span class="nl">_start:</span>
+</span><span class='line'>        <span class="nf">mov</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="nf">lea</span> <span class="no">rsi</span><span class="p">,</span> <span class="err">[</span><span class="no">rip</span><span class="err">+</span><span class="no">str</span><span class="err">]</span>
+</span><span class='line'>        <span class="nf">mov</span> <span class="no">rdx</span><span class="p">,</span> <span class="mi">13</span>
+</span><span class='line'>        <span class="nf">syscall</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nf">mov</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">60</span>
+</span><span class='line'>        <span class="nf">mov</span> <span class="no">rdi</span><span class="p">,</span> <span class="mi">0</span>
+</span><span class='line'>        <span class="nf">syscall</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nl">str:</span>
+</span><span class='line'>        <span class="na">.string</span> <span class="s">&quot;Hello world\n&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I hope after reading this, you would have understood assembly and basic concepts related to memory. Now like any other language, assembly is just about practice, pratice and practice. Once you master it, I guarantee, assembly and C will become your favorite language.</p>
+
+<p>In future I&rsquo;ll write some interesting articles on file operations through assembly, shellcoding and operating system design.</p>
+
+<p>A <a href="https://deut-erium.github.io/">wise man</a>👨‍💻 once said to me, &ldquo;its almost like playing lego &hellip; you have to put the pieces together &hellip;&rdquo;</p>
+
+<p>On that note,</p>
+
+<p>Signing out</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[x86-64 Assembly Language]]></title>

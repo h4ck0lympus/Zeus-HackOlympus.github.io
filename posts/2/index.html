@@ -7,7 +7,7 @@
 
 	<meta name="author" content="Zeus"> 
 	
-	<meta name="description" content="I&rsquo;ll keep on updating this as I find more interesting tricks So recently I was going through my notes of C programming and for some reason I &hellip;"> <meta name="keywords" content="">
+	<meta name="description" content="Prerequisite: Knowledge about simple programming language terms like variables, functions etc. Registers ASM works a lot around registers, I try to &hellip;"> <meta name="keywords" content="">
     
     <meta name="keywords" content="" />
 
@@ -42,61 +42,116 @@
     <article class="post">
 	<h2 class="title">
 		
-		<a href="/blog/2021/10/16/make-your-task-easy-with-bitwise-operators/">
+		<a href="/blog/2021/11/25/x86-64-assembly-language/">
 		
-			Make Your Task Easy With Bitwise Operators</a>
+			X86-64 Assembly Language</a>
 	</h2>
 	<div class="entry-content">
-		<p><em>I&rsquo;ll keep on updating this as I find more interesting tricks</em></p>
+		<h4>Prerequisite: Knowledge about simple programming language terms like variables, functions etc.</h4>
 
-<p>So recently I was going through my notes of C programming and for some reason I wanted to see the header file for ctype.h when I discovered this easter egg:</p>
+<h3>Registers</h3>
 
-<p><img src="/images/ctype.png" class="center" style="width: 60%"></p>
+<p>ASM works a lot around registers, I try to think of them as variables which only store data types up to 8 bytes.Now there are special registers and register for general use.</p>
 
-<p>Now many of you might know about this but for me this was completely new !! And it truly amazed me. So here I am, writing a short blog about it.</p>
+<p>In the start (during 8 bit days) we only had 4 general purpose registers - a,b,c,d.</p>
 
-<p>Though its completely clear.</p>
+<p>And Other 2 special purpose registers - sp (stack pointer) and bp (base pointer).</p>
 
-<h3>Fast to lowercase method</h3>
+<p>But now (in 64 bit mode) we have a total of 11 general purpose registers and 4 special purpose registers:</p>
 
-<p>To convert an ascii character to lower case we can do bitwise OR with 0x20 (32) which is space charater.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center;"> Register </th>
+<th style="text-align:center;">          Purpose         </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">    rax   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    rbx   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    rcx   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    rdx   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r8    </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r9    </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r10   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r11   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r12   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r13   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r14   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    r15   </td>
+<td style="text-align:center;"> General Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    rsp   </td>
+<td style="text-align:center;"> Special Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    rbp   </td>
+<td style="text-align:center;"> Special Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    rsi   </td>
+<td style="text-align:center;"> Special Purpose Register </td>
+</tr>
+<tr>
+<td style="text-align:center;">    rdi   </td>
+<td style="text-align:center;"> Special Purpose Register </td>
+</tr>
+</tbody>
+</table>
 
-<p>In practical :</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * @author      : HackOlympus (zeus@hackolympus)</span>
-</span><span class='line'><span class="cm"> * @file        : tolower</span>
-</span><span class='line'><span class="cm"> * @created     : Saturday Oct 16, 2021 20:42:42 IST</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%c</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="sc">&#39;C&#39;</span> <span class="o">|</span> <span class="mh">0x20</span><span class="p">)</span> <span class="p">;</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%c</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="sc">&#39;c&#39;</span> <span class="o">|</span> <span class="mh">0x20</span><span class="p">)</span> <span class="p">;</span>
-</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span> <span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<p>In above registers &lsquo;r&rsquo; means 64 bit register. If we want to use 32 bit register we use &lsquo;e&rsquo; prefix. <strong>We can also use 32/16/8 bit registers in 64 bit mode</strong> . The following illustration will explain it clearly :</p>
 
+<p><img src="/images/x86-64/Registers.drawio.png" class="center" style="width: 70%"></p>
 
+<h3>Syscall</h3>
 
+<p>Behind the working of every program, there are syscalls involved; These syscalls are permissions which the program ask for from the &ldquo;supreme authority&rdquo; - the kernel. Now why this happens ? Because the program does not directly run in the privileged mode for security reasons.</p>
+
+<p>In C language we have glibc that provide us functions like <code>printf</code>, <code>scanf</code> etc. which performs syscalls for us in the background.Now before making a syscall we have to set some parameters to define the syscall and its behaviour. We define the syscall using &ldquo;codes&rdquo;, for example <code>write</code> syscall has code 1 in x86-64. Now <code>write</code> takes 3 arguments: <code>fd</code>(file descriptor we have to write), <code>buf</code> (stuff we have to write), and <code>count</code> (How many characters to write). How do we know this ? using <code>man 3 write</code> which return the man page of write.</p>
+
+<p>We set these arguments using different register and all this follows a calling convention. The calling convention is as follows:</p>
+
+<p><img src="/images/x86-64/Calling_convention.png" class="center" style="width: 60%"></p>
+
+<p>To get a list of all the syscalls : <code>cat /usr/include/x86_64-linux-gnu/asm/unistd_64.h</code> We don&rsquo;t need to remember this path. I mean if you ever forget this path simply investigate this using other techniques like preprocessor output and printing predefined standard macros like this: <code>echo SYS_write | gcc -include sys/syscall.h -E -</code> here we are just asking the compiler to return the preprocessor output to stdout.</p>
+
+<p>That&rsquo;s all folks. In next article we&rsquo;ll write our first assembly program.</p>
 
 		
 		
@@ -117,8 +172,14 @@
 
 
 
-<time datetime="2021-10-16T20:32:09+05:30" pubdate data-updated="true">Oct 16th, 2021</time></div>
+<time datetime="2021-11-25T10:07:42+05:30" pubdate data-updated="true">Nov 25th, 2021</time></div>
 	
+
+<div class="tags">
+
+	<a class='category' href='//blog/categories/asm/'>asm</a>
+
+</div>
 
 
 </div>
@@ -135,7 +196,7 @@
 </nav>
 
 </div>
-	<footer id="footer" class="inner">Copyright &copy; 2021
+	<footer id="footer" class="inner">Copyright &copy; 2022
  Zeus 
 <br>
 </footer>
