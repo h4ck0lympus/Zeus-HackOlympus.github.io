@@ -9,7 +9,7 @@ keywords:
 description:  
 ---
 
-Before reading this, it's an advise to please read [previous article](/blog/2021/11/25/x86-64-assembly-language/) of ASM series.
+Before reading this, it's an advice to please read [previous article](/blog/2021/11/25/x86-64-assembly-language/) of ASM series.
 
 So now that we know some basics of registers and syscalls. We will move onto the part where we use our newfound knowledge to write some assembly code. 
 
@@ -40,9 +40,9 @@ Now in my [first article](/blog/2021/01/24/Memory-Mapping-Introduction/), I expl
 
 In the above *hello world* program, we are only using the `.text` section and keeping the code as minimal and simple as possible. 
 
-So in the first line we are defining the section. So to define a section we do `.section <section name>`
+So in the first line we are defining the section. In order to define a section we do `.section <section name>`
 
-In our case, because we are only using `.text` : 
+In our case, as we are only using `.text` : 
 
 ```asm 
 .section .text 
@@ -63,7 +63,7 @@ In GAS we do all this using :
 _start : # then we mark the entry point 
 ``` 
 
-Oh ! and by the way, we use `#` in GAS for comments. 
+Oh ! by the way, we use `#` in GAS for comments. 
 
 ### MOV instruction  
 
@@ -73,12 +73,11 @@ The `mov` instruction is the very basic and is used extensively in a assembly pr
 mov <destination register> , <source register>
 ``` 
 
-So for example we need to copy number 6263 in register `rax`, We'll do : 
+For example we need to copy number 6263 in register `rax`, We'll do : 
 
 ```asm 
 mov rax, 6263 # rax = 6263
 ```
-
 
 ### LEA instruction 
 
@@ -107,7 +106,7 @@ We can either use a good [website](https://chromium.googlesource.com/chromiumos/
 
 `echo SYS_write | gcc -include sys/syscall.h -E - ` 
 
-So to put everything together and write a subroutine for write syscall : 
+So, putting everything together and writing a subroutine for `write` syscall
 
 **1st argument :** fd (File descriptor which in our case is 1 for stdout) <br>
 **2nd argument :** buf (Buffer, Address of info which has to be written on screen ?) <br>
@@ -159,7 +158,7 @@ I hope after reading this, you would have understood assembly and basic concepts
 
 In future I'll write some interesting articles on file operations through assembly, shellcoding and operating system design.  
 
-A [wise man](https://deut-erium.github.io/)👨‍💻 once said to me, "its almost like playing lego ... you have to put the pieces together ..." 
+A [wise man](https://deut-erium.github.io/about.html)👨‍💻 (check out his [blog](https://deut-erium.github.io/)) once said to me, "its almost like playing lego ... you have to put the pieces together ..." 
 
 On that note, 
 
