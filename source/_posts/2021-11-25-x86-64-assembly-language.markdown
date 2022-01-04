@@ -35,8 +35,8 @@ But now (in 64 bit mode) we have a total of 11 general purpose registers and 4 s
 |    r15   | General Purpose Register |
 |    rsp   | Special Purpose Register |
 |    rbp   | Special Purpose Register |
-|    rsi   | Special Purpose Register |
-|    rdi   | Special Purpose Register |
+|    rsi   | Special Purpose Register | 
+|    rdi   | Special Purpose Register |  
 
 In above registers 'r' means 64 bit register. If we want to use 32 bit register we use 'e' prefix. **We can also use 32/16/8 bit registers in 64 bit mode** . The following illustration will explain it clearly : 
 

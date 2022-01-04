@@ -2,7 +2,7 @@
 
 ## deploy  
 
-1. install rvm 
+1. install rvm and python2 
 2. install ruby version 2.5.1 (stable for Ubuntu 18.04) and 'rvm use 2.5.1'
 3. clone source branch in blog folder 
 4. clone master branch in blog/\_deploy
