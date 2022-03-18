@@ -20,13 +20,36 @@ Sometimes I get very late adding new articles but don’t worry I am always work
     <img src="/images/linus-torvalds-caricature.png"/>
     <div class="caption">God of Linux and my inspiration</div>
 </div>
-
+<!-- 
 <div class="fontawesome">
     <a href="https://discord.com/invite/aXVWmDxRmF"><i class="fa-brands fa-discord fa-3x fa-fw" ></i></a>
     <a href="mailto:zeus-hackolympus@outlook.com"><i class="fa-solid fa-envelope fa-3x fa-fw"></i></a>
     <a href="https://github.com/Zeus-HackOlympus"><i class="fa-brands fa-github fa-3x fa-fw"></i></a>
 </div>
+//-->
 
+<!-- below code taken from https://www.ghosind.com/about --> 
+
+<br>
+
+<div class="about-links-bar"> 
+  <a href="https://discord.com/invite/aXVWmDxRmF" target="_blank" aria-hidden="true">
+    <i class="svg-icon icon-discord"></i>
+  </a>
+  <a href="mailto:zeus-hackolympus@outlook.com" target="_blank" aria-hidden="true">
+    <i class="svg-icon icon-outlook"></i>
+  </a>
+  <a href="https://github.com/Zeus-HackOlympus" target="_blank" aria-hidden="true">
+    <i class="svg-icon icon-github"></i>
+  </a>
+
+  <a href="https://twitter.com/HackOlympus" target="_blank" aria-hidden="true">
+    <i class="svg-icon icon-twitter"></i>
+  </a>
+
+</div>
+
+<!--
 <style> 
     .fontawesome {
         padding: 20px ; 
@@ -34,3 +57,4 @@ Sometimes I get very late adding new articles but don’t worry I am always work
         margin: 5px ; 
     }
 </style>
+//-->

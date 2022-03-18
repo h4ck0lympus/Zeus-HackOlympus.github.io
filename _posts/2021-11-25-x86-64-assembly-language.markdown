@@ -4,6 +4,7 @@ title: "x86-64 Assembly Language"
 date: 2021-11-25 10:07:42 +0530
 comments: true
 paginate: true
+keywords: [x86-64, x86 architecture, x86 assembly, x86 processor, x86 and x64, x86 asm, x86 assembly language programming, x86 compiler, x86 code, x86 call instruction, x86 guide, x86 jump, x86 jmp, x86 tutorial]
 categories: ["asm"] 
 ---
 

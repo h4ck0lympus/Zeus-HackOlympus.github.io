@@ -4,17 +4,9 @@ comments: true
 title: "Introduction To Assembly Language"
 date: "2021-01-24"
 paginate: true
-categories: 
+keywords: [assembler,assembly-tutorial, hello-world-in-assembly, introduction-to-assembly, linux-assembly, machine-language, processor] 
+category: 
   - "asm"
-tags: 
-  - "assembler"
-  - "assembly"
-  - "assembly-tutorial"
-  - "hello-world-in-assembly"
-  - "introduction-to-assembly"
-  - "linux-assembly"
-  - "machine-language"
-  - "processor"
 ---
 
 Every Computer has a processor, that processor as we have already guessed by its name, processes the information given to the computer. It performs basic operations like arithmetic calculations, logical and control operations for the computer. This processor understands 1s and 0s but for us humans to write code in 1s and 0s is very difficult and tedious so for this purpose assembly language was introduced. Assembly language makes it easy for us to communicate with computer and understand it more clearly.

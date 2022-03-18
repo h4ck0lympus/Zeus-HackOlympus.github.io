@@ -4,9 +4,21 @@ comments: true
 title: "Mr.Robot - TryHackMe"
 date: "2020-11-17"
 paginate: true
+keywords: 
+    - mr robot try hack me walkthrough
+    - mr robot try hack me write up
+    - mr robot ctf try hack me
+    - try hack me mr robot writeup
+    - mr robot ctf tryhackme
+    - mr robot walkthrough tryhackme
+    - mr robot ctf walkthrough tryhackme
+    - mr robot ctf tryhackme walkthrough
+    - tryhackme mr robot ctf
+    - mr robot ctf walkthrough
+    - try hack me mr robot ctf
 categories: 
   - "ctf"
-  - "medium"
+  - "very easy"
 ---
 
 Hello guys, Mr.Robot is one of my most favorite series and today we will be solving its CTF.

@@ -4,13 +4,14 @@ comments: true
 title: "Linux Basics Part- 2"
 date: "2020-11-11"
 paginate: true
+keywords : [linux commands, linux operating system, linux mint, linux interview questions, linux foundation, linux download, linux kya hai, linux academy, linux administrator, linux administrator interview questions, linux architecture, linux and unix difference, linux admin job description, linux advanced interview questions, linux and windows difference, a linux distribution consists of which of the following, a linux command]
 tags: 
   - "linux"
 ---
 
 **Before beginning, I suggest all the readers, to try the following commands yourself as you read them**.
 
-##### **Advanced File operators**
+## **Advanced File operators**
 
 recall using _**ls --all**_ command privileges and various other attributes of **files** in that directory  
 **Chmod**  
@@ -20,7 +21,11 @@ chmod  allows to set different permissions for a file, and control who can read
 - second digit controls the **permissions of a  group**.
 - third digit controls the **permissions of everyone that's not the part of user or group**.
 
-<table><tbody><tr><td class="has-text-align-center" data-align="center"><sup>Digit</sup></td><td class="has-text-align-center" data-align="center"><sup>meaning&nbsp;</sup></td></tr><tr><td class="has-text-align-center" data-align="center"><sup>1</sup></td><td class="has-text-align-center" data-align="center"><sup>the file can be executed&nbsp;</sup></td></tr><tr><td class="has-text-align-center" data-align="center"><sup>2</sup></td><td class="has-text-align-center" data-align="center"><sup>the file can be written to</sup></td></tr><tr><td class="has-text-align-center" data-align="center"><sup>4</sup></td><td class="has-text-align-center" data-align="center"><sup>the file can be read</sup></td></tr></tbody></table>
+| **Digit** |         **Meaning**        |
+|:---------:|:--------------------------:|
+|     1     |  the file can be executed  |
+|     2     | the file can be written to |
+|     4     |    the file can be read    |
 
 Now how to give permission to the file using above logic.
 
@@ -46,41 +51,41 @@ now what this means, **d** means directory,**rw** means read-write **xr** means 
 
 **Note:** It is possible to give someone no perms to a file, You can just put 0 as the digit. 770 Means that everyone that isn't a part of the user or group cant do anything to the file.
 
-##### **Chown**
+### **Chown**
 
 chown means change owner.It allows us to change **the user and group for any file**.The syntax is:
 
-**_chown user:group file_**
+`chown user:group file` 
 
 **Note: chown is best used with sudo privivliges**
 
 We can also change only user/group. For just we just write:
 
-_**chown <user>/<group> file**_
+`chown <user>/<group> file`
 
 important flag:
 
-**'-R'** - allows us to operate with every file in the directory at once.
+**`-R`** - allows us to operate with every file in the directory at once.
 
-##### rm
+### rm
 
 **rm means remove**. So it removes the respective file **permanently**.So it is a very dangerous command.
 
-To avoid any mishap. we either use -i or -I flag.
+To avoid any mishap. we either use `-i` or `-I` flag.
 
 **Important Flags:**
 
-**\-i** - asks for user's consent every time a file is deleted.
+**`-i`** - asks for user's consent every time a file is deleted.
 
-**\-I** asks for users's consent for deletion of every 3 files.
+**`\-I`** asks for users's consent for deletion of every 3 files.
 
-**\-r** used to delete a whole directory
+**`\-r`** used to delete a whole directory
 
-##### Find
+### Find
 
 find is one my most favorite commands. It is simple and incredibly powerful. As it says, it allows user to find files.
 
-True power of this command though comes from the parameters you provide it For example you can use _**find dir -user <username>**_ to list every file owned by a  specific user; you can use _**find  <dir> -group** **<group name>**_ to list every file owned by a specific group. The sheer customizability of the command is its most powerful.
+True power of this command though comes from the parameters you provide it For example you can use `find dir -user <username>` to list every file owned by a  specific user; you can use `find  <dir> -group** **<group name>` to list every file owned by a specific group. The sheer customizability of the command is its most powerful.
 
 Important flags:
 
@@ -88,25 +93,25 @@ Important flags:
 
 **To search current folder** - **.**
 
-**to search file belonging to a group/user** - _find <dir> -user/group <username>/<groupname>_
+**to search file belonging to a group/user** - **`find <dir> -user/group <username>/<groupname>`**
 
-**to find that is executable -**_find <dir> -executable_
+**to find that is executable -**`find <dir> -executable`**
 
-**To find a empty file and folders -**_find <dir> -empty_
+**To find a empty file and folders -** **`find <dir> -empty`**
 
-**to find all readable file -** _find <dir> -readable_
+**to find all readable file -** **`find <dir> -readable`**
 
-**to find a file with particular extension -** _find <dir> -name \*.mp3_
+**to find a file with particular extension -** **`find <dir> -name \*.mp3`**
 
-**Output of find command to a file -** _find <dir> -name \*.txt -fprint <file name to print to>_
+**Output of find command to a file -** **`find <dir> -name \*.txt -fprint <file name to print to>`**
 
-**Find all directories whose name contains the word "flag" -** _find / -type d -name "\*flag"_
+**Find all directories whose name contains the word "flag"-** `find / -type d -name "*flag"**`
 
 now here type followed by d means directory if it was followed by f it meant files
 
-_**\-name**_ means name of the file/directory depending upon the _\-type_ flag
+**\-name** means name of the file/directory depending upon the `-type` flag
 
-**error reduction (exclude all permission denied or error commands from the output) -** _find <dir> <filename> 2> /dev/null_ 
+**error reduction (exclude all permission denied or error commands from the output) -** `find <dir> <filename> 2> /dev/null`
 
 "2>" is common standard error (stderr) redirection method. I have redirected all the standard error to **/dev/null**, which is a device file. In comming writeups I'll be talking more on this
 
@@ -163,7 +168,11 @@ Now what if, we don't want to find files using hours but minutes, then we use **
 
 As I have written earlier in chmod:
 
-<table><tbody><tr><td class="has-text-align-center" data-align="center"><sup>Digit</sup></td><td class="has-text-align-center" data-align="center"><sup>meaning&nbsp;</sup></td></tr><tr><td class="has-text-align-center" data-align="center"><sup>1</sup></td><td class="has-text-align-center" data-align="center"><sup>the file can be executed&nbsp;</sup></td></tr><tr><td class="has-text-align-center" data-align="center"><sup>2</sup></td><td class="has-text-align-center" data-align="center"><sup>the file can be written to</sup></td></tr><tr><td class="has-text-align-center" data-align="center"><sup>4</sup></td><td class="has-text-align-center" data-align="center"><sup>the file can be read</sup></td></tr></tbody></table>
+| **Digit** |         **Meaning**        |
+|:---------:|:--------------------------:|
+|     1     |  the file can be executed  |
+|     2     | the file can be written to |
+|     4     |    the file can be read    |
 
 **_\-perm_** also uses the above digits with same meaning to search for permission.
 
@@ -206,23 +215,19 @@ _**find -perm -u=rw,-g=x**_
 
 Suppose we have to find all files except the ones having provided permission then we use _**\-not**_ flag.
 
-for instance all files except the one having permission 777 then:
+for instance all files except the one having permission 777 then: `find -type f -not -perm 777`
 
-_**find -type f -not -perm 777**_
+**Combining find commands with linux operators can be really helpful.**
 
-**\*Combining find commands with linux operators can be really helpful.**
+**Find command really helps in solving CTF challenges. There are many other find commands. I suggest you all to look over the man page of this command.**
 
-\*\***Find command really helps in solving CTF challenges. There are many other find commands. I suggest you all to look over the man page of this command.**
-
-##### Grep
+### Grep
 
 This command allows you to find specific string inside data.
 
-The syntax of this command is:
+The syntax of this command is: `grep <string> <file>`
 
-**grep <string> <file>**
-
-**for multiple files:grep <string> <file1> <file2> .....**
+for multiple files: `grep <string> <file1> <file2> .....`
 
 Using grep with find makes the it usability to increase by tenfolds.
 

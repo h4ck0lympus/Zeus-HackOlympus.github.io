@@ -4,9 +4,10 @@ comments: true
 title: "Gotta Catch'em All! TryHackMe WriteUp"
 date: "2020-11-13"
 paginate: true
+keywords: [gotta catch'em all try hack me, gotta catch'em all tryhackme, gotta catch'em all tryhackme walkthrough]
 categories: 
   - "ctf"
-  - "easy"
+  - "very easy"
 ---
 
 Hello guys, I am not a professional so feedback will be appreciated.

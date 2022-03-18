@@ -4,6 +4,7 @@ comments: true
 title: "Linux Basics Part-1"
 paginate: true
 date: "2020-11-10"
+keywords : [linux commands, linux operating system, linux mint, linux interview questions, linux foundation, linux download, linux kya hai, linux academy, linux administrator, linux administrator interview questions, linux architecture, linux and unix difference, linux admin job description, linux advanced interview questions, linux and windows difference, a linux distribution consists of which of the following, a linux command]
 tags: 
   - "linux"
 ---
@@ -98,15 +99,15 @@ To copy entire directory we use **"-r"** flag
 
 ### **Linux operators**
 
-**">"** **\-** To redirect the output to a specific file . **It will completely erase the contents in the file**.
+**`>`** **\-** To redirect the output to a specific file . **It will completely erase the contents in the file**.
 
-**">>"-**  It is just like ">" but difference is, **it appends the output to the file**.
+**`>>`-**  It is just like ">" but difference is, **it appends the output to the file**.
 
-**"&&"** **\-**  It is just like **"and" of linux command line** .It will first run the first command and then the second. if either of the command is wrongly typed or has a syntax error of some type it will just show : _Command not found_
+**`&&`** **\-**  It is just like **"and" of linux command line** .It will first run the first command and then the second. if either of the command is wrongly typed or has a syntax error of some type it will just show : _Command not found_
 
-**";"(semi colon)**: to run multiple commands at the same time. Execution of command goes sequentially
+**`;`(semi colon)**: to run multiple commands at the same time. Execution of command goes sequentially
 
-**"||" (Or operator):** If one command fails other command **successfully runs**
+**`||` (Or operator):** If one command fails other command **successfully runs**
 
-**"|" (PIPE operator):** Pipe the output of first command into the input of second command. 
+**`|` (PIPE operator):** Pipe the output of first command into the input of second command. 
 

@@ -4,9 +4,15 @@ comments: true
 title: "Brooklyn Nine Nine - TryHackMe"
 date: "2020-10-11"
 paginate: true
+keywords: 
+    - brooklyn 99 try hack me
+    - brooklyn nine nine try hack me
+    - brooklyn nine nine tryhackme
+    - brooklyn nine nine tryhackme writeup
+    - tryhackme brooklyn nine nine
 categories: 
   - "ctf"
-  - "easy"
+  - "very easy"
 ---
 
 Hello guys. This is my first tryhackme writeup so please give your honest reviews. Since I am not a professional, your honest reviews will charge my batteries.

@@ -5,7 +5,7 @@ date: 2022-01-04 15:28:24 +0530
 comments: true
 categories: asm
 paginate: true
-keywords: 
+keywords: [pwn college solutions,  pwn college write up,  pwn college challenges,  pwn college github,  pwn college dojo,  pwn college youtube,  pwn college reddit,  pwn college program interaction,  pwn college belts,  pwn.college babyshell ]
 description:  
 ---
 
