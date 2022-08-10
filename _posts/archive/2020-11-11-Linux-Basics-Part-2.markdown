@@ -3,6 +3,7 @@ layout: post
 comments: true
 title: "Linux Basics Part- 2"
 date: "2020-11-11"
+published: false
 paginate: true
 keywords : [linux commands, linux operating system, linux mint, linux interview questions, linux foundation, linux download, linux kya hai, linux academy, linux administrator, linux administrator interview questions, linux architecture, linux and unix difference, linux admin job description, linux advanced interview questions, linux and windows difference, a linux distribution consists of which of the following, a linux command]
 tags: 

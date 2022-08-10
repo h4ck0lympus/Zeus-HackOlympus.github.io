@@ -3,6 +3,7 @@ layout: post
 comments: true
 title: "zip file password bruteforcer"
 date: 2020-10-08 
+published: false
 paginate: true
 categories: 
   - "python-for-pentesting"

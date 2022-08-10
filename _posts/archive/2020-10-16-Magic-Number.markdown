@@ -4,9 +4,9 @@ comments: true
 title: "Magic Number"
 date: "2020-10-16"
 paginate: true
+published: false
 categories: 
   - "forensics"
-
 ---
 
 Ever heard of file signatures or magic number of a file ?
