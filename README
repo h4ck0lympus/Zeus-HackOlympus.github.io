@@ -1,0 +1,8 @@
+ruby version: ruby 3.0.2p107 
+
+1. clone master branch 
+2. gem install bundle 
+3. gem install bundler 
+4. gem install jekyll 
+5. bundle install 
+6. bundle exec jekyll <command>
