@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  
+  
+  <title>Zeus@HackOlympus</title>
+  <meta name="description" content="A personal blog and mind dump of my CS journey ...">
+  
+  <script src="https://kit.fontawesome.com/6b8da6f1d0.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="https://hackolympus.com/posts/8/">
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="Zeus@HackOlympus" href="https://hackolympus.com/feed.xml">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+ <script async src="https://www.googletagmanager.com/gtag/js?id=G-MFNXHS9HDQ"></script>
+ <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-MFNXHS9HDQ');
+ </script>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+
+
+  
+  <meta property="og:title" content="Zeus@HackOlympus">
+  <meta property="og:site_name" content="Zeus@HackOlympus">
+  <meta property="og:url" content="https://hackolympus.com/posts/8/">
+  <meta property="og:description" content="A personal blog and mind dump of my CS journey ...">
+  
+  
+  <meta name="twitter:card" content="summary">
+  
+  <meta name="twitter:title" content="Zeus@HackOlympus">
+  <meta name="twitter:description" content="A personal blog and mind dump of my CS journey ...">
+  
+  
+
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+
+  
+
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Zeus@HackOlympus</a>
+
+    <nav class="site-nav">
+      
+        
+        <a class="page-link" href="/about/">About</a>
+      
+        
+        <a class="page-link" href="/archives/">Archives</a>
+      
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="home">
+
+  
+
+  
+
+  <ul class="post-list">
+    
+      
+      
+
+      <li>
+        <header class="post-header">
+          <h1 class="post-title">
+            
+              <a class="post-link" href="/blog/2021/01/24/Introduction-To-Assembly-Language/">Introduction To Assembly Language</a>
+            
+          </h1>
+
+          <p class="post-meta">
+            Jan 24, 2021
+            
+               •
+  
+    
+    
+      
+    
+      
+        <a href="/categories/asm/">asm</a>
+      
+    
+      
+    
+  
+
+
+
+
+            
+            
+          </p>
+        </header>
+
+        <div class="post-content">
+          <p>Every Computer has a processor, that processor as we have already guessed by its name, processes the information given to the computer. It performs basic operations like arithmetic calculations, logical and control operations for the computer. This processor understands 1s and 0s but for us humans to write code in 1s and 0s is very difficult and tedious so for this purpose assembly language was introduced. Assembly language makes it easy for us to communicate with computer and understand it more clearly.</p>
+
+<p>Assembly language is often called <em>symbolic machine code</em>. It consists of a lot of short forms which is converted to machine language(1s and 0s) when passed through assembler. The following image was found online on the net, it will help you all to understand this concept more clearly.</p>
+
+<p><img src="/images/Assembly-Language-vs-Machine-Language-1.png" class="center" /></p>
+
+<p>The above process of converting assembly language to machine code is called as <strong><em>assembly</em></strong>.</p>
+
+<p>Ok, so up till now I think I have made my point clear that main purpose of assembly language or should I say every programming language is to understand computer and give it commands.</p>
+
+<p>Now a assembly language is designed depending upon which processor we are using so in short it is processor specific. So it is possible that processor found in one PC may able to assemble code written in it but processor of other PC may not.</p>
+
+<p>Assembly language is a low level language and is often abbreviated as <strong><em>asm</em></strong>. So first of all what is a low level language ?</p>
+
+<p>Low level language does not mean that it is easy to learn or anything. Basically low level language basically means that it is a language that it is very similar to actual machine language and has less abstraction. By abstraction I mean changes added to that language so it becomes less complex and more understandable. The converse of it can be applied for high level languages like python, C, Java etc.</p>
+
+<p>So What exactly are these 1’s and 0’s ?</p>
+
+<p>These 1s and 0s are called <em>bits</em>. It is the smallest possible storage unit of computer.</p>
+
+<h4>Bytes</h4>
+
+<p>So we have understood bits but what are bytes ? Are they the same thing or different. Well many people think that bits and bytes are same but its false.</p>
+
+<p>Nowadays processor interpret a specific number of bits at a time. They interpret 8 bits at a time. <strong>This cluster of 8 bits is known as <em>a byte</em></strong>. The main memory of the computer is composed of an array of bytes, with each byte having a separate memory address. The first byte address is 0 and the last address depends on the hardware and software in use. Any byte that is identified as a machine instruction is pushed into <strong>rbp register</strong> onto the run-time stack.</p>
+
+<p><strong>After this you all must study the following concepts as it will make your concepts more clear:</strong></p>
+
+<ul>
+  <li>Binary numbers</li>
+  <li>Binary arithmetic - addition, subtraction, multiplication and division</li>
+  <li>Hexadecimal numbers</li>
+  <li>Floating point numbers</li>
+</ul>
+
+<p>I learned the above topics from this book :</p>
+
+<p><a href="http://library.bagrintsev.me/ASM/Introduction%20to%2064bit%20Intel%20Assembly%20Language%20Programming%20for%20Linux.2011.pdf">Introduction to 64 Bit Intel Assembly Language Programming for Linux</a></p>
+
+        </div>
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="pagination">
+    
+
+    
+      <a class="next" href="/posts/7/">Newer &raquo;</a>
+    
+  </div>
+
+
+
+</div>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <p>
+      
+
+&copy; Zeus - Subscribe via <a href="https://hackolympus.com/feed.xml">RSS</a>
+
+    </p>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

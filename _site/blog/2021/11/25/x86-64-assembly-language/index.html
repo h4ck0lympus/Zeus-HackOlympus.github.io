@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  
+  
+  <title>x86-64 Assembly Language</title>
+  <meta name="description" content="Prerequisite: Knowledge about simple programming language terms like variables, functions etc. Registers ASM works a lot around registers, I try to think of them as variables which only store data types up to 8 bytes.Now there are special registers and register for general use. In the start (during 8 bit days) we only had 4 general purpose registers - a,b,c,d. And Other 2 special purpose registers - sp (stack pointer) and bp (base pointer). But now (in 64 bit mode) we have a total of 11 general purpose registers and 4 special purpose registers: Register Purpose rax General Purpose Register rbx General Purpose Register rcx General Purpose Register rdx General Purpose Register r8 General Purpose Register r9 General Purpose Register r10 General Purpose Register r11 General Purpose Register r12 General Purpose Register r13 General Purpose Register r14 General Purpose Register r15 General Purpose Register rsp Special Purpose Register rbp Special Purpose Register rsi Special Purpose Register rdi Special Purpose Register In above registers ‘r’ means 64 bit register. If we want to use 32 bit register we use ‘e’ prefix. We can also use 32/16/8 bit registers in 64 bit mode . The following illustration will explain it clearly : Syscall Behind the working of every program, there are syscalls involved; These syscalls are permissions which the program ask for from the “supreme authority” - the kernel. Now why this happens ? Because the program does not directly run in the privileged mode for security reasons. In C language we have glibc that provide us functions like printf, scanf etc. which performs syscalls for us in the background.Now before making a syscall we have to set some parameters to define the syscall and its behaviour. We define the syscall using “codes”, for example write syscall has code 1 in x86-64. Now write takes 3 arguments: fd(file descriptor we have to write), buf (stuff we have to write), and count (How many characters to write). How do we know this ? using man 3 write which return the man page of write. We set these arguments using different register and all this follows a calling convention. The calling convention is as follows: To get a list of all the syscalls : cat /usr/include/x86_64-linux-gnu/asm/unistd_64.h We don’t need to remember this path. I mean if you ever forget this path simply investigate this using other techniques like preprocessor output and printing predefined standard macros like this: echo SYS_write | gcc -include sys/syscall.h -E - here we are just asking the compiler to return the preprocessor output to stdout. That’s all folks. In next article we’ll write our first assembly program.">
+  
+    
+    <meta name="keywords" content="x86-64,x86 architecture,x86 assembly,x86 processor,x86 and x64,x86 asm,x86 assembly language programming,x86 compiler,x86 code,x86 call instruction,x86 guide,x86 jump,x86 jmp,x86 tutorial">
+  
+  <script src="https://kit.fontawesome.com/6b8da6f1d0.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="https://hackolympus.com/blog/2021/11/25/x86-64-assembly-language/">
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="Zeus@HackOlympus" href="https://hackolympus.com/feed.xml">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+ <script async src="https://www.googletagmanager.com/gtag/js?id=G-MFNXHS9HDQ"></script>
+ <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-MFNXHS9HDQ');
+ </script>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+
+
+  
+  <meta property="og:title" content="x86-64 Assembly Language">
+  <meta property="og:site_name" content="Zeus@HackOlympus">
+  <meta property="og:url" content="https://hackolympus.com/blog/2021/11/25/x86-64-assembly-language/">
+  <meta property="og:description" content="Prerequisite: Knowledge about simple programming language terms like variables, functions etc. Registers ASM works a lot around registers, I try to think of them as variables which only store data types up to 8 bytes.Now there are special registers and register for general use. In the start (during 8 bit days) we only had 4 general purpose registers - a,b,c,d. And Other 2 special purpose registers - sp (stack pointer) and bp (base pointer). But now (in 64 bit mode) we have a total of 11 general purpose registers and 4 special purpose registers: Register Purpose rax General Purpose Register rbx General Purpose Register rcx General Purpose Register rdx General Purpose Register r8 General Purpose Register r9 General Purpose Register r10 General Purpose Register r11 General Purpose Register r12 General Purpose Register r13 General Purpose Register r14 General Purpose Register r15 General Purpose Register rsp Special Purpose Register rbp Special Purpose Register rsi Special Purpose Register rdi Special Purpose Register In above registers ‘r’ means 64 bit register. If we want to use 32 bit register we use ‘e’ prefix. We can also use 32/16/8 bit registers in 64 bit mode . The following illustration will explain it clearly : Syscall Behind the working of every program, there are syscalls involved; These syscalls are permissions which the program ask for from the “supreme authority” - the kernel. Now why this happens ? Because the program does not directly run in the privileged mode for security reasons. In C language we have glibc that provide us functions like printf, scanf etc. which performs syscalls for us in the background.Now before making a syscall we have to set some parameters to define the syscall and its behaviour. We define the syscall using “codes”, for example write syscall has code 1 in x86-64. Now write takes 3 arguments: fd(file descriptor we have to write), buf (stuff we have to write), and count (How many characters to write). How do we know this ? using man 3 write which return the man page of write. We set these arguments using different register and all this follows a calling convention. The calling convention is as follows: To get a list of all the syscalls : cat /usr/include/x86_64-linux-gnu/asm/unistd_64.h We don’t need to remember this path. I mean if you ever forget this path simply investigate this using other techniques like preprocessor output and printing predefined standard macros like this: echo SYS_write | gcc -include sys/syscall.h -E - here we are just asking the compiler to return the preprocessor output to stdout. That’s all folks. In next article we’ll write our first assembly program.">
+  
+  
+  <meta name="twitter:card" content="summary">
+  
+  <meta name="twitter:title" content="x86-64 Assembly Language">
+  <meta name="twitter:description" content="Prerequisite: Knowledge about simple programming language terms like variables, functions etc. Registers ASM works a lot around registers, I try to think of them as variables which only store data ...">
+  
+  
+
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+
+  
+
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Zeus@HackOlympus</a>
+
+    <nav class="site-nav">
+      
+        
+        <a class="page-link" href="/about/">About</a>
+      
+        
+        <a class="page-link" href="/archives/">Archives</a>
+      
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    
+      <h1 class="post-title" itemprop="name headline">x86-64 Assembly Language</h1>
+    
+    <p class="post-meta"><time datetime="2021-11-25T04:37:42+00:00" itemprop="datePublished">Nov 25, 2021</time> •
+  
+    
+    
+      
+    
+      
+        <a href="/categories/asm/">asm</a>
+      
+    
+      
+    
+  
+
+
+
+</p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <h4>Prerequisite: Knowledge about simple programming language terms like variables, functions etc.</h4>
+
+<h3>Registers</h3>
+
+<p>ASM works a lot around registers, I try to think of them as variables which only store data types up to 8 bytes.Now there are special registers and register for general use.</p>
+
+<p>In the start (during 8 bit days) we only had 4 general purpose registers - a,b,c,d.</p>
+
+<p>And Other 2 special purpose registers - sp (stack pointer) and bp (base pointer).</p>
+
+<p>But now (in 64 bit mode) we have a total of 11 general purpose registers and 4 special purpose registers:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Register</th>
+      <th style="text-align: center">Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">rax</td>
+      <td style="text-align: center">General Purpose Register</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">rbx</td>
+      <td style="text-align: center">General Purpose Register</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">rcx</td>
+      <td style="text-align: center">General Purpose Register</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">rdx</td>
+      <td style="text-align: center">General Purpose Register</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">r8</td>
+      <td style="text-align: center">General Purpose Register</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">r9</td>
+      <td style="text-align: center">General Purpose Register</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">r10</td>
+      <td style="text-align: center">General Purpose Register</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">r11</td>
+      <td style="text-align: center">General Purpose Register</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">r12</td>
+      <td style="text-align: center">General Purpose Register</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">r13</td>
+      <td style="text-align: center">General Purpose Register</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">r14</td>
+      <td style="text-align: center">General Purpose Register</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">r15</td>
+      <td style="text-align: center">General Purpose Register</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">rsp</td>
+      <td style="text-align: center">Special Purpose Register</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">rbp</td>
+      <td style="text-align: center">Special Purpose Register</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">rsi</td>
+      <td style="text-align: center">Special Purpose Register</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">rdi</td>
+      <td style="text-align: center">Special Purpose Register</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>In above registers ‘r’ means 64 bit register. If we want to use 32 bit register we use ‘e’ prefix. <strong>We can also use 32/16/8 bit registers in 64 bit mode</strong> . The following illustration will explain it clearly :</p>
+
+<p><img src="/images/x86-64/Registers.drawio.png" class="center" /></p>
+
+<h3>Syscall</h3>
+
+<p>Behind the working of every program, there are syscalls involved; These syscalls are permissions which the program ask for from the “supreme authority” - the kernel. Now why this happens ? Because the program does not directly run in the privileged mode for security reasons.</p>
+
+<p>In C language we have glibc that provide us functions like <code class="language-plaintext highlighter-rouge">printf</code>, <code class="language-plaintext highlighter-rouge">scanf</code> etc. which performs syscalls for us in the background.Now before making a syscall we have to set some parameters to define the syscall and its behaviour. We define the syscall using “codes”, for example <code class="language-plaintext highlighter-rouge">write</code> syscall has code 1 in x86-64. Now <code class="language-plaintext highlighter-rouge">write</code> takes 3 arguments: <code class="language-plaintext highlighter-rouge">fd</code>(file descriptor we have to write), <code class="language-plaintext highlighter-rouge">buf</code> (stuff we have to write), and <code class="language-plaintext highlighter-rouge">count</code> (How many characters to write). How do we know this ? using <code class="language-plaintext highlighter-rouge">man 3 write</code> which return the man page of write.</p>
+
+<p>We set these arguments using different register and all this follows a calling convention. The calling convention is as follows:</p>
+
+<p><img src="/images/x86-64/Calling_convention.png" class="center" /></p>
+
+<p>To get a list of all the syscalls : <code class="language-plaintext highlighter-rouge">cat /usr/include/x86_64-linux-gnu/asm/unistd_64.h</code> We don’t need to remember this path. I mean if you ever forget this path simply investigate this using other techniques like preprocessor output and printing predefined standard macros like this: <code class="language-plaintext highlighter-rouge">echo SYS_write | gcc -include sys/syscall.h -E -</code> here we are just asking the compiler to return the preprocessor output to stdout.</p>
+
+<p>That’s all folks. In next article we’ll write our first assembly program.</p>
+
+
+  </div>
+
+  
+    <div class="post-comments" itemprop="comment">
+      <hr />
+<h1>Comments</h1>
+<div id="disqus_thread"></div>
+<script>
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        
+        s.src = 'https://hackolympus.disqus.com/embed.js';
+        
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+    </div>
+  
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <p>
+      
+
+&copy; Zeus - Subscribe via <a href="https://hackolympus.com/feed.xml">RSS</a>
+
+    </p>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

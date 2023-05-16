@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  
+  
+  <title>Zeus@HackOlympus</title>
+  <meta name="description" content="A personal blog and mind dump of my CS journey ...">
+  
+  <script src="https://kit.fontawesome.com/6b8da6f1d0.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="https://hackolympus.com/posts/3/">
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="Zeus@HackOlympus" href="https://hackolympus.com/feed.xml">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+ <script async src="https://www.googletagmanager.com/gtag/js?id=G-MFNXHS9HDQ"></script>
+ <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-MFNXHS9HDQ');
+ </script>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+
+
+  
+  <meta property="og:title" content="Zeus@HackOlympus">
+  <meta property="og:site_name" content="Zeus@HackOlympus">
+  <meta property="og:url" content="https://hackolympus.com/posts/3/">
+  <meta property="og:description" content="A personal blog and mind dump of my CS journey ...">
+  
+  
+  <meta name="twitter:card" content="summary">
+  
+  <meta name="twitter:title" content="Zeus@HackOlympus">
+  <meta name="twitter:description" content="A personal blog and mind dump of my CS journey ...">
+  
+  
+
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+
+  
+
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Zeus@HackOlympus</a>
+
+    <nav class="site-nav">
+      
+        
+        <a class="page-link" href="/about/">About</a>
+      
+        
+        <a class="page-link" href="/archives/">Archives</a>
+      
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="home">
+
+  
+
+  
+
+  <ul class="post-list">
+    
+      
+      
+
+      <li>
+        <header class="post-header">
+          <h1 class="post-title">
+            
+              <a class="post-link" href="/blog/2022/01/04/writing-programs-in-x86-64-assembly-language/">Writing programs in x86-64 ASM and pwncollege embryoasm writeup</a>
+            
+          </h1>
+
+          <p class="post-meta">
+            Jan 4, 2022
+            
+               •
+  
+    
+    
+      
+    
+      
+        <a href="/categories/asm/">asm</a>
+      
+    
+      
+    
+  
+
+
+
+
+            
+            
+          </p>
+        </header>
+
+        <div class="post-content">
+          <p>Before reading this, it’s an advice to please read <a href="/blog/2021/11/25/x86-64-assembly-language/">previous article</a> of ASM series.</p>
+
+<p>So now that we know some basics of registers and syscalls. We will move onto the part where we use our newfound knowledge to write some assembly code.</p>
+
+<p><strong>The following ASM code is specific to GAS (GNU Assembler)</strong></p>
+
+<h3>Step by Step Hello world ASM program breakdown</h3>
+
+<pre><code class="language-assembly">.section .text
+    .intel_syntax noprefix
+    .global _start
+    _start:
+        mov rax, 1
+        lea rsi, [rip+str]
+        mov rdx, 13
+        syscall
+
+        mov rax, 60
+        mov rdi, 0
+        syscall
+
+    str:
+        .string "Hello world\n"
+</code></pre>
+
+<p>Now in my <a href="/blog/2021/01/24/Memory-Mapping-Introduction/">first article</a>, I explained different sections/mapping of memory. Most important sections among those are <code class="language-plaintext highlighter-rouge">.text</code> section and <code class="language-plaintext highlighter-rouge">.data</code>, because it is <code class="language-plaintext highlighter-rouge">.text</code> where we write code and <code class="language-plaintext highlighter-rouge">.data</code> where we define variables and constants.</p>
+
+<p>In the above <em>hello world</em> program, we are only using the <code class="language-plaintext highlighter-rouge">.text</code> section and keeping the code as minimal and simple as possible.</p>
+
+<p>So in the first line we are defining the section. In order to define a section we do <code class="language-plaintext highlighter-rouge">.section &lt;section name&gt;</code></p>
+
+<p>In our case, as we are only using <code class="language-plaintext highlighter-rouge">.text</code> :</p>
+
+<pre><code class="language-asm">.section .text 
+</code></pre>
+
+<p>Now because we are using GAS, the default ASM sytax is AT&amp;T but we are writing in intel syntax so we need to specify that to the assembler. We do this using :</p>
+
+<pre><code class="language-asm">.intel_syntax noprefix 
+</code></pre>
+
+<p><code class="language-plaintext highlighter-rouge">.global</code> is GAS directive which helps in defining symbols in object file. Every ASM code must have a <code class="language-plaintext highlighter-rouge">_start</code> symbol. It defines the entry point of ASM code.</p>
+
+<p>In GAS we do all this using :</p>
+
+<pre><code class="language-asm">.global _start # first we define a symbol
+_start : # then we mark the entry point 
+</code></pre>
+
+<p>Oh ! by the way, we use <code class="language-plaintext highlighter-rouge">#</code> in GAS for comments.</p>
+
+<h3>MOV instruction</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">mov</code> instruction is the very basic and is used extensively in a assembly program.  It is used to copy/move data from one register to another. In intel, it works in the following way :</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mov &lt;destination register&gt; , &lt;source register&gt;
+</code></pre></div></div>
+
+<p>For example we need to copy number 6263 in register <code class="language-plaintext highlighter-rouge">rax</code>, We’ll do :</p>
+
+<pre><code class="language-asm">mov rax, 6263 # rax = 6263
+</code></pre>
+
+<h3>LEA instruction</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">lea</code> instruction is used to copy some <strong>address</strong> in some register.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>lea &lt;destination register&gt; , &lt;source effective address&gt;
+</code></pre></div></div>
+<p>This is also used extensively because we are loading effective address, So we can also do math in one instruction itself and assembler will understand it and assemble it for us. In <code class="language-plaintext highlighter-rouge">mov</code> instruction it’s not possible.</p>
+
+<h3>SYSCALL instruction</h3>
+
+<p>syscall instruction, as name says, is used for making system calls.</p>
+
+<h3>Main Hello world code</h3>
+
+<p>Now to write something on screen, we need to write on stdout (it’s file descriptor is 1). So in total we need to do 2 syscalls (write and exit syscalls).</p>
+
+<p>To do write syscall we need to give it some arguments. We give arguments based on calling convention (Discussed in previous <a href="/blog/2021/11/25/x86-64-assembly-language/">article</a>) .</p>
+
+<p><img src="/images/x86-64/Calling_convention.png" class="center" style="width: 60%" /></p>
+
+<p>We can either use a good <a href="https://chromium.googlesource.com/chromiumos/docs/+/master/constants/syscalls.md">website</a> or if you are a console fan then method used in <a href="/blog/2021/11/25/x86-64-assembly-language/">previous article</a> to get syscall number and to see arguments use 2nd page of <code class="language-plaintext highlighter-rouge">man</code> command.</p>
+
+<p><img src="/images/x86-64/man_write.png" class="center" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">echo SYS_write | gcc -include sys/syscall.h -E - </code></p>
+
+<p>So, putting everything together and writing a subroutine for <code class="language-plaintext highlighter-rouge">write</code> syscall</p>
+
+<p><strong>1st argument :</strong> fd (File descriptor which in our case is 1 for stdout) <br />
+<strong>2nd argument :</strong> buf (Buffer, Address of info which has to be written on screen ?) <br />
+<strong>3rd argument :</strong> count (Buffer size) <br /></p>
+
+<p>All these arguments have to be set according to calling convention.</p>
+
+<pre><code class="language-asm">mov rax, 1         # syscall code is set through rax register 
+mov rdi, 1         # set fd to stdout (1)  
+lea rsi, [rip+str] # use rip (instruction pointer) to access label str
+mov rdx, 13        # Hello world\n\0 size = 13
+syscall            # perform syscall 
+</code></pre>
+
+<p>Label <code class="language-plaintext highlighter-rouge">str</code> is basically a space in memory where “hello world” is stored in form of bytes. <code class="language-plaintext highlighter-rouge">lea</code> instruction will calculate the address of the start of buffer using <code class="language-plaintext highlighter-rouge">rip</code> register (instruction pointer).</p>
+
+<p>I recommend you to write the <code class="language-plaintext highlighter-rouge">exit</code> subroutine without looking at my code.</p>
+
+<p><strong>Exit subroutine :</strong></p>
+
+<pre><code class="language-asm">mov rax, 60 # syscall code for exit is 60 
+mov rdi, 0  # return address of exit 
+syscall     # perform syscall 
+</code></pre>
+
+<p>So to putting all the pieces together and we get our assembly code :</p>
+
+<pre><code class="language-asm">.section .text
+    .intel_syntax noprefix
+    .global _start
+    _start:
+        mov rax, 1
+        lea rsi, [rip+str]
+        mov rdx, 13
+        syscall
+
+        mov rax, 60
+        mov rdi, 0
+        syscall
+
+    str:
+        .string "Hello world\n"
+</code></pre>
+
+<p>I hope after reading this, you would have understood assembly and basic concepts related to memory. Now like any other language, assembly is just about practice, pratice and practice. Once you master it, I guarantee, assembly and C will become your favorite language.</p>
+
+<h3><a href="https://dojo.pwn.college/challenges/asm">Pwn.College Embryoasm</a>  Writeup</h3>
+
+<p>I have already started the instance, so let’ connnect <code class="language-plaintext highlighter-rouge">ssh -i ~/.ssh/key.pub hacker@dojo.pwn.college</code> .</p>
+
+<p><img src="/images/x86-64/asm_1.png" class="center" /></p>
+
+<p>So this is easy. As explained above. We can just do <code class="language-plaintext highlighter-rouge">mov rdi, 0x1337</code></p>
+
+<p>full code :</p>
+
+<pre><code class="language-asm">.section .text 
+    .intel_syntax noprefix 
+    .global _start 
+    _start : 
+        mov rdi, 0x1337
+</code></pre>
+
+<p>First we assemble it and compile it into an ELF then we will convert copy bytes of that ELF in a different file.</p>
+
+<p>to do so :</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gcc -nostdlib -static exp.s -o exp
+objcopy --dump-section .text=exp.bin exp
+</code></pre></div></div>
+
+<p>Then we will pipe the bytes into the challenge.</p>
+
+<p><img src="/images/x86-64/asm_1_flag.png" class="center" /></p>
+
+<p>We can also do this using python script through pwntools.</p>
+
+<p>Python script :</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python3
+</span><span class="kn">import</span> <span class="nn">pwn</span>
+<span class="n">pwn</span><span class="p">.</span><span class="n">context</span><span class="p">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="s">"INFO"</span>
+<span class="n">pwn</span><span class="p">.</span><span class="n">context</span><span class="p">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="s">"latin"</span>
+<span class="n">pwn</span><span class="p">.</span><span class="n">context</span><span class="p">.</span><span class="n">arch</span> <span class="o">=</span> <span class="s">"amd64"</span>
+<span class="n">pwn</span><span class="p">.</span><span class="n">warnings</span><span class="p">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s">"ignore"</span><span class="p">)</span>
+
+<span class="n">assembly</span> <span class="o">=</span> <span class="s">"""mov rdi, 0x1337"""</span>
+
+<span class="n">proc</span> <span class="o">=</span> <span class="n">pwn</span><span class="p">.</span><span class="n">process</span><span class="p">(</span><span class="s">"/challenge/embryoasm_level1"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">proc</span><span class="p">.</span><span class="n">readrepeat</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+<span class="n">proc</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">pwn</span><span class="p">.</span><span class="n">asm</span><span class="p">(</span><span class="n">assembly</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">proc</span><span class="p">.</span><span class="n">readrepeat</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>In future I’ll write some interesting articles on some more instructions in ASM, file operations through assembly, shellcoding and operating system design.</p>
+
+<p>A <a href="https://deut-erium.github.io/about.html">wise man</a>👨‍💻 (check out his <a href="https://deut-erium.github.io/">blog</a>) once said to me, “its almost like playing lego … you have to put the pieces together …”</p>
+
+<p>On that note,</p>
+
+<p>Signing out</p>
+
+
+        </div>
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="pagination">
+    
+      <a class="previous" href="/posts/4/">&laquo; Older</a>
+    
+
+    
+      <a class="next" href="/posts/2/">Newer &raquo;</a>
+    
+  </div>
+
+
+
+</div>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <p>
+      
+
+&copy; Zeus - Subscribe via <a href="https://hackolympus.com/feed.xml">RSS</a>
+
+    </p>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

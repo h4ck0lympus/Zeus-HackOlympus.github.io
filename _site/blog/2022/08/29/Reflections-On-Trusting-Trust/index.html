@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  
+  
+  <title>Reflections on Trusting Trust</title>
+  <meta name="description" content="Reflections on Trusting Trust, written by the legendary Sir Ken Thompson, essentially raises a deep but valid question: should we trust the code written by someone else ? The paper begins with a very interesting series of talks on various pieces of code, divided into stages and the most fascinating and overwhelming was stage 3, where Sir Ken Thompson provides us with a case study. In this case study, he tries to introduce us with an idea about how compilers can be made to have backdoors inside of them. A compiler can be designed in such a way that it injects intentionally vulnerable code into a specific program. This is a very critical thing for me to think about because compilers are used to convert code into binary, so even if the original code is free from any bugs or vulnerabilities, compiling it with an unsafe compiler will automatically make it vulnerable to attacks, and no one except the person who wrote the compiler may know about it. Now, for me personally, this whole case study changed my perspective on software. Should I even trust the OS on which I am doing my work? In fact, should I even trust the software that I am using for my regular usage ? And what’s frightening is the fact that Unix was open source so this kind of compiler mishap is noticeable but what about software that is commercial and whose source code is not in public ? Is it game over ? These questions might sound ambiguous but are very valid because whenever we use a software, we never think about its security and that’s what is going to harm us in the long run. Moral is and as Ken Thompson says in his paper, “You can’t trust code that you did not totally create yourself…” So if we should not trust the code written by someone else, should we just stop using code ? The answer is No because that’s obviously not possible. But what we can do is and as Ken Thompson says in the beginning of the paper is, “to trust the people who wrote the software.” Obviously this is also not a fool proof statement because people too can’t be trusted. In my opinion bad people(otherwise known as black hat hackers) will continue to evade system security because code is written by humans and humans make mistakes which leads to vulnerability and therefore exploits. But it is the job of expert good hackers(otherwise known as white hat hackers ) to find those mistakes, before the bad people can get their hands on it.">
+  
+    
+    <meta name="keywords" content="reflection on trusting trust,ken thompson,computer science,computer security,security">
+  
+  <script src="https://kit.fontawesome.com/6b8da6f1d0.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="https://hackolympus.com/blog/2022/08/29/Reflections-On-Trusting-Trust/">
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="Zeus@HackOlympus" href="https://hackolympus.com/feed.xml">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+ <script async src="https://www.googletagmanager.com/gtag/js?id=G-MFNXHS9HDQ"></script>
+ <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-MFNXHS9HDQ');
+ </script>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+
+
+  
+  <meta property="og:title" content="Reflections on Trusting Trust">
+  <meta property="og:site_name" content="Zeus@HackOlympus">
+  <meta property="og:url" content="https://hackolympus.com/blog/2022/08/29/Reflections-On-Trusting-Trust/">
+  <meta property="og:description" content="Reflections on Trusting Trust, written by the legendary Sir Ken Thompson, essentially raises a deep but valid question: should we trust the code written by someone else ? The paper begins with a very interesting series of talks on various pieces of code, divided into stages and the most fascinating and overwhelming was stage 3, where Sir Ken Thompson provides us with a case study. In this case study, he tries to introduce us with an idea about how compilers can be made to have backdoors inside of them. A compiler can be designed in such a way that it injects intentionally vulnerable code into a specific program. This is a very critical thing for me to think about because compilers are used to convert code into binary, so even if the original code is free from any bugs or vulnerabilities, compiling it with an unsafe compiler will automatically make it vulnerable to attacks, and no one except the person who wrote the compiler may know about it. Now, for me personally, this whole case study changed my perspective on software. Should I even trust the OS on which I am doing my work? In fact, should I even trust the software that I am using for my regular usage ? And what’s frightening is the fact that Unix was open source so this kind of compiler mishap is noticeable but what about software that is commercial and whose source code is not in public ? Is it game over ? These questions might sound ambiguous but are very valid because whenever we use a software, we never think about its security and that’s what is going to harm us in the long run. Moral is and as Ken Thompson says in his paper, “You can’t trust code that you did not totally create yourself…” So if we should not trust the code written by someone else, should we just stop using code ? The answer is No because that’s obviously not possible. But what we can do is and as Ken Thompson says in the beginning of the paper is, “to trust the people who wrote the software.” Obviously this is also not a fool proof statement because people too can’t be trusted. In my opinion bad people(otherwise known as black hat hackers) will continue to evade system security because code is written by humans and humans make mistakes which leads to vulnerability and therefore exploits. But it is the job of expert good hackers(otherwise known as white hat hackers ) to find those mistakes, before the bad people can get their hands on it.">
+  
+  
+  <meta name="twitter:card" content="summary">
+  
+  <meta name="twitter:title" content="Reflections on Trusting Trust">
+  <meta name="twitter:description" content="Reflections on Trusting Trust, written by the legendary Sir Ken Thompson, essentially raises a deep but valid question: should we trust the code written by someone else ? The paper begins with a ve...">
+  
+  
+
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+
+  
+
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Zeus@HackOlympus</a>
+
+    <nav class="site-nav">
+      
+        
+        <a class="page-link" href="/about/">About</a>
+      
+        
+        <a class="page-link" href="/archives/">Archives</a>
+      
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    
+      <h1 class="post-title" itemprop="name headline">Reflections on Trusting Trust</h1>
+    
+    <p class="post-meta"><time datetime="2022-08-29T00:00:00+00:00" itemprop="datePublished">Aug 29, 2022</time></p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p><a href="https://dl.acm.org/doi/pdf/10.1145/358198.358210"><em>Reflections on Trusting Trust</em></a>, written by the legendary Sir Ken Thompson, essentially raises a deep but valid question: should we trust the code written by someone else ?</p>
+
+<p>The paper begins with a very interesting series of talks on various pieces of code, divided into stages and the most fascinating and overwhelming was stage 3, where Sir Ken Thompson provides us with a case study.</p>
+
+<p>In this case study, he tries to introduce us with an idea about how compilers can be made to have backdoors inside of them. A compiler can be designed in such a way that it injects intentionally vulnerable code into a specific program.</p>
+
+<p>This is a very critical thing for me to think about because compilers are used to convert code into binary, so even if the original code is free from any bugs or vulnerabilities, compiling it with an unsafe compiler will automatically make it vulnerable to attacks, and no one except the person who wrote the compiler may know about it.</p>
+
+<p>Now, for me personally, this whole case study changed my perspective on software. Should I even trust the OS on which I am doing my work? In fact, should I even trust the software that I am using for my regular usage ? And what’s frightening is the fact that Unix was open source so this kind of compiler mishap is noticeable but what about software that is commercial and whose source code is not in public ? Is it game over ?</p>
+
+<p>These questions might sound ambiguous but are very valid because whenever we use a software, we never think about its security and that’s what is going to harm us in the long run.</p>
+
+<p>Moral is and as Ken Thompson says in his paper, “<em>You can’t trust code that you did not totally create yourself…</em>”  So if we should not trust the code written by someone else, should we just stop using code ? The answer is No because that’s obviously not possible. But what we can do is and as Ken Thompson says in the beginning of the paper is, “to trust the people who wrote the software.”  Obviously this is also not a fool proof statement because people too can’t be trusted.</p>
+
+<p>In my opinion bad people(otherwise known as black hat hackers)  will continue to evade system security because code is written by humans and humans make mistakes which leads to vulnerability and therefore exploits. But it is the job of expert good hackers(otherwise known as white hat hackers ) to find those mistakes, before the bad people can get their hands on it.</p>
+
+
+  </div>
+
+  
+    <div class="post-comments" itemprop="comment">
+      <hr />
+<h1>Comments</h1>
+<div id="disqus_thread"></div>
+<script>
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        
+        s.src = 'https://hackolympus.disqus.com/embed.js';
+        
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+    </div>
+  
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <p>
+      
+
+&copy; Zeus - Subscribe via <a href="https://hackolympus.com/feed.xml">RSS</a>
+
+    </p>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

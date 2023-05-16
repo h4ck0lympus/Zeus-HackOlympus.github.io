@@ -1,0 +1,1266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+  <generator uri="http://jekyllrb.com" version="3.9.3">Jekyll</generator>
+  
+  
+  <link href="https://hackolympus.com/feed.xml" rel="self" type="application/atom+xml" />
+  <link href="https://hackolympus.com/" rel="alternate" type="text/html" hreflang="en" />
+  <updated>2023-05-16T13:42:36+00:00</updated>
+  <id>https://hackolympus.com//</id>
+
+  
+    <title type="html">Zeus@HackOlympus</title>
+  
+
+  
+    <subtitle>A personal blog and mind dump of my CS journey ...</subtitle>
+  
+
+  
+    <author>
+        <name>Zeus</name>
+      
+      
+    </author>
+  
+
+  
+  
+    <entry>
+      
+      <title type="html">Heap Exploitation Notes: Understanding glibc’s Heap</title>
+      
+      
+      <link href="https://hackolympus.com/blog/2023/05/15/heap-exploitation-notes-understanding-glibc-s-heap/" rel="alternate" type="text/html" title="Heap Exploitation Notes: Understanding glibc&apos;s Heap" />
+      
+      <published>2023-05-15T17:22:00+00:00</published>
+      <updated>2023-05-15T17:22:00+00:00</updated>
+      <id>https://hackolympus.com/blog/2023/05/15/heap-exploitation-notes-understanding-glibc-s-heap</id>
+      <content type="html" xml:base="https://hackolympus.com/blog/2023/05/15/heap-exploitation-notes-understanding-glibc-s-heap/">&lt;h1&gt;Heap&lt;/h1&gt;
+
+&lt;p&gt;Heap is very platform and implementation specific.
+So windows and linux have different heap implementation. We are looking at glibc (linux) heap implementation.&lt;/p&gt;
+
+&lt;h2&gt;Arena&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;every thread has a separate arena&lt;/li&gt;
+  &lt;li&gt;Arena is basically a separate heap per thread.&lt;/li&gt;
+  &lt;li&gt;there is a &lt;strong&gt;parent arena&lt;/strong&gt; that is basically the first arena of the program.&lt;/li&gt;
+  &lt;li&gt;there are a total of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;8 * number of cores&lt;/code&gt; arenas.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2&gt;malloc chunk&lt;/h2&gt;
+
+&lt;p&gt;chunks are the &lt;strong&gt;basic unit of memory&lt;/strong&gt; in heap.&lt;/p&gt;
+
+&lt;p&gt;When the heap manager allocates memory from the heap, it typically &lt;strong&gt;allocates a chunk of memory that is larger than the requested size&lt;/strong&gt;. This is because the heap manager also needs to &lt;strong&gt;store alignment padding and metadata with the allocated chunk&lt;/strong&gt;, such as information about the size and status of the chunk. The metadata is stored alongside the chunk of memory, and so the overall size of the allocated block is larger than the size requested by the program.&lt;/p&gt;
+
+&lt;p&gt;alignment of chunk = &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;2 * sizeof(size_t)&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;so for 32 bit systems, allocation will be 8 byte aligned.
+for 64 bit systems, allocation will be 16 bit aligned.&lt;/p&gt;
+
+&lt;p&gt;The heap manager will mark the chunk allocated and returns a pointer to the aligned “user data” region inside the chunk.&lt;/p&gt;
+
+&lt;h3&gt;Chunk Allocation strategies&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;previously freed chunk of memory and chunk is big enough that same chunk gets allocated&lt;/li&gt;
+  &lt;li&gt;space available at top of heap, allocate space from top of heap&lt;/li&gt;
+  &lt;li&gt;otherwise, ask kernel to add new memory, then ask heap to allocate from top of heap&lt;/li&gt;
+  &lt;li&gt;if all fails, malloc returns &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NULL&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4&gt;Allocating from freed chunks&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Heap manager keeps track of freed chunks in a series of different linked list called “bins”.&lt;/li&gt;
+  &lt;li&gt;when an allocation request is made, heap managers searches these bins for a chunk that is big enough to service the request.&lt;/li&gt;
+  &lt;li&gt;removes the chunk from the bin and mark it as allocated.&lt;/li&gt;
+  &lt;li&gt;returns pointer to user data.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;there are different types of bins:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;fast bins&lt;/li&gt;
+  &lt;li&gt;unsorted bins&lt;/li&gt;
+  &lt;li&gt;small bins&lt;/li&gt;
+  &lt;li&gt;large bins&lt;/li&gt;
+  &lt;li&gt;per-thread tcache.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- ![](https://azeria-labs.com/wp-content/uploads/2019/03/chunk-allocated-simple-CS.png) --&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    An allocated chunk looks like this:
+
+
+    chunk-&amp;gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	    |             Size of previous chunk, if unallocated (P clear)  |
+	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	    |             Size of chunk, in bytes                     |A|M|P|
+      mem-&amp;gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	    |             User data starts here...                          .
+	    .                                                               .
+	    .             (malloc_usable_size() bytes)                      .
+	    .                                                               |
+nextchunk-&amp;gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	    |             (size of chunk, but used for application data)    |
+	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	    |             Size of next chunk, in bytes                |A|0|1|
+	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4&gt;Allocating from top of heap&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;if no free chunks available that can service request, heap manager &lt;strong&gt;allocates space from top of heap&lt;/strong&gt;.&lt;/li&gt;
+  &lt;li&gt;heap manager first looks at the free space at the top of heap otherwise known as &lt;strong&gt;top chunk&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4&gt;Asking kernel from more memory at the top of the heap&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Once the free space at the top of the heap is used up, the heap manager will have to ask the kernel to add more memory to the end of the heap.&lt;/li&gt;
+  &lt;li&gt;on the initial heap, the heap manager asks the kernel to allocate memory at the end of heap by calling the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sbrk&lt;/code&gt; syscall.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sbrk&lt;/code&gt; internally uses &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;brk&lt;/code&gt; syscall.&lt;/li&gt;
+  &lt;li&gt;Eventually, expanding the heap with sbrk will fail. Heap will grow so large that it will collide with libraries, or a thread’s stack region. Once the heap reaches this point, the heap manager will resort to attaching new non-contiguous memory to the initial program heap using calls to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mmap&lt;/code&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;!-- ![](https://azeria-labs.com/wp-content/uploads/2019/03/process-memory-heap-gif-1.gif) --&gt;
+
+&lt;h3&gt;Chunk Metadata&lt;/h3&gt;
+
+&lt;p&gt;definition of chunk:&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;malloc_chunk&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+
+  &lt;span class=&quot;n&quot;&gt;INTERNAL_SIZE_T&lt;/span&gt;   &lt;span class=&quot;n&quot;&gt;mchunk_prev_size&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  &lt;span class=&quot;cm&quot;&gt;/* Size of previous chunk (if free).  */&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;INTERNAL_SIZE_T&lt;/span&gt;   &lt;span class=&quot;n&quot;&gt;mchunk_size&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;       &lt;span class=&quot;cm&quot;&gt;/* Size in bytes, including overhead. */&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;malloc_chunk&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;         &lt;span class=&quot;cm&quot;&gt;/* double links -- used only if free. */&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;malloc_chunk&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bk&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+  &lt;span class=&quot;cm&quot;&gt;/* Only used for large blocks: pointer to next larger size.  */&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;malloc_chunk&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fd_nextsize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;cm&quot;&gt;/* double links -- used only if free. */&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;malloc_chunk&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bk_nextsize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;During malloc, before returning the pointer to user data, chunk size is written in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mchunk_size&lt;/code&gt; field. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mchunk_size&lt;/code&gt; contains chunk size and 3 flags&lt;/p&gt;
+
+&lt;p&gt;the 3 flags are:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;A&lt;/code&gt; flag
+if bit is 1, chunk is not from main arena
+else chunk comes from main arena &lt;br /&gt; 
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;M&lt;/code&gt; flag
+if bit is 1, chunk was allocated with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mmap&lt;/code&gt; call and is not a part of
+heap and was allocated off-heap. When freed the whole chunk is returned back
+to OS via &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;munmap&lt;/code&gt; syscall rather than attempting to recycle it.&lt;br /&gt; 
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;P&lt;/code&gt; flag
+if bit is 1, previous chunk is in use, and should not used to safely join
+with previous chunk to create much larger chunk&lt;br /&gt;&lt;/p&gt;
+
+&lt;h3&gt;How does free works&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Check that &lt;strong&gt;allocation is aligned on an 8-byte boundary&lt;/strong&gt;, since malloc ensures all allocations are aligned.&lt;/li&gt;
+  &lt;li&gt;Check that the chunk’s size field isn’t impossible - either because it is too small, too large, not aligned size or would overlap the with end of process’ address space.&lt;/li&gt;
+  &lt;li&gt;check that chunk lies within boundaries of arena.&lt;/li&gt;
+  &lt;li&gt;check that chunk is not already marked as free by checking the corresponding “P” bit that lies in the metadata at the start of next chunk.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3&gt;Free chunk metadata&lt;/h3&gt;
+
+&lt;p&gt;Free chunks also have metadata.&lt;/p&gt;
+
+&lt;p&gt;They store &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;chunk size&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;A&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;P&lt;/code&gt; field. They do not store &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;M&lt;/code&gt; field because mmaped chunks get unmmaped right away.&lt;/p&gt;
+
+&lt;h2&gt;Bins&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;a list structure (doubly or singly linked list) of non-allocated chunks.&lt;/li&gt;
+  &lt;li&gt;differentiated based on the size of chunks&lt;/li&gt;
+  &lt;li&gt;Bins keep the track of freed chunks.&lt;/li&gt;
+  &lt;li&gt;for performance reasons heap manager keeps track by maintaining a series of lists called “bins”, which are designed to maximize speed of allocation and frees.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3&gt;Small bins&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;There are 62 of them.&lt;/li&gt;
+  &lt;li&gt;Every chunk less than 512 bytes on 32 bits systems (and 1024 bytes in 64 bit systems) has a corressponding small bin.&lt;/li&gt;
+  &lt;li&gt;Each small bin stores only one size of chunk, they are automatically ordered, so insertion and removal of entries on these lists is incredibly fast.&lt;/li&gt;
+  &lt;li&gt;act as &lt;strong&gt;queue&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;!-- ![](https://azeria-labs.com/wp-content/uploads/2019/03/bins-small.png)  --&gt;
+
+&lt;h3&gt;Large Bins&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;For chunks over 512 bytes (or 1024 bytes on 64 bit), heap manager uses “large bins”.&lt;/li&gt;
+  &lt;li&gt;instead storing the chunks of same size, they store chunks within a size range.&lt;/li&gt;
+  &lt;li&gt;insertions onto the bins have to be manually sorted, and allocations from the list require traversing the list. &lt;strong&gt;This makes large bins slower&lt;/strong&gt;.&lt;/li&gt;
+  &lt;li&gt;Large bins are used less frequently because program tend to allocate small allocations.&lt;/li&gt;
+  &lt;li&gt;act as &lt;strong&gt;queue&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3&gt;Unsorted bins&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Small and large chunks when freed end up in this bin.&lt;/li&gt;
+  &lt;li&gt;primary purpose of this bin is to act as a cache layer to speed up allocations and deallocations requests.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3&gt;Fastbins&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;A total of 10 fast bins.&lt;/li&gt;
+  &lt;li&gt;Contains chunk of same fixed size - 16, 24, 32, 40, 48, 56, 64, 72, 80 or 88 bytes.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Act as a stack&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3&gt;tcache&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;tcache is a caching structure in ptmalloc to speed up repeated (small) allocations. Like other bins, tcache comes into play when freeing a chunk.&lt;/li&gt;
+  &lt;li&gt;tcache is implemented by a single linked list.&lt;/li&gt;
+  &lt;li&gt;each tcache entry is differentiated by 16 bytes. So first entry is of 16 bytes, second is of 32 bytes, third is of 48 bytes so on …&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;tcache structure looks like the following:&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cm&quot;&gt;/* There is one of these for each thread, which contains the
+   per-thread cache (hence &quot;tcache_perthread_struct&quot;).  Keeping
+   overall size low is mildly important.  Note that COUNTS and ENTRIES
+   are redundant (we could have just counted the linked list each
+   time), this is for performance reasons.  
+*/&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;typedef&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tcache_perthread_struct&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kt&quot;&gt;uint16_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;counts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TCACHE_MAX_BINS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;tcache_entry&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;entries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TCACHE_MAX_BINS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tcache_perthread_struct&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;counts&lt;/code&gt; is an array of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;TCACHE_MAX_BINS&lt;/code&gt; elements. Each element store the count of i&lt;sup&gt;th&lt;/sup&gt; entries.
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;entries&lt;/code&gt; is a linked list that acts as a stack. Each element stores the pointer to latest freed &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tcache_entry&lt;/code&gt;. By dividing the allocation size by 16 we can get the right bin to store the tcache entry.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://pwn.college/&quot;&gt;pwn.college&lt;/a&gt; has given a great graphical &lt;a href=&quot;https://youtu.be/0jHtqqdVv1Y?t=270&quot;&gt;explanation&lt;/a&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;./pics/tcache.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;typedef&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tcache_entry&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tcache_entry&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;next&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;cm&quot;&gt;/* This field exists to detect double frees.  */&lt;/span&gt;
+  &lt;span class=&quot;kt&quot;&gt;uintptr_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tcache_entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;next&lt;/code&gt; is a pointer to previously freed entry/chunk (tcache acts as stack). 
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;key&lt;/code&gt; is used to verify which thread the entry corresponds to.&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cm&quot;&gt;/* Process-wide key to try and catch a double-free in the same thread.  */&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uintptr_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tcache_key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h4&gt;When freeing&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;we &lt;strong&gt;select&lt;/strong&gt; the right bin.
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;idx = (freed_allocation_size - 1) / 16
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;We &lt;strong&gt;check&lt;/strong&gt; using the key field to see if entry hasn’t already been freed before(double-free):&lt;/li&gt;
+  &lt;li&gt;We &lt;strong&gt;push&lt;/strong&gt; the freed allocation to the front of the disk.&lt;/li&gt;
+  &lt;li&gt;We &lt;strong&gt;record&lt;/strong&gt; the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tcache_perthread_struct&lt;/code&gt;(otherwise the key) associated with the freed allocation. This is because we need to record the association of chunk with the thread i.e with what thread does this chunk belong to.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4&gt;When allocating&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;We do everything we did during free but in reverse order.&lt;/li&gt;
+  &lt;li&gt;We &lt;strong&gt;select&lt;/strong&gt; the bin.&lt;/li&gt;
+  &lt;li&gt;We &lt;strong&gt;check&lt;/strong&gt; the appropiate cache for available entries.&lt;/li&gt;
+  &lt;li&gt;We &lt;strong&gt;reuse&lt;/strong&gt; the allocation in front of the list if available.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;These are just the basic terminoligies and knowledge required to understand heap attacks. Next article will talk about different types of heap attacks&lt;/p&gt;
+
+&lt;h3&gt;References&lt;/h3&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;https://azeria-labs.com/heap-exploitation-part-1-understanding-the-glibc-heap-implementation/
+https://azeria-labs.com/heap-exploitation-part-2-glibc-heap-free-bins/
+https://jackfromeast.site/2023-01/understand-the-heap-a-beautiful-mess.html
+https://infosecwriteups.com/the-toddlers-introduction-to-heap-exploitation-part-2-d1f325b74286 
+https://ir0nstone.gitbook.io/notes/types/heap/bins
+http://tukan.farm/2017/07/08/tcache/
+https://pwn.college/cse494-s2023/dynamic-allocator-misuse
+https://codebrowser.dev/glibc/glibc/malloc/malloc.c.html
+https://www.youtube.com/watch?v=A-Qf_Q_AeFw
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+        <author>
+            <name>Zeus</name>
+          
+          
+        </author>
+      
+
+      
+
+      
+
+      
+        <summary type="html">Heap Heap is very platform and implementation specific. So windows and linux have different heap implementation. We are looking at glibc (linux) heap implementation. Arena every thread has a separate arena Arena is basically a separate heap per thread. there is a parent arena that is basically the first arena of the program. there are a total of 8 * number of cores arenas. malloc chunk chunks are the basic unit of memory in heap. When the heap manager allocates memory from the heap, it typically allocates a chunk of memory that is larger than the requested size. This is because the heap manager also needs to store alignment padding and metadata with the allocated chunk, such as information about the size and status of the chunk. The metadata is stored alongside the chunk of memory, and so the overall size of the allocated block is larger than the size requested by the program. alignment of chunk = 2 * sizeof(size_t) so for 32 bit systems, allocation will be 8 byte aligned. for 64 bit systems, allocation will be 16 bit aligned. The heap manager will mark the chunk allocated and returns a pointer to the aligned “user data” region inside the chunk. Chunk Allocation strategies previously freed chunk of memory and chunk is big enough that same chunk gets allocated space available at top of heap, allocate space from top of heap otherwise, ask kernel to add new memory, then ask heap to allocate from top of heap if all fails, malloc returns NULL Allocating from freed chunks Heap manager keeps track of freed chunks in a series of different linked list called “bins”. when an allocation request is made, heap managers searches these bins for a chunk that is big enough to service the request. removes the chunk from the bin and mark it as allocated. returns pointer to user data. there are different types of bins: fast bins unsorted bins small bins large bins per-thread tcache. An allocated chunk looks like this: chunk-&amp;gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ | Size of previous chunk, if unallocated (P clear) | +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ | Size of chunk, in bytes |A|M|P| mem-&amp;gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ | User data starts here... . . . . (malloc_usable_size() bytes) . . | nextchunk-&amp;gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ | (size of chunk, but used for application data) | +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ | Size of next chunk, in bytes |A|0|1| +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ Allocating from top of heap if no free chunks available that can service request, heap manager allocates space from top of heap. heap manager first looks at the free space at the top of heap otherwise known as top chunk. Asking kernel from more memory at the top of the heap Once the free space at the top of the heap is used up, the heap manager will have to ask the kernel to add more memory to the end of the heap. on the initial heap, the heap manager asks the kernel to allocate memory at the end of heap by calling the sbrk syscall. sbrk internally uses brk syscall. Eventually, expanding the heap with sbrk will fail. Heap will grow so large that it will collide with libraries, or a thread’s stack region. Once the heap reaches this point, the heap manager will resort to attaching new non-contiguous memory to the initial program heap using calls to mmap. Chunk Metadata definition of chunk: struct malloc_chunk { INTERNAL_SIZE_T mchunk_prev_size; /* Size of previous chunk (if free). */ INTERNAL_SIZE_T mchunk_size; /* Size in bytes, including overhead. */ struct malloc_chunk* fd; /* double links -- used only if free. */ struct malloc_chunk* bk; /* Only used for large blocks: pointer to next larger size. */ struct malloc_chunk* fd_nextsize; /* double links -- used only if free. */ struct malloc_chunk* bk_nextsize; }; During malloc, before returning the pointer to user data, chunk size is written in mchunk_size field. mchunk_size contains chunk size and 3 flags the 3 flags are: A flag if bit is 1, chunk is not from main arena else chunk comes from main arena M flag if bit is 1, chunk was allocated with mmap call and is not a part of heap and was allocated off-heap. When freed the whole chunk is returned back to OS via munmap syscall rather than attempting to recycle it. P flag if bit is 1, previous chunk is in use, and should not used to safely join with previous chunk to create much larger chunk How does free works Check that allocation is aligned on an 8-byte boundary, since malloc ensures all allocations are aligned. Check that the chunk’s size field isn’t impossible - either because it is too small, too large, not aligned size or would overlap the with end of process’ address space. check that chunk lies within boundaries of arena. check that chunk is not already marked as free by checking the corresponding “P” bit that lies in the metadata at the start of next chunk. Free chunk metadata Free chunks also have metadata. They store chunk size, A and P field. They do not store M field because mmaped chunks get unmmaped right away. Bins a list structure (doubly or singly linked list) of non-allocated chunks. differentiated based on the size of chunks Bins keep the track of freed chunks. for performance reasons heap manager keeps track by maintaining a series of lists called “bins”, which are designed to maximize speed of allocation and frees. Small bins There are 62 of them. Every chunk less than 512 bytes on 32 bits systems (and 1024 bytes in 64 bit systems) has a corressponding small bin. Each small bin stores only one size of chunk, they are automatically ordered, so insertion and removal of entries on these lists is incredibly fast. act as queue Large Bins For chunks over 512 bytes (or 1024 bytes on 64 bit), heap manager uses “large bins”. instead storing the chunks of same size, they store chunks within a size range. insertions onto the bins have to be manually sorted, and allocations from the list require traversing the list. This makes large bins slower. Large bins are used less frequently because program tend to allocate small allocations. act as queue Unsorted bins Small and large chunks when freed end up in this bin. primary purpose of this bin is to act as a cache layer to speed up allocations and deallocations requests. Fastbins A total of 10 fast bins. Contains chunk of same fixed size - 16, 24, 32, 40, 48, 56, 64, 72, 80 or 88 bytes. Act as a stack. tcache tcache is a caching structure in ptmalloc to speed up repeated (small) allocations. Like other bins, tcache comes into play when freeing a chunk. tcache is implemented by a single linked list. each tcache entry is differentiated by 16 bytes. So first entry is of 16 bytes, second is of 32 bytes, third is of 48 bytes so on … tcache structure looks like the following: /* There is one of these for each thread, which contains the per-thread cache (hence &quot;tcache_perthread_struct&quot;). Keeping overall size low is mildly important. Note that COUNTS and ENTRIES are redundant (we could have just counted the linked list each time), this is for performance reasons. */ typedef struct tcache_perthread_struct { uint16_t counts[TCACHE_MAX_BINS]; tcache_entry *entries[TCACHE_MAX_BINS]; } tcache_perthread_struct; counts is an array of TCACHE_MAX_BINS elements. Each element store the count of ith entries. entries is a linked list that acts as a stack. Each element stores the pointer to latest freed tcache_entry. By dividing the allocation size by 16 we can get the right bin to store the tcache entry. pwn.college has given a great graphical explanation: typedef struct tcache_entry { struct tcache_entry *next; /* This field exists to detect double frees. */ uintptr_t key; } tcache_entry; next is a pointer to previously freed entry/chunk (tcache acts as stack). key is used to verify which thread the entry corresponds to. /* Process-wide key to try and catch a double-free in the same thread. */ static uintptr_t tcache_key; When freeing we select the right bin. idx = (freed_allocation_size - 1) / 16 We check using the key field to see if entry hasn’t already been freed before(double-free): We push the freed allocation to the front of the disk. We record the tcache_perthread_struct(otherwise the key) associated with the freed allocation. This is because we need to record the association of chunk with the thread i.e with what thread does this chunk belong to. When allocating We do everything we did during free but in reverse order. We select the bin. We check the appropiate cache for available entries. We reuse the allocation in front of the list if available. These are just the basic terminoligies and knowledge required to understand heap attacks. Next article will talk about different types of heap attacks References https://azeria-labs.com/heap-exploitation-part-1-understanding-the-glibc-heap-implementation/ https://azeria-labs.com/heap-exploitation-part-2-glibc-heap-free-bins/ https://jackfromeast.site/2023-01/understand-the-heap-a-beautiful-mess.html https://infosecwriteups.com/the-toddlers-introduction-to-heap-exploitation-part-2-d1f325b74286 https://ir0nstone.gitbook.io/notes/types/heap/bins http://tukan.farm/2017/07/08/tcache/ https://pwn.college/cse494-s2023/dynamic-allocator-misuse https://codebrowser.dev/glibc/glibc/malloc/malloc.c.html https://www.youtube.com/watch?v=A-Qf_Q_AeFw</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+  
+    <entry>
+      
+      <title type="html">Reflections on Trusting Trust</title>
+      
+      
+      <link href="https://hackolympus.com/blog/2022/08/29/Reflections-On-Trusting-Trust/" rel="alternate" type="text/html" title="Reflections on Trusting Trust" />
+      
+      <published>2022-08-29T00:00:00+00:00</published>
+      <updated>2022-08-29T00:00:00+00:00</updated>
+      <id>https://hackolympus.com/blog/2022/08/29/Reflections-On-Trusting-Trust</id>
+      <content type="html" xml:base="https://hackolympus.com/blog/2022/08/29/Reflections-On-Trusting-Trust/">&lt;p&gt;&lt;a href=&quot;https://dl.acm.org/doi/pdf/10.1145/358198.358210&quot;&gt;&lt;em&gt;Reflections on Trusting Trust&lt;/em&gt;&lt;/a&gt;, written by the legendary Sir Ken Thompson, essentially raises a deep but valid question: should we trust the code written by someone else ?&lt;/p&gt;
+
+&lt;p&gt;The paper begins with a very interesting series of talks on various pieces of code, divided into stages and the most fascinating and overwhelming was stage 3, where Sir Ken Thompson provides us with a case study.&lt;/p&gt;
+
+&lt;p&gt;In this case study, he tries to introduce us with an idea about how compilers can be made to have backdoors inside of them. A compiler can be designed in such a way that it injects intentionally vulnerable code into a specific program.&lt;/p&gt;
+
+&lt;p&gt;This is a very critical thing for me to think about because compilers are used to convert code into binary, so even if the original code is free from any bugs or vulnerabilities, compiling it with an unsafe compiler will automatically make it vulnerable to attacks, and no one except the person who wrote the compiler may know about it.&lt;/p&gt;
+
+&lt;p&gt;Now, for me personally, this whole case study changed my perspective on software. Should I even trust the OS on which I am doing my work? In fact, should I even trust the software that I am using for my regular usage ? And what’s frightening is the fact that Unix was open source so this kind of compiler mishap is noticeable but what about software that is commercial and whose source code is not in public ? Is it game over ?&lt;/p&gt;
+
+&lt;p&gt;These questions might sound ambiguous but are very valid because whenever we use a software, we never think about its security and that’s what is going to harm us in the long run.&lt;/p&gt;
+
+&lt;p&gt;Moral is and as Ken Thompson says in his paper, “&lt;em&gt;You can’t trust code that you did not totally create yourself…&lt;/em&gt;”  So if we should not trust the code written by someone else, should we just stop using code ? The answer is No because that’s obviously not possible. But what we can do is and as Ken Thompson says in the beginning of the paper is, “to trust the people who wrote the software.”  Obviously this is also not a fool proof statement because people too can’t be trusted.&lt;/p&gt;
+
+&lt;p&gt;In my opinion bad people(otherwise known as black hat hackers)  will continue to evade system security because code is written by humans and humans make mistakes which leads to vulnerability and therefore exploits. But it is the job of expert good hackers(otherwise known as white hat hackers ) to find those mistakes, before the bad people can get their hands on it.&lt;/p&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+        <author>
+            <name>Zeus</name>
+          
+          
+        </author>
+      
+
+      
+
+      
+
+      
+        <summary type="html">Reflections on Trusting Trust, written by the legendary Sir Ken Thompson, essentially raises a deep but valid question: should we trust the code written by someone else ? The paper begins with a very interesting series of talks on various pieces of code, divided into stages and the most fascinating and overwhelming was stage 3, where Sir Ken Thompson provides us with a case study. In this case study, he tries to introduce us with an idea about how compilers can be made to have backdoors inside of them. A compiler can be designed in such a way that it injects intentionally vulnerable code into a specific program. This is a very critical thing for me to think about because compilers are used to convert code into binary, so even if the original code is free from any bugs or vulnerabilities, compiling it with an unsafe compiler will automatically make it vulnerable to attacks, and no one except the person who wrote the compiler may know about it. Now, for me personally, this whole case study changed my perspective on software. Should I even trust the OS on which I am doing my work? In fact, should I even trust the software that I am using for my regular usage ? And what’s frightening is the fact that Unix was open source so this kind of compiler mishap is noticeable but what about software that is commercial and whose source code is not in public ? Is it game over ? These questions might sound ambiguous but are very valid because whenever we use a software, we never think about its security and that’s what is going to harm us in the long run. Moral is and as Ken Thompson says in his paper, “You can’t trust code that you did not totally create yourself…” So if we should not trust the code written by someone else, should we just stop using code ? The answer is No because that’s obviously not possible. But what we can do is and as Ken Thompson says in the beginning of the paper is, “to trust the people who wrote the software.” Obviously this is also not a fool proof statement because people too can’t be trusted. In my opinion bad people(otherwise known as black hat hackers) will continue to evade system security because code is written by humans and humans make mistakes which leads to vulnerability and therefore exploits. But it is the job of expert good hackers(otherwise known as white hat hackers ) to find those mistakes, before the bad people can get their hands on it.</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+  
+    <entry>
+      
+      <title type="html">Writing programs in x86-64 ASM and pwncollege embryoasm writeup</title>
+      
+      
+      <link href="https://hackolympus.com/blog/2022/01/04/writing-programs-in-x86-64-assembly-language/" rel="alternate" type="text/html" title="Writing programs in x86-64 ASM and pwncollege embryoasm writeup" />
+      
+      <published>2022-01-04T09:58:24+00:00</published>
+      <updated>2022-01-04T09:58:24+00:00</updated>
+      <id>https://hackolympus.com/blog/2022/01/04/writing-programs-in-x86-64-assembly-language</id>
+      <content type="html" xml:base="https://hackolympus.com/blog/2022/01/04/writing-programs-in-x86-64-assembly-language/">&lt;p&gt;Before reading this, it’s an advice to please read &lt;a href=&quot;/blog/2021/11/25/x86-64-assembly-language/&quot;&gt;previous article&lt;/a&gt; of ASM series.&lt;/p&gt;
+
+&lt;p&gt;So now that we know some basics of registers and syscalls. We will move onto the part where we use our newfound knowledge to write some assembly code.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;The following ASM code is specific to GAS (GNU Assembler)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h3&gt;Step by Step Hello world ASM program breakdown&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-assembly&quot;&gt;.section .text
+    .intel_syntax noprefix
+    .global _start
+    _start:
+        mov rax, 1
+        lea rsi, [rip+str]
+        mov rdx, 13
+        syscall
+
+        mov rax, 60
+        mov rdi, 0
+        syscall
+
+    str:
+        .string &quot;Hello world\n&quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now in my &lt;a href=&quot;/blog/2021/01/24/Memory-Mapping-Introduction/&quot;&gt;first article&lt;/a&gt;, I explained different sections/mapping of memory. Most important sections among those are &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.text&lt;/code&gt; section and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.data&lt;/code&gt;, because it is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.text&lt;/code&gt; where we write code and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.data&lt;/code&gt; where we define variables and constants.&lt;/p&gt;
+
+&lt;p&gt;In the above &lt;em&gt;hello world&lt;/em&gt; program, we are only using the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.text&lt;/code&gt; section and keeping the code as minimal and simple as possible.&lt;/p&gt;
+
+&lt;p&gt;So in the first line we are defining the section. In order to define a section we do &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.section &amp;lt;section name&amp;gt;&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;In our case, as we are only using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.text&lt;/code&gt; :&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-asm&quot;&gt;.section .text 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now because we are using GAS, the default ASM sytax is AT&amp;amp;T but we are writing in intel syntax so we need to specify that to the assembler. We do this using :&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-asm&quot;&gt;.intel_syntax noprefix 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.global&lt;/code&gt; is GAS directive which helps in defining symbols in object file. Every ASM code must have a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;_start&lt;/code&gt; symbol. It defines the entry point of ASM code.&lt;/p&gt;
+
+&lt;p&gt;In GAS we do all this using :&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-asm&quot;&gt;.global _start # first we define a symbol
+_start : # then we mark the entry point 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Oh ! by the way, we use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;#&lt;/code&gt; in GAS for comments.&lt;/p&gt;
+
+&lt;h3&gt;MOV instruction&lt;/h3&gt;
+
+&lt;p&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mov&lt;/code&gt; instruction is the very basic and is used extensively in a assembly program.  It is used to copy/move data from one register to another. In intel, it works in the following way :&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mov &amp;lt;destination register&amp;gt; , &amp;lt;source register&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;For example we need to copy number 6263 in register &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rax&lt;/code&gt;, We’ll do :&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-asm&quot;&gt;mov rax, 6263 # rax = 6263
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;LEA instruction&lt;/h3&gt;
+
+&lt;p&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lea&lt;/code&gt; instruction is used to copy some &lt;strong&gt;address&lt;/strong&gt; in some register.&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;lea &amp;lt;destination register&amp;gt; , &amp;lt;source effective address&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;This is also used extensively because we are loading effective address, So we can also do math in one instruction itself and assembler will understand it and assemble it for us. In &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mov&lt;/code&gt; instruction it’s not possible.&lt;/p&gt;
+
+&lt;h3&gt;SYSCALL instruction&lt;/h3&gt;
+
+&lt;p&gt;syscall instruction, as name says, is used for making system calls.&lt;/p&gt;
+
+&lt;h3&gt;Main Hello world code&lt;/h3&gt;
+
+&lt;p&gt;Now to write something on screen, we need to write on stdout (it’s file descriptor is 1). So in total we need to do 2 syscalls (write and exit syscalls).&lt;/p&gt;
+
+&lt;p&gt;To do write syscall we need to give it some arguments. We give arguments based on calling convention (Discussed in previous &lt;a href=&quot;/blog/2021/11/25/x86-64-assembly-language/&quot;&gt;article&lt;/a&gt;) .&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/x86-64/Calling_convention.png&quot; class=&quot;center&quot; style=&quot;width: 60%&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;We can either use a good &lt;a href=&quot;https://chromium.googlesource.com/chromiumos/docs/+/master/constants/syscalls.md&quot;&gt;website&lt;/a&gt; or if you are a console fan then method used in &lt;a href=&quot;/blog/2021/11/25/x86-64-assembly-language/&quot;&gt;previous article&lt;/a&gt; to get syscall number and to see arguments use 2nd page of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;man&lt;/code&gt; command.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/x86-64/man_write.png&quot; class=&quot;center&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;echo SYS_write | gcc -include sys/syscall.h -E - &lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;So, putting everything together and writing a subroutine for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;write&lt;/code&gt; syscall&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;1st argument :&lt;/strong&gt; fd (File descriptor which in our case is 1 for stdout) &lt;br /&gt;
+&lt;strong&gt;2nd argument :&lt;/strong&gt; buf (Buffer, Address of info which has to be written on screen ?) &lt;br /&gt;
+&lt;strong&gt;3rd argument :&lt;/strong&gt; count (Buffer size) &lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;All these arguments have to be set according to calling convention.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-asm&quot;&gt;mov rax, 1         # syscall code is set through rax register 
+mov rdi, 1         # set fd to stdout (1)  
+lea rsi, [rip+str] # use rip (instruction pointer) to access label str
+mov rdx, 13        # Hello world\n\0 size = 13
+syscall            # perform syscall 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Label &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;str&lt;/code&gt; is basically a space in memory where “hello world” is stored in form of bytes. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lea&lt;/code&gt; instruction will calculate the address of the start of buffer using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rip&lt;/code&gt; register (instruction pointer).&lt;/p&gt;
+
+&lt;p&gt;I recommend you to write the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;exit&lt;/code&gt; subroutine without looking at my code.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Exit subroutine :&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-asm&quot;&gt;mov rax, 60 # syscall code for exit is 60 
+mov rdi, 0  # return address of exit 
+syscall     # perform syscall 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So to putting all the pieces together and we get our assembly code :&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-asm&quot;&gt;.section .text
+    .intel_syntax noprefix
+    .global _start
+    _start:
+        mov rax, 1
+        lea rsi, [rip+str]
+        mov rdx, 13
+        syscall
+
+        mov rax, 60
+        mov rdi, 0
+        syscall
+
+    str:
+        .string &quot;Hello world\n&quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I hope after reading this, you would have understood assembly and basic concepts related to memory. Now like any other language, assembly is just about practice, pratice and practice. Once you master it, I guarantee, assembly and C will become your favorite language.&lt;/p&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://dojo.pwn.college/challenges/asm&quot;&gt;Pwn.College Embryoasm&lt;/a&gt;  Writeup&lt;/h3&gt;
+
+&lt;p&gt;I have already started the instance, so let’ connnect &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ssh -i ~/.ssh/key.pub hacker@dojo.pwn.college&lt;/code&gt; .&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/x86-64/asm_1.png&quot; class=&quot;center&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So this is easy. As explained above. We can just do &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mov rdi, 0x1337&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;full code :&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-asm&quot;&gt;.section .text 
+    .intel_syntax noprefix 
+    .global _start 
+    _start : 
+        mov rdi, 0x1337
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;First we assemble it and compile it into an ELF then we will convert copy bytes of that ELF in a different file.&lt;/p&gt;
+
+&lt;p&gt;to do so :&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;gcc -nostdlib -static exp.s -o exp
+objcopy --dump-section .text=exp.bin exp
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Then we will pipe the bytes into the challenge.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/x86-64/asm_1_flag.png&quot; class=&quot;center&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;We can also do this using python script through pwntools.&lt;/p&gt;
+
+&lt;p&gt;Python script :&lt;/p&gt;
+
+&lt;div class=&quot;language-py highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;#!/usr/bin/env python3
+&lt;/span&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;pwn&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;pwn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;log_level&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;INFO&quot;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;pwn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;encoding&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;latin&quot;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;pwn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;arch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;amd64&quot;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;pwn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;warnings&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;simplefilter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;ignore&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;assembly&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;&quot;&quot;mov rdi, 0x1337&quot;&quot;&quot;&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;proc&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pwn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;process&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/challenge/embryoasm_level1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;proc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;readrepeat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;decode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;proc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pwn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;asm&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;assembly&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;proc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;readrepeat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;decode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;In future I’ll write some interesting articles on some more instructions in ASM, file operations through assembly, shellcoding and operating system design.&lt;/p&gt;
+
+&lt;p&gt;A &lt;a href=&quot;https://deut-erium.github.io/about.html&quot;&gt;wise man&lt;/a&gt;👨‍💻 (check out his &lt;a href=&quot;https://deut-erium.github.io/&quot;&gt;blog&lt;/a&gt;) once said to me, “its almost like playing lego … you have to put the pieces together …”&lt;/p&gt;
+
+&lt;p&gt;On that note,&lt;/p&gt;
+
+&lt;p&gt;Signing out&lt;/p&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+        <author>
+            <name>Zeus</name>
+          
+          
+        </author>
+      
+
+      
+        <category term="asm" />
+      
+
+      
+
+      
+        <summary type="html">Before reading this, it’s an advice to please read previous article of ASM series. So now that we know some basics of registers and syscalls. We will move onto the part where we use our newfound knowledge to write some assembly code. The following ASM code is specific to GAS (GNU Assembler) Step by Step Hello world ASM program breakdown .section .text .intel_syntax noprefix .global _start _start: mov rax, 1 lea rsi, [rip+str] mov rdx, 13 syscall mov rax, 60 mov rdi, 0 syscall str: .string &quot;Hello world\n&quot; Now in my first article, I explained different sections/mapping of memory. Most important sections among those are .text section and .data, because it is .text where we write code and .data where we define variables and constants. In the above hello world program, we are only using the .text section and keeping the code as minimal and simple as possible. So in the first line we are defining the section. In order to define a section we do .section &amp;lt;section name&amp;gt; In our case, as we are only using .text : .section .text Now because we are using GAS, the default ASM sytax is AT&amp;amp;T but we are writing in intel syntax so we need to specify that to the assembler. We do this using : .intel_syntax noprefix .global is GAS directive which helps in defining symbols in object file. Every ASM code must have a _start symbol. It defines the entry point of ASM code. In GAS we do all this using : .global _start # first we define a symbol _start : # then we mark the entry point Oh ! by the way, we use # in GAS for comments. MOV instruction The mov instruction is the very basic and is used extensively in a assembly program. It is used to copy/move data from one register to another. In intel, it works in the following way : mov &amp;lt;destination register&amp;gt; , &amp;lt;source register&amp;gt; For example we need to copy number 6263 in register rax, We’ll do : mov rax, 6263 # rax = 6263 LEA instruction The lea instruction is used to copy some address in some register. lea &amp;lt;destination register&amp;gt; , &amp;lt;source effective address&amp;gt; This is also used extensively because we are loading effective address, So we can also do math in one instruction itself and assembler will understand it and assemble it for us. In mov instruction it’s not possible. SYSCALL instruction syscall instruction, as name says, is used for making system calls. Main Hello world code Now to write something on screen, we need to write on stdout (it’s file descriptor is 1). So in total we need to do 2 syscalls (write and exit syscalls). To do write syscall we need to give it some arguments. We give arguments based on calling convention (Discussed in previous article) . We can either use a good website or if you are a console fan then method used in previous article to get syscall number and to see arguments use 2nd page of man command. echo SYS_write | gcc -include sys/syscall.h -E - So, putting everything together and writing a subroutine for write syscall 1st argument : fd (File descriptor which in our case is 1 for stdout) 2nd argument : buf (Buffer, Address of info which has to be written on screen ?) 3rd argument : count (Buffer size) All these arguments have to be set according to calling convention. mov rax, 1 # syscall code is set through rax register mov rdi, 1 # set fd to stdout (1) lea rsi, [rip+str] # use rip (instruction pointer) to access label str mov rdx, 13 # Hello world\n\0 size = 13 syscall # perform syscall Label str is basically a space in memory where “hello world” is stored in form of bytes. lea instruction will calculate the address of the start of buffer using rip register (instruction pointer). I recommend you to write the exit subroutine without looking at my code. Exit subroutine : mov rax, 60 # syscall code for exit is 60 mov rdi, 0 # return address of exit syscall # perform syscall So to putting all the pieces together and we get our assembly code : .section .text .intel_syntax noprefix .global _start _start: mov rax, 1 lea rsi, [rip+str] mov rdx, 13 syscall mov rax, 60 mov rdi, 0 syscall str: .string &quot;Hello world\n&quot; I hope after reading this, you would have understood assembly and basic concepts related to memory. Now like any other language, assembly is just about practice, pratice and practice. Once you master it, I guarantee, assembly and C will become your favorite language. Pwn.College Embryoasm Writeup I have already started the instance, so let’ connnect ssh -i ~/.ssh/key.pub hacker@dojo.pwn.college . So this is easy. As explained above. We can just do mov rdi, 0x1337 full code : .section .text .intel_syntax noprefix .global _start _start : mov rdi, 0x1337 First we assemble it and compile it into an ELF then we will convert copy bytes of that ELF in a different file. to do so : gcc -nostdlib -static exp.s -o exp objcopy --dump-section .text=exp.bin exp Then we will pipe the bytes into the challenge. We can also do this using python script through pwntools. Python script : #!/usr/bin/env python3 import pwn pwn.context.log_level = &quot;INFO&quot; pwn.context.encoding = &quot;latin&quot; pwn.context.arch = &quot;amd64&quot; pwn.warnings.simplefilter(&quot;ignore&quot;) assembly = &quot;&quot;&quot;mov rdi, 0x1337&quot;&quot;&quot; proc = pwn.process(&quot;/challenge/embryoasm_level1&quot;) print(proc.readrepeat(1).decode()) proc.send(pwn.asm(assembly)) print(proc.readrepeat(1).decode()) In future I’ll write some interesting articles on some more instructions in ASM, file operations through assembly, shellcoding and operating system design. A wise man👨‍💻 (check out his blog) once said to me, “its almost like playing lego … you have to put the pieces together …” On that note, Signing out</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+  
+    <entry>
+      
+      <title type="html">x86-64 Assembly Language</title>
+      
+      
+      <link href="https://hackolympus.com/blog/2021/11/25/x86-64-assembly-language/" rel="alternate" type="text/html" title="x86-64 Assembly Language" />
+      
+      <published>2021-11-25T04:37:42+00:00</published>
+      <updated>2021-11-25T04:37:42+00:00</updated>
+      <id>https://hackolympus.com/blog/2021/11/25/x86-64-assembly-language</id>
+      <content type="html" xml:base="https://hackolympus.com/blog/2021/11/25/x86-64-assembly-language/">&lt;h4&gt;Prerequisite: Knowledge about simple programming language terms like variables, functions etc.&lt;/h4&gt;
+
+&lt;h3&gt;Registers&lt;/h3&gt;
+
+&lt;p&gt;ASM works a lot around registers, I try to think of them as variables which only store data types up to 8 bytes.Now there are special registers and register for general use.&lt;/p&gt;
+
+&lt;p&gt;In the start (during 8 bit days) we only had 4 general purpose registers - a,b,c,d.&lt;/p&gt;
+
+&lt;p&gt;And Other 2 special purpose registers - sp (stack pointer) and bp (base pointer).&lt;/p&gt;
+
+&lt;p&gt;But now (in 64 bit mode) we have a total of 11 general purpose registers and 4 special purpose registers:&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;Register&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;Purpose&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;rax&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;General Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;rbx&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;General Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;rcx&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;General Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;rdx&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;General Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;r8&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;General Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;r9&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;General Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;r10&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;General Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;r11&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;General Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;r12&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;General Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;r13&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;General Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;r14&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;General Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;r15&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;General Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;rsp&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;Special Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;rbp&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;Special Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;rsi&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;Special Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;rdi&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;Special Purpose Register&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;In above registers ‘r’ means 64 bit register. If we want to use 32 bit register we use ‘e’ prefix. &lt;strong&gt;We can also use 32/16/8 bit registers in 64 bit mode&lt;/strong&gt; . The following illustration will explain it clearly :&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/x86-64/Registers.drawio.png&quot; class=&quot;center&quot; /&gt;&lt;/p&gt;
+
+&lt;h3&gt;Syscall&lt;/h3&gt;
+
+&lt;p&gt;Behind the working of every program, there are syscalls involved; These syscalls are permissions which the program ask for from the “supreme authority” - the kernel. Now why this happens ? Because the program does not directly run in the privileged mode for security reasons.&lt;/p&gt;
+
+&lt;p&gt;In C language we have glibc that provide us functions like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;printf&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;scanf&lt;/code&gt; etc. which performs syscalls for us in the background.Now before making a syscall we have to set some parameters to define the syscall and its behaviour. We define the syscall using “codes”, for example &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;write&lt;/code&gt; syscall has code 1 in x86-64. Now &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;write&lt;/code&gt; takes 3 arguments: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fd&lt;/code&gt;(file descriptor we have to write), &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;buf&lt;/code&gt; (stuff we have to write), and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;count&lt;/code&gt; (How many characters to write). How do we know this ? using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;man 3 write&lt;/code&gt; which return the man page of write.&lt;/p&gt;
+
+&lt;p&gt;We set these arguments using different register and all this follows a calling convention. The calling convention is as follows:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/x86-64/Calling_convention.png&quot; class=&quot;center&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;To get a list of all the syscalls : &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cat /usr/include/x86_64-linux-gnu/asm/unistd_64.h&lt;/code&gt; We don’t need to remember this path. I mean if you ever forget this path simply investigate this using other techniques like preprocessor output and printing predefined standard macros like this: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;echo SYS_write | gcc -include sys/syscall.h -E -&lt;/code&gt; here we are just asking the compiler to return the preprocessor output to stdout.&lt;/p&gt;
+
+&lt;p&gt;That’s all folks. In next article we’ll write our first assembly program.&lt;/p&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+        <author>
+            <name>Zeus</name>
+          
+          
+        </author>
+      
+
+      
+        <category term="asm" />
+      
+
+      
+
+      
+        <summary type="html">Prerequisite: Knowledge about simple programming language terms like variables, functions etc. Registers ASM works a lot around registers, I try to think of them as variables which only store data types up to 8 bytes.Now there are special registers and register for general use. In the start (during 8 bit days) we only had 4 general purpose registers - a,b,c,d. And Other 2 special purpose registers - sp (stack pointer) and bp (base pointer). But now (in 64 bit mode) we have a total of 11 general purpose registers and 4 special purpose registers: Register Purpose rax General Purpose Register rbx General Purpose Register rcx General Purpose Register rdx General Purpose Register r8 General Purpose Register r9 General Purpose Register r10 General Purpose Register r11 General Purpose Register r12 General Purpose Register r13 General Purpose Register r14 General Purpose Register r15 General Purpose Register rsp Special Purpose Register rbp Special Purpose Register rsi Special Purpose Register rdi Special Purpose Register In above registers ‘r’ means 64 bit register. If we want to use 32 bit register we use ‘e’ prefix. We can also use 32/16/8 bit registers in 64 bit mode . The following illustration will explain it clearly : Syscall Behind the working of every program, there are syscalls involved; These syscalls are permissions which the program ask for from the “supreme authority” - the kernel. Now why this happens ? Because the program does not directly run in the privileged mode for security reasons. In C language we have glibc that provide us functions like printf, scanf etc. which performs syscalls for us in the background.Now before making a syscall we have to set some parameters to define the syscall and its behaviour. We define the syscall using “codes”, for example write syscall has code 1 in x86-64. Now write takes 3 arguments: fd(file descriptor we have to write), buf (stuff we have to write), and count (How many characters to write). How do we know this ? using man 3 write which return the man page of write. We set these arguments using different register and all this follows a calling convention. The calling convention is as follows: To get a list of all the syscalls : cat /usr/include/x86_64-linux-gnu/asm/unistd_64.h We don’t need to remember this path. I mean if you ever forget this path simply investigate this using other techniques like preprocessor output and printing predefined standard macros like this: echo SYS_write | gcc -include sys/syscall.h -E - here we are just asking the compiler to return the preprocessor output to stdout. That’s all folks. In next article we’ll write our first assembly program.</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+  
+    <entry>
+      
+      <title type="html">Make your task easy with bitwise operators</title>
+      
+      
+      <link href="https://hackolympus.com/blog/2021/10/16/make-your-task-easy-with-bitwise-operators/" rel="alternate" type="text/html" title="Make your task easy with bitwise operators" />
+      
+      <published>2021-10-16T15:02:09+00:00</published>
+      <updated>2021-10-16T15:02:09+00:00</updated>
+      <id>https://hackolympus.com/blog/2021/10/16/make-your-task-easy-with-bitwise-operators</id>
+      <content type="html" xml:base="https://hackolympus.com/blog/2021/10/16/make-your-task-easy-with-bitwise-operators/">&lt;p&gt;&lt;em&gt;I’ll keep on updating this as I find more interesting tricks&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;So recently I was going through my notes of C programming and for some reason I wanted to see the header file for ctype.h when I discovered this easter egg:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/ctype.png&quot; class=&quot;center&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now many of you might know about this but for me this was completely new !! And it truly amazed me. So here I am, writing a short blog about it.&lt;/p&gt;
+
+&lt;p&gt;Though its completely clear.&lt;/p&gt;
+
+&lt;h3&gt;Fast to lowercase method&lt;/h3&gt;
+
+&lt;p&gt;To convert an ascii character to lower case we can do bitwise OR with 0x20 (32) which is space charater.&lt;/p&gt;
+
+&lt;p&gt;In practical :&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cm&quot;&gt;/**
+ * @author      : HackOlympus (zeus@hackolympus)
+ * @file        : tolower
+ * @created     : Saturday Oct 16, 2021 20:42:42 IST
+ */&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;#include &amp;lt;stdio.h&amp;gt;
+&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;printf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;%c&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;sc&quot;&gt;&apos;C&apos;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x20&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;printf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;%c&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;sc&quot;&gt;&apos;c&apos;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x20&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+        <author>
+            <name>Zeus</name>
+          
+          
+        </author>
+      
+
+      
+
+      
+
+      
+        <summary type="html">I’ll keep on updating this as I find more interesting tricks So recently I was going through my notes of C programming and for some reason I wanted to see the header file for ctype.h when I discovered this easter egg: Now many of you might know about this but for me this was completely new !! And it truly amazed me. So here I am, writing a short blog about it. Though its completely clear. Fast to lowercase method To convert an ascii character to lower case we can do bitwise OR with 0x20 (32) which is space charater. In practical : /** * @author : HackOlympus (zeus@hackolympus) * @file : tolower * @created : Saturday Oct 16, 2021 20:42:42 IST */ #include &amp;lt;stdio.h&amp;gt; int main() { printf(&quot;%c\n&quot;,&apos;C&apos; | 0x20) ; printf(&quot;%c\n&quot;,&apos;c&apos; | 0x20) ; return 0 ; }</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+  
+    <entry>
+      
+      <title type="html">Bo1ler CTF -2021 writeup</title>
+      
+      
+      <link href="https://hackolympus.com/blog/2021/04/06/Bo1ler-CTF-2021-writeup/" rel="alternate" type="text/html" title="Bo1ler CTF -2021  writeup" />
+      
+      <published>2021-04-06T00:00:00+00:00</published>
+      <updated>2021-04-06T00:00:00+00:00</updated>
+      <id>https://hackolympus.com/blog/2021/04/06/Bo1ler-CTF-2021-writeup</id>
+      <content type="html" xml:base="https://hackolympus.com/blog/2021/04/06/Bo1ler-CTF-2021-writeup/">&lt;p&gt;So recently I played Bo1ler CTF. Normally I don’t write writeups for a CTF (due to time constraints) but this time I decided to write one as I found the challenges quite good and informative for beginners like me. Well hats off to Bo1ler CTF team.&lt;/p&gt;
+
+&lt;p&gt;I am writing this writeup mainly for &lt;strong&gt;pyjail&lt;/strong&gt; challenges so my main focus will be on them only but I’ll be providing the writeups for other challenges also.&lt;/p&gt;
+
+&lt;h4&gt;&lt;strong&gt;Jails&lt;/strong&gt;&lt;/h4&gt;
+
+&lt;h4&gt;Pyjailgolf1&lt;/h4&gt;
+
+&lt;p&gt;So in this challenge we were given the following code which was running on the shell server &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nc chal.b01lers.com 1334&lt;/code&gt; :&lt;/p&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&apos;&amp;gt;&amp;gt;&amp;gt; &apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;flag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;\[REDACTED\]&quot;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;raise&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Exception&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;eval&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;except&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;pass&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Basically there is an &lt;strong&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;eval&lt;/code&gt;&lt;/strong&gt; function which is vulnerable. You will input any python command and it will be executed. But this was not the problem, problem was that we have to print the value of variable flag by running a command whose length is less than 10 chars. Now if you simply do &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;print(flag)&lt;/code&gt; it will not work and will raise an Exception. All other commands like hex(), id(), exec() etc will not work because they are functions and they return the value rather than printing it. So calling them is no good for us.&lt;/p&gt;
+
+&lt;p&gt;Now you see why I am writing a writeup for this challenge. Because its so small, simple and cute yet challenging. Its a pure “out of the box” thinking challenge. Every beginner can approach this because it doesn’t require a specific skillset like pwn (binary exploitation) challenges (except python but lets be honest, who doesn’t know it 😬) .&lt;/p&gt;
+
+&lt;p&gt;Well after going through my python notes and doing some research work on google I found a command &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;help()&lt;/code&gt;. Yup! the answer was help command !!&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/boiler/image-1.png&quot; class=&quot;center&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Flag:&lt;/strong&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;pctf{JusT_a5k_4_h3lP!}&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;See the most basic commands which we neglect during our learning period helped us in this challenge. After this I researched more on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;help()&lt;/code&gt; command and by luck next jail challenge could be done using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;help()&lt;/code&gt; command itself.&lt;/p&gt;
+
+&lt;h3&gt;Pyjailgolf2&lt;/h3&gt;
+
+&lt;p&gt;This challenge is almost same as the last one the only difference is the char limit. This time we have to do all our work in just 9 chars. Lets take a look at the script :&lt;/p&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&apos;&amp;gt;&amp;gt;&amp;gt; &apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;flag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;\[REDACTED\]&quot;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;9&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;raise&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Exception&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;eval&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;except&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;pass&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nc chal.b01lers.com 1335&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;So as I said before this time we will use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;help()&lt;/code&gt; command like before but there is a little change of plans. Rather than using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;help(flag)&lt;/code&gt; to read the value of variable flag we will use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;help()&lt;/code&gt; interactive version.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/boiler/image-2.png&quot; class=&quot;center&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So the,&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Flag&lt;/strong&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;pctf{Un1c0d3_i5_sw34t}&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;I don’t know if this is the intended method to solve because by looking at the flag it doesn’t look like it but whatever, we got the flag ¯\_(ツ)_/¯ .&lt;/p&gt;
+
+&lt;p&gt;Well this is it I was only able to do the first 2 pyjails. So lets move to other challenge categories .&lt;/p&gt;
+
+&lt;h2&gt;&lt;strong&gt;Reverse Engineering&lt;/strong&gt;&lt;/h2&gt;
+
+&lt;h3&gt;weenie_hut_general&lt;/h3&gt;
+
+&lt;p&gt;This challenge was an easy reverse engineering challenge. I am not a reverse engineering player myself but I was able to do it easily.&lt;/p&gt;
+
+&lt;p&gt;The given files can be found from this &lt;a href=&quot;https://ctf.b01lers.com/download?file_key=ad1a1baf12da64c84dc72ecc9befccddec544cd0310acefb87275692d212f7a3&amp;amp;team_key=c2e8f607c31b1896dfe445997fb87e1315424096425ea90c9b38ee0cd0b39032&quot;&gt;link&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;So running the file is no good as it does not contain main function and will return a Segmentation fault. Lets open it in ghidra and see the decompiled source code.&lt;/p&gt;
+
+&lt;p&gt;Upon opening in ghidra I found a function &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;trytorev&lt;/code&gt;. After reading and understanding the code it was pretty obvious what it does. See for yourself:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/boiler/image-3.png&quot; class=&quot;center&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;it first initializes a seed to get psedurandom number from rand function.&lt;/p&gt;
+
+&lt;p&gt;It then looks for a number such that the bitwise XOR of param1, uvar1(storing first random number) and 0x3597b741 is equal to pseudorandom number uvar2 .&lt;/p&gt;
+
+&lt;p&gt;So I first made a script to do the reverse of all these operations in python (A nooby mistake, I know ). Python’s random number function does not work in the same way like C rand function. So my team mate (&lt;a href=&quot;https://ctftime.org/user/82627&quot;&gt;DaBaddest&lt;/a&gt;) made the reverse script in C and that worked :&lt;/p&gt;
+
+&lt;p&gt;His script :&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;stdlib.h&amp;gt;
+&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; 
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;srand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x11C4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;printf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot; %d &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;^&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;^&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x3597B741&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; 
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; 
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;And this returned us the flag&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Flag&lt;/strong&gt; : &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;bctf{1432175799}&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3&gt;Swirler&lt;/h3&gt;
+
+&lt;p&gt;Another Easy reverse engineering challenge for beginners like me&lt;/p&gt;
+
+&lt;p&gt;Given files can be found from this &lt;a href=&quot;https://ctf.b01lers.com/download?file_key=64844ebf04da4d9513927c3d720e00799c5db04477d7b6c496bab371edd889f3&amp;amp;team_key=c2e8f607c31b1896dfe445997fb87e1315424096425ea90c9b38ee0cd0b39032&quot;&gt;link&lt;/a&gt; . With the files another &lt;a href=&quot;http://chal.b01lers.com:8001&quot;&gt;link&lt;/a&gt; was also given to us .&lt;/p&gt;
+
+&lt;p&gt;Ok first lets look at the given files it was a png picture file nothing special. Lets look at the given link.&lt;/p&gt;
+
+&lt;p&gt;Main function of the site was to take a picture and “swirl” it so that no one can look at its contents. It was JS reverse engineering and was no big thing. I copied the source code of the site and used &lt;a href=&quot;https://jsfiddle.net/&quot;&gt;https://jsfiddle.net/&lt;/a&gt; to deploy it and ‘fiddle’ with source code side by side to see how it works.&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;fsSource&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;`
+    precision highp float;
+
+    varying vec2 vPos;
+
+    uniform sampler2D uSampler;
+    uniform vec2 uResolution;
+    uniform float uTime;
+
+    uniform float uRadius;
+    uniform float uSwirlFactor;
+
+    void main(void) {
+      vec2 uv = gl_FragCoord.xy / uResolution.xy;
+
+      float dist = distance(uv, vec2(0.5));
+      mat2 rotmat;
+      if (dist &amp;lt; uRadius) {
+          float percent = (uRadius - dist) / uRadius;
+          float angle = percent * percent * uSwirlFactor * uTime;
+          float sina = sin(angle);
+          float cosa = cos(angle);
+          rotmat = mat2(cosa, sina, -sina, cosa);
+      } else {
+          rotmat = mat2(1, 0, 0, 1);
+      }
+
+      vec2 texCoord = rotmat * (uv - vec2(0.5)) + vec2(0.5);
+      vec4 diffuse = texture2D(uSampler, texCoord);
+      gl_FragColor = diffuse;
+    }
+  &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\`&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;;
+
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This was the vulnerable script I just converted the following code block :&lt;/p&gt;
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;dist&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;uRadius&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;nx&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;percent&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;uRadius&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;dist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;uRadius&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+          &lt;span class=&quot;nx&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;angle&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;percent&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;percent&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;uSwirlFactor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;uTime&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+          &lt;span class=&quot;nx&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sina&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+          &lt;span class=&quot;nx&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;cosa&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;cos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+          &lt;span class=&quot;nx&quot;&gt;rotmat&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mat2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cosa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sina&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sina&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;cosa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;to :&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;dist&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;uRadius&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;nx&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;percent&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;uRadius&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;dist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;uRadius&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+          &lt;span class=&quot;nx&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;angle&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;percent&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;percent&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;uSwirlFactor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;uTime&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+          &lt;span class=&quot;nx&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sina&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+          &lt;span class=&quot;nx&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;cosa&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;cos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+          &lt;span class=&quot;nx&quot;&gt;rotmat&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mat2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cosa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sina&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sina&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;cosa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;and ran the code with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;flag.png&lt;/code&gt; and we got a qrcode&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/boiler/canvas.png&quot; class=&quot;center&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;after scanning we got the flag :&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Flag:&lt;/strong&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;pctf{sw1rly_sw1rly_qr_c0d3}&lt;/code&gt;&lt;/p&gt;
+
+&lt;h2&gt;WEB&lt;/h2&gt;
+
+&lt;h3&gt;gdpr&lt;/h3&gt;
+
+&lt;p&gt;This was a web challenge so a link was given : &lt;a href=&quot;http://chal.b01lers.com:1004&quot;&gt;chal.b01lers.com:1004&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;After opening the site It opened a page like this :&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/boiler/image-4.png&quot; class=&quot;center&quot; /&gt;
+If you look closely when the page is loaded it covers some content. So I disabled the JS on my browser to check what it is and it loaded a page like this :&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/boiler/image-5.png&quot; class=&quot;center&quot; /&gt;
+After visiting the link we got the flag&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/boiler/image-6.png&quot; class=&quot;center&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Flag&lt;/strong&gt;: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;bctf{annoying_but_good?}&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Well that was it folks.&lt;/p&gt;
+
+&lt;p&gt;Will come again with some another interesting writeup.&lt;/p&gt;
+
+&lt;p&gt;Till then, farewell&lt;/p&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+        <author>
+            <name>Zeus</name>
+          
+          
+        </author>
+      
+
+      
+        <category term="ctf" />
+      
+
+      
+        <category term="writeups" />
+      
+
+      
+        <summary type="html">So recently I played Bo1ler CTF. Normally I don’t write writeups for a CTF (due to time constraints) but this time I decided to write one as I found the challenges quite good and informative for beginners like me. Well hats off to Bo1ler CTF team. I am writing this writeup mainly for pyjail challenges so my main focus will be on them only but I’ll be providing the writeups for other challenges also. Jails Pyjailgolf1 So in this challenge we were given the following code which was running on the shell server nc chal.b01lers.com 1334 : line = input(&apos;&amp;gt;&amp;gt;&amp;gt; &apos;) flag=&quot;\[REDACTED\]&quot; if len(line) &amp;gt; 10: raise Exception() try: eval(line) except: pass Basically there is an eval function which is vulnerable. You will input any python command and it will be executed. But this was not the problem, problem was that we have to print the value of variable flag by running a command whose length is less than 10 chars. Now if you simply do print(flag) it will not work and will raise an Exception. All other commands like hex(), id(), exec() etc will not work because they are functions and they return the value rather than printing it. So calling them is no good for us. Now you see why I am writing a writeup for this challenge. Because its so small, simple and cute yet challenging. Its a pure “out of the box” thinking challenge. Every beginner can approach this because it doesn’t require a specific skillset like pwn (binary exploitation) challenges (except python but lets be honest, who doesn’t know it 😬) . Well after going through my python notes and doing some research work on google I found a command help(). Yup! the answer was help command !! Flag: pctf{JusT_a5k_4_h3lP!} See the most basic commands which we neglect during our learning period helped us in this challenge. After this I researched more on help() command and by luck next jail challenge could be done using help() command itself. Pyjailgolf2 This challenge is almost same as the last one the only difference is the char limit. This time we have to do all our work in just 9 chars. Lets take a look at the script : line = input(&apos;&amp;gt;&amp;gt;&amp;gt; &apos;) flag=&quot;\[REDACTED\]&quot; if len(line) &amp;gt; 9: raise Exception() try: eval(line) except: pass nc chal.b01lers.com 1335 So as I said before this time we will use help() command like before but there is a little change of plans. Rather than using help(flag) to read the value of variable flag we will use help() interactive version. So the, Flag pctf{Un1c0d3_i5_sw34t} I don’t know if this is the intended method to solve because by looking at the flag it doesn’t look like it but whatever, we got the flag ¯\_(ツ)_/¯ . Well this is it I was only able to do the first 2 pyjails. So lets move to other challenge categories . Reverse Engineering weenie_hut_general This challenge was an easy reverse engineering challenge. I am not a reverse engineering player myself but I was able to do it easily. The given files can be found from this link So running the file is no good as it does not contain main function and will return a Segmentation fault. Lets open it in ghidra and see the decompiled source code. Upon opening in ghidra I found a function trytorev. After reading and understanding the code it was pretty obvious what it does. See for yourself: it first initializes a seed to get psedurandom number from rand function. It then looks for a number such that the bitwise XOR of param1, uvar1(storing first random number) and 0x3597b741 is equal to pseudorandom number uvar2 . So I first made a script to do the reverse of all these operations in python (A nooby mistake, I know ). Python’s random number function does not work in the same way like C rand function. So my team mate (DaBaddest) made the reverse script in C and that worked : His script : #include &amp;lt;stdio.h&amp;gt; #include &amp;lt;stdlib.h&amp;gt; int main() { srand(0x11C4) ; printf(&quot; %d \n&quot;,rand() ^ rand() ^ 0x3597B741) ; return 0 ; } And this returned us the flag Flag : bctf{1432175799} Swirler Another Easy reverse engineering challenge for beginners like me Given files can be found from this link . With the files another link was also given to us . Ok first lets look at the given files it was a png picture file nothing special. Lets look at the given link. Main function of the site was to take a picture and “swirl” it so that no one can look at its contents. It was JS reverse engineering and was no big thing. I copied the source code of the site and used https://jsfiddle.net/ to deploy it and ‘fiddle’ with source code side by side to see how it works. const fsSource = ` precision highp float; varying vec2 vPos; uniform sampler2D uSampler; uniform vec2 uResolution; uniform float uTime; uniform float uRadius; uniform float uSwirlFactor; void main(void) { vec2 uv = gl_FragCoord.xy / uResolution.xy; float dist = distance(uv, vec2(0.5)); mat2 rotmat; if (dist &amp;lt; uRadius) { float percent = (uRadius - dist) / uRadius; float angle = percent * percent * uSwirlFactor * uTime; float sina = sin(angle); float cosa = cos(angle); rotmat = mat2(cosa, sina, -sina, cosa); } else { rotmat = mat2(1, 0, 0, 1); } vec2 texCoord = rotmat * (uv - vec2(0.5)) + vec2(0.5); vec4 diffuse = texture2D(uSampler, texCoord); gl_FragColor = diffuse; } \`; This was the vulnerable script I just converted the following code block : if (dist &amp;lt; uRadius) { float percent = (uRadius - dist) / uRadius; float angle = percent * percent * uSwirlFactor * uTime; float sina = sin(angle); float cosa = cos(angle); rotmat = mat2(cosa, sina, -sina, cosa); to : if (dist &amp;lt; uRadius) { float percent = (uRadius - dist) / uRadius; float angle = percent * percent * -uSwirlFactor * uTime; float sina = sin(angle); float cosa = cos(angle); rotmat = mat2(cosa, sina, -sina, cosa); and ran the code with flag.png and we got a qrcode after scanning we got the flag : Flag: pctf{sw1rly_sw1rly_qr_c0d3} WEB gdpr This was a web challenge so a link was given : chal.b01lers.com:1004 After opening the site It opened a page like this : If you look closely when the page is loaded it covers some content. So I disabled the JS on my browser to check what it is and it loaded a page like this : After visiting the link we got the flag Flag: bctf{annoying_but_good?} Well that was it folks. Will come again with some another interesting writeup. Till then, farewell</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+  
+    <entry>
+      
+      <title type="html">Memory Mapping Introduction</title>
+      
+      
+      <link href="https://hackolympus.com/blog/2021/01/24/Memory-Mapping-Introduction/" rel="alternate" type="text/html" title="Memory Mapping Introduction" />
+      
+      <published>2021-01-24T00:00:00+00:00</published>
+      <updated>2021-01-24T00:00:00+00:00</updated>
+      <id>https://hackolympus.com/blog/2021/01/24/Memory-Mapping-Introduction</id>
+      <content type="html" xml:base="https://hackolympus.com/blog/2021/01/24/Memory-Mapping-Introduction/">&lt;h4&gt;&lt;strong&gt;Memory mapping&lt;/strong&gt;&lt;/h4&gt;
+
+&lt;p&gt;Memory of computer has addresses for its smooth working. These addresses are same for everyone and does not change from use to use. The first byte is at address 0, the second byte is at address 1, and so on until the last byte of the computer’s memory. Basically if I want to explain memory mapping in short there are memory registers that map memory. First a “logical” address is given to these processes which are currently running on the computer by CPU. This “logical” address is completely temporary and is not same for all users, its completely virtual. This process when becomes a permanent process, is assigned a “physical” address on the memory itself.&lt;/p&gt;
+
+&lt;p&gt;How exciting huh ? Well for me these things are very exciting 😁&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;These mapping registers can only map data of 2 different size - 4096 bytes and 2 megabytes. Linux uses 2MB for the kernel and 4Kb for most other uses&lt;/strong&gt;. Recent CPUs can support up to 1GB !!&lt;/p&gt;
+
+&lt;p&gt;To understand these concepts more clearly, you all can read this book (&lt;a href=&quot;http://library.bagrintsev.me/ASM/Introduction%20to%2064bit%20Intel%20Assembly%20Language%20Programming%20for%20Linux.2011.pdf&quot;&gt;link&lt;/a&gt;) and watch this Youtube video by Ted-Ed &lt;a href=&quot;https://www.youtube.com/watch?v=p3q5zWCw8J4&amp;amp;t=22s&quot;&gt;link&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;I have ended memory mapping in very short and has just given you a little overview because I can’t explain everything here but you all can look the links that I have given you all.&lt;/p&gt;
+
+&lt;p&gt;So now comes the more exciting part. Ever heard of stack, heap etc. Well in this article you will be explained everything. That’s why I just love assembly, It completely builds all the concepts clear related to working of computers.&lt;/p&gt;
+
+&lt;h4&gt;&lt;strong&gt;Process Memory Model&lt;/strong&gt;&lt;/h4&gt;
+
+&lt;p&gt;For the smooth running of a process linux memory is divided into 4 logical segments- text, data, heap and stack. A process is mapped from lowest address i.e. &lt;strong&gt;text&lt;/strong&gt; to the highest address i.e. &lt;strong&gt;stack&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Now before moving ahead I would like to discuss about 2 types of memory - &lt;strong&gt;logical and physical&lt;/strong&gt;. &lt;strong&gt;The segmentation is done in the logical part&lt;/strong&gt; of the memory because it can vary but the &lt;strong&gt;pages(blocks) are the part of physical part&lt;/strong&gt; of the memory as a block size remains constant.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/process-memory-dia.png&quot; align=&quot;left&quot; /&gt;
+&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Text&lt;/strong&gt; - In assembly text segment is indicated by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.text&lt;/code&gt; , It contains the machine instructions of a program. It basically tells the story of what program does.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Data&lt;/strong&gt; - Data segment contains all the &lt;strong&gt;static data&lt;/strong&gt;. It is represented by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.data&lt;/code&gt; .Which means it contains all variables that have been initialized in the program.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;.bss&lt;/strong&gt; - Above data segment, there is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.bss&lt;/code&gt; segment which stands for “block started by symbol”. Ths segment contains data which is statistically allocated in a process, but is not stored in the executable file. Instead this data is allocated when the process is loaded into &lt;strong&gt;memory&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;.&lt;strong&gt;rodata&lt;/strong&gt; - Sometimes &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.rodata&lt;/code&gt; is also seen. Basically &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.rodata&lt;/code&gt; is a segment where all the constants are placed and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.data&lt;/code&gt; is a segment where all the variable are placed.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Heap&lt;/strong&gt; - Heap is basically some space reserved by the program so that it can use it for future purposes when calling functions like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;malloc&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Stack&lt;/strong&gt; - It is basically temporary storage space for a process. The size of stack is set by the linux kernel, typically to 16 MB. This is enough for our processes.&lt;/p&gt;
+
+&lt;p&gt;Now the above segments is for a page(block) of memory. So basically the minimum size of segments depends on page size.&lt;/p&gt;
+
+&lt;p&gt;The size of segments vary according to usage but the ultimate size of the page will remain same. for example Sometimes, you will see that processor is processing a lot of information in that case we can assume that .text part is large but other parts is small.Sometimes processing done is less but still &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.data&lt;/code&gt; is large but others are small. Sometimes a process needs more temporary storage for later use so stack will be more in size.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Hello world program in assembly.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;I do not want you to understand the whole code below. Just observe how segmentation has been performed in the code and keep this code in the back of your mind so that you can understand and write codes yourself in the upcoming articles.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-asm&quot;&gt;.section .text 
+    .intel_syntax noprefix 
+    .global _start 
+    _start:
+        mov rax, 1 
+        lea rsi, [rip+str]   
+        mov rdx, 13
+        syscall 
+
+        mov rax, 60 
+        mov rdi, 0
+        syscall 
+
+    str:
+        .string &quot;Hello world\n&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;To run this:&lt;/p&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;gcc helloworld.s &lt;span class=&quot;nt&quot;&gt;-nostdlib&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--static&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; helloworld
+./helloworld
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;I have not added a lot of things in this article. So please read and view the following sources.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Sources:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Book link given in the &lt;strong&gt;previous article.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.cs.uwm.edu/classes/cs315/Bacon/Lecture/HTML/ch10s04.html&quot;&gt;http://www.cs.uwm.edu/classe&lt;/a&gt;&lt;a href=&quot;http://www.cs.uwm.edu/classes/cs315/Bacon/Lecture/HTML/ch10s04.html&quot;&gt;s/cs315/Bacon/Lecture/HTML/ch10s04.htm&lt;/a&gt;&lt;a href=&quot;http://www.cs.uwm.edu/classes/cs315/Bacon/Lecture/HTML/ch10s04.html&quot;&gt;l&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://jameshfisher.com/2018/03/10/linux-assembly-hello-world/&quot;&gt;https://jameshfisher.com/2018/03/10/linux-assembly-hello-world/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://web.stanford.edu/class/archive/cs/cs107/cs107.1212/schedule.html&quot;&gt;https://web.stanford.edu/class/archive/cs/cs107/cs107.1212/schedule.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;https://www.youtube.com/watch?v=HWwNTWY1rxo&lt;/p&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+        <author>
+            <name>Zeus</name>
+          
+          
+        </author>
+      
+
+      
+        <category term="asm" />
+      
+
+      
+
+      
+        <summary type="html">Memory mapping Memory of computer has addresses for its smooth working. These addresses are same for everyone and does not change from use to use. The first byte is at address 0, the second byte is at address 1, and so on until the last byte of the computer’s memory. Basically if I want to explain memory mapping in short there are memory registers that map memory. First a “logical” address is given to these processes which are currently running on the computer by CPU. This “logical” address is completely temporary and is not same for all users, its completely virtual. This process when becomes a permanent process, is assigned a “physical” address on the memory itself. How exciting huh ? Well for me these things are very exciting 😁 These mapping registers can only map data of 2 different size - 4096 bytes and 2 megabytes. Linux uses 2MB for the kernel and 4Kb for most other uses. Recent CPUs can support up to 1GB !! To understand these concepts more clearly, you all can read this book (link) and watch this Youtube video by Ted-Ed link I have ended memory mapping in very short and has just given you a little overview because I can’t explain everything here but you all can look the links that I have given you all. So now comes the more exciting part. Ever heard of stack, heap etc. Well in this article you will be explained everything. That’s why I just love assembly, It completely builds all the concepts clear related to working of computers. Process Memory Model For the smooth running of a process linux memory is divided into 4 logical segments- text, data, heap and stack. A process is mapped from lowest address i.e. text to the highest address i.e. stack. Now before moving ahead I would like to discuss about 2 types of memory - logical and physical. The segmentation is done in the logical part of the memory because it can vary but the pages(blocks) are the part of physical part of the memory as a block size remains constant. Text - In assembly text segment is indicated by .text , It contains the machine instructions of a program. It basically tells the story of what program does. Data - Data segment contains all the static data. It is represented by .data .Which means it contains all variables that have been initialized in the program. .bss - Above data segment, there is .bss segment which stands for “block started by symbol”. Ths segment contains data which is statistically allocated in a process, but is not stored in the executable file. Instead this data is allocated when the process is loaded into memory. .rodata - Sometimes .rodata is also seen. Basically .rodata is a segment where all the constants are placed and .data is a segment where all the variable are placed. Heap - Heap is basically some space reserved by the program so that it can use it for future purposes when calling functions like malloc. Stack - It is basically temporary storage space for a process. The size of stack is set by the linux kernel, typically to 16 MB. This is enough for our processes. Now the above segments is for a page(block) of memory. So basically the minimum size of segments depends on page size. The size of segments vary according to usage but the ultimate size of the page will remain same. for example Sometimes, you will see that processor is processing a lot of information in that case we can assume that .text part is large but other parts is small.Sometimes processing done is less but still .data is large but others are small. Sometimes a process needs more temporary storage for later use so stack will be more in size. Hello world program in assembly. I do not want you to understand the whole code below. Just observe how segmentation has been performed in the code and keep this code in the back of your mind so that you can understand and write codes yourself in the upcoming articles. .section .text .intel_syntax noprefix .global _start _start: mov rax, 1 lea rsi, [rip+str] mov rdx, 13 syscall mov rax, 60 mov rdi, 0 syscall str: .string &quot;Hello world\n&quot; To run this: gcc helloworld.s -nostdlib --static -o helloworld ./helloworld I have not added a lot of things in this article. So please read and view the following sources. Sources: Book link given in the previous article. http://www.cs.uwm.edu/classes/cs315/Bacon/Lecture/HTML/ch10s04.html https://jameshfisher.com/2018/03/10/linux-assembly-hello-world/ https://web.stanford.edu/class/archive/cs/cs107/cs107.1212/schedule.html https://www.youtube.com/watch?v=HWwNTWY1rxo</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+  
+    <entry>
+      
+      <title type="html">Introduction To Assembly Language</title>
+      
+      
+      <link href="https://hackolympus.com/blog/2021/01/24/Introduction-To-Assembly-Language/" rel="alternate" type="text/html" title="Introduction To Assembly Language" />
+      
+      <published>2021-01-24T00:00:00+00:00</published>
+      <updated>2021-01-24T00:00:00+00:00</updated>
+      <id>https://hackolympus.com/blog/2021/01/24/Introduction-To-Assembly-Language</id>
+      <content type="html" xml:base="https://hackolympus.com/blog/2021/01/24/Introduction-To-Assembly-Language/">&lt;p&gt;Every Computer has a processor, that processor as we have already guessed by its name, processes the information given to the computer. It performs basic operations like arithmetic calculations, logical and control operations for the computer. This processor understands 1s and 0s but for us humans to write code in 1s and 0s is very difficult and tedious so for this purpose assembly language was introduced. Assembly language makes it easy for us to communicate with computer and understand it more clearly.&lt;/p&gt;
+
+&lt;p&gt;Assembly language is often called &lt;em&gt;symbolic machine code&lt;/em&gt;. It consists of a lot of short forms which is converted to machine language(1s and 0s) when passed through assembler. The following image was found online on the net, it will help you all to understand this concept more clearly.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/Assembly-Language-vs-Machine-Language-1.png&quot; class=&quot;center&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The above process of converting assembly language to machine code is called as &lt;strong&gt;&lt;em&gt;assembly&lt;/em&gt;&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Ok, so up till now I think I have made my point clear that main purpose of assembly language or should I say every programming language is to understand computer and give it commands.&lt;/p&gt;
+
+&lt;p&gt;Now a assembly language is designed depending upon which processor we are using so in short it is processor specific. So it is possible that processor found in one PC may able to assemble code written in it but processor of other PC may not.&lt;/p&gt;
+
+&lt;p&gt;Assembly language is a low level language and is often abbreviated as &lt;strong&gt;&lt;em&gt;asm&lt;/em&gt;&lt;/strong&gt;. So first of all what is a low level language ?&lt;/p&gt;
+
+&lt;p&gt;Low level language does not mean that it is easy to learn or anything. Basically low level language basically means that it is a language that it is very similar to actual machine language and has less abstraction. By abstraction I mean changes added to that language so it becomes less complex and more understandable. The converse of it can be applied for high level languages like python, C, Java etc.&lt;/p&gt;
+
+&lt;p&gt;So What exactly are these 1’s and 0’s ?&lt;/p&gt;
+
+&lt;p&gt;These 1s and 0s are called &lt;em&gt;bits&lt;/em&gt;. It is the smallest possible storage unit of computer.&lt;/p&gt;
+
+&lt;h4&gt;Bytes&lt;/h4&gt;
+
+&lt;p&gt;So we have understood bits but what are bytes ? Are they the same thing or different. Well many people think that bits and bytes are same but its false.&lt;/p&gt;
+
+&lt;p&gt;Nowadays processor interpret a specific number of bits at a time. They interpret 8 bits at a time. &lt;strong&gt;This cluster of 8 bits is known as &lt;em&gt;a byte&lt;/em&gt;&lt;/strong&gt;. The main memory of the computer is composed of an array of bytes, with each byte having a separate memory address. The first byte address is 0 and the last address depends on the hardware and software in use. Any byte that is identified as a machine instruction is pushed into &lt;strong&gt;rbp register&lt;/strong&gt; onto the run-time stack.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;After this you all must study the following concepts as it will make your concepts more clear:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Binary numbers&lt;/li&gt;
+  &lt;li&gt;Binary arithmetic - addition, subtraction, multiplication and division&lt;/li&gt;
+  &lt;li&gt;Hexadecimal numbers&lt;/li&gt;
+  &lt;li&gt;Floating point numbers&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I learned the above topics from this book :&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://library.bagrintsev.me/ASM/Introduction%20to%2064bit%20Intel%20Assembly%20Language%20Programming%20for%20Linux.2011.pdf&quot;&gt;Introduction to 64 Bit Intel Assembly Language Programming for Linux&lt;/a&gt;&lt;/p&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+        <author>
+            <name>Zeus</name>
+          
+          
+        </author>
+      
+
+      
+        <category term="asm" />
+      
+
+      
+
+      
+        <summary type="html">Every Computer has a processor, that processor as we have already guessed by its name, processes the information given to the computer. It performs basic operations like arithmetic calculations, logical and control operations for the computer. This processor understands 1s and 0s but for us humans to write code in 1s and 0s is very difficult and tedious so for this purpose assembly language was introduced. Assembly language makes it easy for us to communicate with computer and understand it more clearly. Assembly language is often called symbolic machine code. It consists of a lot of short forms which is converted to machine language(1s and 0s) when passed through assembler. The following image was found online on the net, it will help you all to understand this concept more clearly. The above process of converting assembly language to machine code is called as assembly. Ok, so up till now I think I have made my point clear that main purpose of assembly language or should I say every programming language is to understand computer and give it commands. Now a assembly language is designed depending upon which processor we are using so in short it is processor specific. So it is possible that processor found in one PC may able to assemble code written in it but processor of other PC may not. Assembly language is a low level language and is often abbreviated as asm. So first of all what is a low level language ? Low level language does not mean that it is easy to learn or anything. Basically low level language basically means that it is a language that it is very similar to actual machine language and has less abstraction. By abstraction I mean changes added to that language so it becomes less complex and more understandable. The converse of it can be applied for high level languages like python, C, Java etc. So What exactly are these 1’s and 0’s ? These 1s and 0s are called bits. It is the smallest possible storage unit of computer. Bytes So we have understood bits but what are bytes ? Are they the same thing or different. Well many people think that bits and bytes are same but its false. Nowadays processor interpret a specific number of bits at a time. They interpret 8 bits at a time. This cluster of 8 bits is known as a byte. The main memory of the computer is composed of an array of bytes, with each byte having a separate memory address. The first byte address is 0 and the last address depends on the hardware and software in use. Any byte that is identified as a machine instruction is pushed into rbp register onto the run-time stack. After this you all must study the following concepts as it will make your concepts more clear: Binary numbers Binary arithmetic - addition, subtraction, multiplication and division Hexadecimal numbers Floating point numbers I learned the above topics from this book : Introduction to 64 Bit Intel Assembly Language Programming for Linux</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+</feed>

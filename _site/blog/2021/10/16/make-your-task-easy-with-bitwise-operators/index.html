@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  
+  
+  <title>Make your task easy with bitwise operators</title>
+  <meta name="description" content="I’ll keep on updating this as I find more interesting tricks So recently I was going through my notes of C programming and for some reason I wanted to see the header file for ctype.h when I discovered this easter egg: Now many of you might know about this but for me this was completely new !! And it truly amazed me. So here I am, writing a short blog about it. Though its completely clear. Fast to lowercase method To convert an ascii character to lower case we can do bitwise OR with 0x20 (32) which is space charater. In practical : /** * @author : HackOlympus (zeus@hackolympus) * @file : tolower * @created : Saturday Oct 16, 2021 20:42:42 IST */ #include &amp;lt;stdio.h&amp;gt; int main() { printf(&quot;%c\n&quot;,&#39;C&#39; | 0x20) ; printf(&quot;%c\n&quot;,&#39;c&#39; | 0x20) ; return 0 ; }">
+  
+  <script src="https://kit.fontawesome.com/6b8da6f1d0.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="https://hackolympus.com/blog/2021/10/16/make-your-task-easy-with-bitwise-operators/">
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="Zeus@HackOlympus" href="https://hackolympus.com/feed.xml">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+ <script async src="https://www.googletagmanager.com/gtag/js?id=G-MFNXHS9HDQ"></script>
+ <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-MFNXHS9HDQ');
+ </script>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+
+
+  
+  <meta property="og:title" content="Make your task easy with bitwise operators">
+  <meta property="og:site_name" content="Zeus@HackOlympus">
+  <meta property="og:url" content="https://hackolympus.com/blog/2021/10/16/make-your-task-easy-with-bitwise-operators/">
+  <meta property="og:description" content="I’ll keep on updating this as I find more interesting tricks So recently I was going through my notes of C programming and for some reason I wanted to see the header file for ctype.h when I discovered this easter egg: Now many of you might know about this but for me this was completely new !! And it truly amazed me. So here I am, writing a short blog about it. Though its completely clear. Fast to lowercase method To convert an ascii character to lower case we can do bitwise OR with 0x20 (32) which is space charater. In practical : /** * @author : HackOlympus (zeus@hackolympus) * @file : tolower * @created : Saturday Oct 16, 2021 20:42:42 IST */ #include &amp;lt;stdio.h&amp;gt; int main() { printf(&quot;%c\n&quot;,&#39;C&#39; | 0x20) ; printf(&quot;%c\n&quot;,&#39;c&#39; | 0x20) ; return 0 ; }">
+  
+  
+  <meta name="twitter:card" content="summary">
+  
+  <meta name="twitter:title" content="Make your task easy with bitwise operators">
+  <meta name="twitter:description" content="I’ll keep on updating this as I find more interesting tricks So recently I was going through my notes of C programming and for some reason I wanted to see the header file for ctype.h when I discove...">
+  
+  
+
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+
+  
+
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Zeus@HackOlympus</a>
+
+    <nav class="site-nav">
+      
+        
+        <a class="page-link" href="/about/">About</a>
+      
+        
+        <a class="page-link" href="/archives/">Archives</a>
+      
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    
+      <h1 class="post-title" itemprop="name headline">Make your task easy with bitwise operators</h1>
+    
+    <p class="post-meta"><time datetime="2021-10-16T15:02:09+00:00" itemprop="datePublished">Oct 16, 2021</time></p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p><em>I’ll keep on updating this as I find more interesting tricks</em></p>
+
+<p>So recently I was going through my notes of C programming and for some reason I wanted to see the header file for ctype.h when I discovered this easter egg:</p>
+
+<p><img src="/images/ctype.png" class="center" /></p>
+
+<p>Now many of you might know about this but for me this was completely new !! And it truly amazed me. So here I am, writing a short blog about it.</p>
+
+<p>Though its completely clear.</p>
+
+<h3>Fast to lowercase method</h3>
+
+<p>To convert an ascii character to lower case we can do bitwise OR with 0x20 (32) which is space charater.</p>
+
+<p>In practical :</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * @author      : HackOlympus (zeus@hackolympus)
+ * @file        : tolower
+ * @created     : Saturday Oct 16, 2021 20:42:42 IST
+ */</span>
+
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="sc">'C'</span> <span class="o">|</span> <span class="mh">0x20</span><span class="p">)</span> <span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="sc">'c'</span> <span class="o">|</span> <span class="mh">0x20</span><span class="p">)</span> <span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span> <span class="p">;</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+
+  </div>
+
+  
+    <div class="post-comments" itemprop="comment">
+      <hr />
+<h1>Comments</h1>
+<div id="disqus_thread"></div>
+<script>
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        
+        s.src = 'https://hackolympus.disqus.com/embed.js';
+        
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+    </div>
+  
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <p>
+      
+
+&copy; Zeus - Subscribe via <a href="https://hackolympus.com/feed.xml">RSS</a>
+
+    </p>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

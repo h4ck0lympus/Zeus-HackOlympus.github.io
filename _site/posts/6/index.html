@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  
+  
+  <title>Zeus@HackOlympus</title>
+  <meta name="description" content="A personal blog and mind dump of my CS journey ...">
+  
+  <script src="https://kit.fontawesome.com/6b8da6f1d0.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="https://hackolympus.com/posts/6/">
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="Zeus@HackOlympus" href="https://hackolympus.com/feed.xml">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+ <script async src="https://www.googletagmanager.com/gtag/js?id=G-MFNXHS9HDQ"></script>
+ <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-MFNXHS9HDQ');
+ </script>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+
+
+  
+  <meta property="og:title" content="Zeus@HackOlympus">
+  <meta property="og:site_name" content="Zeus@HackOlympus">
+  <meta property="og:url" content="https://hackolympus.com/posts/6/">
+  <meta property="og:description" content="A personal blog and mind dump of my CS journey ...">
+  
+  
+  <meta name="twitter:card" content="summary">
+  
+  <meta name="twitter:title" content="Zeus@HackOlympus">
+  <meta name="twitter:description" content="A personal blog and mind dump of my CS journey ...">
+  
+  
+
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+
+  
+
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Zeus@HackOlympus</a>
+
+    <nav class="site-nav">
+      
+        
+        <a class="page-link" href="/about/">About</a>
+      
+        
+        <a class="page-link" href="/archives/">Archives</a>
+      
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="home">
+
+  
+
+  
+
+  <ul class="post-list">
+    
+      
+      
+
+      <li>
+        <header class="post-header">
+          <h1 class="post-title">
+            
+              <a class="post-link" href="/blog/2021/04/06/Bo1ler-CTF-2021-writeup/">Bo1ler CTF -2021  writeup</a>
+            
+          </h1>
+
+          <p class="post-meta">
+            Apr 6, 2021
+            
+               •
+  
+    
+    
+      
+    
+      
+    
+      
+        <a href="/categories/ctf/">ctf</a>
+      
+    
+  
+
+
+ •
+  
+    
+    
+      
+        <a href="/tags/writeups/">writeups</a>
+      
+    
+      
+    
+      
+    
+  
+
+
+            
+            
+          </p>
+        </header>
+
+        <div class="post-content">
+          <p>So recently I played Bo1ler CTF. Normally I don’t write writeups for a CTF (due to time constraints) but this time I decided to write one as I found the challenges quite good and informative for beginners like me. Well hats off to Bo1ler CTF team.</p>
+
+<p>I am writing this writeup mainly for <strong>pyjail</strong> challenges so my main focus will be on them only but I’ll be providing the writeups for other challenges also.</p>
+
+<h4><strong>Jails</strong></h4>
+
+<h4>Pyjailgolf1</h4>
+
+<p>So in this challenge we were given the following code which was running on the shell server <code class="language-plaintext highlighter-rouge">nc chal.b01lers.com 1334</code> :</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">line</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">'&gt;&gt;&gt; '</span><span class="p">)</span>
+
+<span class="n">flag</span><span class="o">=</span><span class="s">"\[REDACTED\]"</span>
+
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="nb">Exception</span><span class="p">()</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="nb">eval</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="k">pass</span>
+</code></pre></div></div>
+<p>Basically there is an <strong><code class="language-plaintext highlighter-rouge">eval</code></strong> function which is vulnerable. You will input any python command and it will be executed. But this was not the problem, problem was that we have to print the value of variable flag by running a command whose length is less than 10 chars. Now if you simply do <code class="language-plaintext highlighter-rouge">print(flag)</code> it will not work and will raise an Exception. All other commands like hex(), id(), exec() etc will not work because they are functions and they return the value rather than printing it. So calling them is no good for us.</p>
+
+<p>Now you see why I am writing a writeup for this challenge. Because its so small, simple and cute yet challenging. Its a pure “out of the box” thinking challenge. Every beginner can approach this because it doesn’t require a specific skillset like pwn (binary exploitation) challenges (except python but lets be honest, who doesn’t know it 😬) .</p>
+
+<p>Well after going through my python notes and doing some research work on google I found a command <code class="language-plaintext highlighter-rouge">help()</code>. Yup! the answer was help command !!</p>
+
+<p><img src="/images/boiler/image-1.png" class="center" /></p>
+
+<p><strong>Flag:</strong> <code class="language-plaintext highlighter-rouge">pctf{JusT_a5k_4_h3lP!}</code></p>
+
+<p>See the most basic commands which we neglect during our learning period helped us in this challenge. After this I researched more on <code class="language-plaintext highlighter-rouge">help()</code> command and by luck next jail challenge could be done using <code class="language-plaintext highlighter-rouge">help()</code> command itself.</p>
+
+<h3>Pyjailgolf2</h3>
+
+<p>This challenge is almost same as the last one the only difference is the char limit. This time we have to do all our work in just 9 chars. Lets take a look at the script :</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">line</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">'&gt;&gt;&gt; '</span><span class="p">)</span>
+
+<span class="n">flag</span><span class="o">=</span><span class="s">"\[REDACTED\]"</span>
+
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">9</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="nb">Exception</span><span class="p">()</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="nb">eval</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="k">pass</span>
+</code></pre></div></div>
+<p><code class="language-plaintext highlighter-rouge">nc chal.b01lers.com 1335</code></p>
+
+<p>So as I said before this time we will use <code class="language-plaintext highlighter-rouge">help()</code> command like before but there is a little change of plans. Rather than using <code class="language-plaintext highlighter-rouge">help(flag)</code> to read the value of variable flag we will use <code class="language-plaintext highlighter-rouge">help()</code> interactive version.</p>
+
+<p><img src="/images/boiler/image-2.png" class="center" /></p>
+
+<p>So the,</p>
+
+<p><strong>Flag</strong> <code class="language-plaintext highlighter-rouge">pctf{Un1c0d3_i5_sw34t}</code></p>
+
+<p>I don’t know if this is the intended method to solve because by looking at the flag it doesn’t look like it but whatever, we got the flag ¯\_(ツ)_/¯ .</p>
+
+<p>Well this is it I was only able to do the first 2 pyjails. So lets move to other challenge categories .</p>
+
+<h2><strong>Reverse Engineering</strong></h2>
+
+<h3>weenie_hut_general</h3>
+
+<p>This challenge was an easy reverse engineering challenge. I am not a reverse engineering player myself but I was able to do it easily.</p>
+
+<p>The given files can be found from this <a href="https://ctf.b01lers.com/download?file_key=ad1a1baf12da64c84dc72ecc9befccddec544cd0310acefb87275692d212f7a3&amp;team_key=c2e8f607c31b1896dfe445997fb87e1315424096425ea90c9b38ee0cd0b39032">link</a></p>
+
+<p>So running the file is no good as it does not contain main function and will return a Segmentation fault. Lets open it in ghidra and see the decompiled source code.</p>
+
+<p>Upon opening in ghidra I found a function <code class="language-plaintext highlighter-rouge">trytorev</code>. After reading and understanding the code it was pretty obvious what it does. See for yourself:</p>
+
+<p><img src="/images/boiler/image-3.png" class="center" /></p>
+
+<p>it first initializes a seed to get psedurandom number from rand function.</p>
+
+<p>It then looks for a number such that the bitwise XOR of param1, uvar1(storing first random number) and 0x3597b741 is equal to pseudorandom number uvar2 .</p>
+
+<p>So I first made a script to do the reverse of all these operations in python (A nooby mistake, I know ). Python’s random number function does not work in the same way like C rand function. So my team mate (<a href="https://ctftime.org/user/82627">DaBaddest</a>) made the reverse script in C and that worked :</p>
+
+<p>His script :</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> 
+<span class="p">{</span>
+    <span class="n">srand</span><span class="p">(</span><span class="mh">0x11C4</span><span class="p">)</span> <span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">" %d </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">rand</span><span class="p">()</span>  <span class="o">^</span> <span class="n">rand</span><span class="p">()</span> <span class="o">^</span> <span class="mh">0x3597B741</span><span class="p">)</span> <span class="p">;</span> 
+    <span class="k">return</span> <span class="mi">0</span> <span class="p">;</span> 
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>And this returned us the flag</p>
+
+<p><strong>Flag</strong> : <code class="language-plaintext highlighter-rouge">bctf{1432175799}</code></p>
+
+<h3>Swirler</h3>
+
+<p>Another Easy reverse engineering challenge for beginners like me</p>
+
+<p>Given files can be found from this <a href="https://ctf.b01lers.com/download?file_key=64844ebf04da4d9513927c3d720e00799c5db04477d7b6c496bab371edd889f3&amp;team_key=c2e8f607c31b1896dfe445997fb87e1315424096425ea90c9b38ee0cd0b39032">link</a> . With the files another <a href="http://chal.b01lers.com:8001">link</a> was also given to us .</p>
+
+<p>Ok first lets look at the given files it was a png picture file nothing special. Lets look at the given link.</p>
+
+<p>Main function of the site was to take a picture and “swirl” it so that no one can look at its contents. It was JS reverse engineering and was no big thing. I copied the source code of the site and used <a href="https://jsfiddle.net/">https://jsfiddle.net/</a> to deploy it and ‘fiddle’ with source code side by side to see how it works.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">fsSource</span> <span class="o">=</span> <span class="s2">`
+    precision highp float;
+
+    varying vec2 vPos;
+
+    uniform sampler2D uSampler;
+    uniform vec2 uResolution;
+    uniform float uTime;
+
+    uniform float uRadius;
+    uniform float uSwirlFactor;
+
+    void main(void) {
+      vec2 uv = gl_FragCoord.xy / uResolution.xy;
+
+      float dist = distance(uv, vec2(0.5));
+      mat2 rotmat;
+      if (dist &lt; uRadius) {
+          float percent = (uRadius - dist) / uRadius;
+          float angle = percent * percent * uSwirlFactor * uTime;
+          float sina = sin(angle);
+          float cosa = cos(angle);
+          rotmat = mat2(cosa, sina, -sina, cosa);
+      } else {
+          rotmat = mat2(1, 0, 0, 1);
+      }
+
+      vec2 texCoord = rotmat * (uv - vec2(0.5)) + vec2(0.5);
+      vec4 diffuse = texture2D(uSampler, texCoord);
+      gl_FragColor = diffuse;
+    }
+  </span><span class="se">\`</span><span class="s2">;
+
+</span></code></pre></div></div>
+
+<p>This was the vulnerable script I just converted the following code block :</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="nx">dist</span> <span class="o">&lt;</span> <span class="nx">uRadius</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">float</span> <span class="nx">percent</span> <span class="o">=</span> <span class="p">(</span><span class="nx">uRadius</span> <span class="o">-</span> <span class="nx">dist</span><span class="p">)</span> <span class="o">/</span> <span class="nx">uRadius</span><span class="p">;</span>
+          <span class="nx">float</span> <span class="nx">angle</span> <span class="o">=</span> <span class="nx">percent</span> <span class="o">*</span> <span class="nx">percent</span> <span class="o">*</span> <span class="nx">uSwirlFactor</span> <span class="o">*</span> <span class="nx">uTime</span><span class="p">;</span>
+          <span class="nx">float</span> <span class="nx">sina</span> <span class="o">=</span> <span class="nx">sin</span><span class="p">(</span><span class="nx">angle</span><span class="p">);</span>
+          <span class="nx">float</span> <span class="nx">cosa</span> <span class="o">=</span> <span class="nx">cos</span><span class="p">(</span><span class="nx">angle</span><span class="p">);</span>
+          <span class="nx">rotmat</span> <span class="o">=</span> <span class="nx">mat2</span><span class="p">(</span><span class="nx">cosa</span><span class="p">,</span> <span class="nx">sina</span><span class="p">,</span> <span class="o">-</span><span class="nx">sina</span><span class="p">,</span> <span class="nx">cosa</span><span class="p">);</span>
+</code></pre></div></div>
+<p>to :</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="nx">dist</span> <span class="o">&lt;</span> <span class="nx">uRadius</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">float</span> <span class="nx">percent</span> <span class="o">=</span> <span class="p">(</span><span class="nx">uRadius</span> <span class="o">-</span> <span class="nx">dist</span><span class="p">)</span> <span class="o">/</span> <span class="nx">uRadius</span><span class="p">;</span>
+          <span class="nx">float</span> <span class="nx">angle</span> <span class="o">=</span> <span class="nx">percent</span> <span class="o">*</span> <span class="nx">percent</span> <span class="o">*</span> <span class="o">-</span><span class="nx">uSwirlFactor</span> <span class="o">*</span> <span class="nx">uTime</span><span class="p">;</span>
+          <span class="nx">float</span> <span class="nx">sina</span> <span class="o">=</span> <span class="nx">sin</span><span class="p">(</span><span class="nx">angle</span><span class="p">);</span>
+          <span class="nx">float</span> <span class="nx">cosa</span> <span class="o">=</span> <span class="nx">cos</span><span class="p">(</span><span class="nx">angle</span><span class="p">);</span>
+          <span class="nx">rotmat</span> <span class="o">=</span> <span class="nx">mat2</span><span class="p">(</span><span class="nx">cosa</span><span class="p">,</span> <span class="nx">sina</span><span class="p">,</span> <span class="o">-</span><span class="nx">sina</span><span class="p">,</span> <span class="nx">cosa</span><span class="p">);</span>
+</code></pre></div></div>
+<p>and ran the code with <code class="language-plaintext highlighter-rouge">flag.png</code> and we got a qrcode</p>
+
+<p><img src="/images/boiler/canvas.png" class="center" /></p>
+
+<p>after scanning we got the flag :</p>
+
+<p><strong>Flag:</strong> <code class="language-plaintext highlighter-rouge">pctf{sw1rly_sw1rly_qr_c0d3}</code></p>
+
+<h2>WEB</h2>
+
+<h3>gdpr</h3>
+
+<p>This was a web challenge so a link was given : <a href="http://chal.b01lers.com:1004">chal.b01lers.com:1004</a></p>
+
+<p>After opening the site It opened a page like this :</p>
+
+<p><img src="/images/boiler/image-4.png" class="center" />
+If you look closely when the page is loaded it covers some content. So I disabled the JS on my browser to check what it is and it loaded a page like this :</p>
+
+<p><img src="/images/boiler/image-5.png" class="center" />
+After visiting the link we got the flag</p>
+
+<p><img src="/images/boiler/image-6.png" class="center" /></p>
+
+<p><strong>Flag</strong>: <code class="language-plaintext highlighter-rouge">bctf{annoying_but_good?}</code></p>
+
+<p>Well that was it folks.</p>
+
+<p>Will come again with some another interesting writeup.</p>
+
+<p>Till then, farewell</p>
+
+        </div>
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="pagination">
+    
+      <a class="previous" href="/posts/7/">&laquo; Older</a>
+    
+
+    
+      <a class="next" href="/posts/5/">Newer &raquo;</a>
+    
+  </div>
+
+
+
+</div>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <p>
+      
+
+&copy; Zeus - Subscribe via <a href="https://hackolympus.com/feed.xml">RSS</a>
+
+    </p>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
