@@ -15,7 +15,7 @@
 # in the templates via {{ site.myvariable }}.
 title: Zeus@HackOlympus
 author: Zeus
-description: A personal blog and mind dump of my CS journey ... 
+description: A security blog and mind dump ... 
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://hackolympus.com" # the base hostname & protocol for your site, e.g. http://example.com
 lang: en
@@ -72,3 +72,4 @@ jekyll-archives:
   permalinks:
     category: /categories/:name/
     tag: /tags/:name/
+draft: _draft
