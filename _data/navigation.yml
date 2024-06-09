@@ -5,4 +5,5 @@ main:
     url: /about/
   - title: "Archives"
     url: /archives/
-
+  - title: "log"
+    url: /log/

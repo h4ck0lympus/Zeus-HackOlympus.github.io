@@ -7,11 +7,11 @@ comments: false
 
 Sophomore in Arizona State University . Trying to get into vulnerability research and exploit development. 
 
-Checkout my friend delta-psi-phi's <a href="https://deltapsifi.github.io/blog">science blog</a> . 
+The following Sanskrit shloka was taught to me by my mother and everyday I try to apply it's teaching in my life.
 
+<p style="font-size:1.2em; text-align: center; ">विद्या ददाति विनयं विनयाद्याति पात्रताम् ।<br>पात्रत्वाद्धनमाप्नोति धनाद्धर्मं ततः सुखम् ॥ </p>
 
-Enjoy learning new things. All the best !!
-
+**English meaning:** knowledge gives discipline, from discipline comes worthiness, from worthiness one gets wealth, from wealth one does good deeds, from that comes the happiness.
 
 <!-- 
 <div class="fontawesome">
@@ -25,26 +25,28 @@ Enjoy learning new things. All the best !!
 
 <br>
 
-<div class="about-links-bar"> 
-  <a href="mailto:vishal_juneja@outlook.com" target="_blank" aria-hidden="true">
-    <i class="svg-icon icon-outlook"></i>
-  </a>
-  <a href="https://github.com/Zeus-HackOlympus" target="_blank" aria-hidden="true">
-    <i class="svg-icon icon-github"></i>
-  </a>
-
-  <a href="https://twitter.com/HackOlympus" target="_blank" aria-hidden="true">
-    <i class="svg-icon icon-twitter"></i>
-  </a>
-
+<div class="about-links-wrapper">
+  <div class="about-links-bar"> 
+    <a href="mailto:vjuneja3@asu.edu">mail</a>
+    <a href="https://github.com/h4ck0lympus">github</a> 
+  </div>
 </div>
 
-<!--
-<style> 
-    .fontawesome {
-        padding: 20px ; 
-        text-align: center ; 
-        margin: 5px ; 
-    }
+<style>
+  .about-links-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .about-links-bar {
+    display: flex;
+    gap: 10px; /* Adjust the gap between the links as needed */
+  }
+
+  .about-links-bar a {
+    text-decoration: none;
+    color: #000;
+    font-weight: bold;
+  }
 </style>
-//-->
