@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Weekly progress/log
-permalink: /log
+permalink: /log/
 comments: false
 ---
 
