@@ -22,9 +22,15 @@ Before starting this, random notes from Week 0:
 3. Also finally finished lvl 3. Prime trick to exploit race conditions is to keep minimum change between 2 threads running simultaneously (Atleast this worked ...). Before this also finished 3 papers - KRACE, razzer and exprace,
     pretty interesting stuff :)
 
-### Week 1 - 06/02/2024 - 06/08/2024
+### Week 1 - 06/02/2024 - 06/09/2024
 
 1. Setting up razzer. Razzer up until now is not able to compile on host `playground` . So trying docker (I don't want to get into dependency hell).
 2. Successful in compiling razzer. It was successful with ubuntu 16.04 with default configurations. Needed some very minor changes in create-image.sh for debootstrap to work in docker.
 3. solved lvl4. Learning **trust GDB, IDA can be wrong, GDB cannot be...**
 4. **fork keeps the same memory layout as parent so leaking something in parent/child will be good for other sub-processes too** 
+
+### Week 2 - 06/10/2024 - 06/17/2024
+1. solved lvl5, lvl6, lvl7, lvl8, and lvl 12. Got Green belt.
+2. we can do `fork` syscall using `SYS_CLONE` with flag `SIGCHLD`.
+3. never trusting chromium syscall blog table. `SYS_CLONE` arguments were wrong.
+5. started afl++ reading.
