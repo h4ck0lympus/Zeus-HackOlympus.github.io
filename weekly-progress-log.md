@@ -29,8 +29,21 @@ Before starting this, random notes from Week 0:
 3. solved lvl4. Learning **trust GDB, IDA can be wrong, GDB cannot be...**
 4. **fork keeps the same memory layout as parent so leaking something in parent/child will be good for other sub-processes too** 
 
-### Week 2 - 06/10/2024 - 06/17/2024
+### Week 2 - 06/10/2024 - 06/16/2024
 1. solved lvl5, lvl6, lvl7, lvl8, and lvl 12. Got Green belt.
 2. we can do `fork` syscall using `SYS_CLONE` with flag `SIGCHLD`.
 3. never trusting chromium syscall blog table. `SYS_CLONE` arguments were wrong.
 5. started afl++ reading.
+
+### Week 3 - 06/17/2024 - 06/22/2024
+1. `unlikely` and `likely` macro in afl++ source code. They help compiler to signal if a code block is usually going to be checked or not because of often same result of being true/false. Provides minor performance boost necessary in big codebase.
+`long __builtin_expect(long EXP, long C);` tells the compiler that `EXP` will generally have value of `C`. In almost all cases will it be used in the context of boolean expressions in which case it is much more convenient to define two helper macros:
+```
+#define unlikely(expr) __builtin_expect(!!(expr), 0)
+#define likely(expr) __builtin_expect(!!(expr), 1)
+```
+(from [What every programmer should know about memory](https://www.akkadia.org/drepper/cpumemory.pdf))
+2. generate compilation database from `clang` tooling, `bear -- <make command>`
+3. trying to test harness coverage.
+4. looked into `llvm-cov` too test coverage metric of a harness
+5. GoogleCTF 2024. Worked on pycalc challenge. Learned a lot of random things about how python bytecode works. How virtual stack in cpython works. `LOAD_CONST`, `LOAD_ATTR` etc. JIT adaptive bytecode in python 3.11 . Studied some python optamizations in python3.11 
