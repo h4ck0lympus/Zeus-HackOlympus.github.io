@@ -47,3 +47,8 @@ Before starting this, random notes from Week 0:
 3. trying to test harness coverage.
 4. looked into `llvm-cov` too test coverage metric of a harness
 5. GoogleCTF 2024. Worked on pycalc challenge. Learned a lot of random things about how python bytecode works. How virtual stack in cpython works. `LOAD_CONST`, `LOAD_ATTR` etc. JIT adaptive bytecode in python 3.11 . Studied some python optamizations in python3.11 
+
+### Week 4 - 06/23/2024 - 06/30/2024
+1. Still working on coverage reports and setting up harness for fuzzing.
+2. Participated in UIUCTF solo. Solved 500 point challenge from pwn, `syscall`.
+3. we can read a file using `mmap` given we can open a file. I used `openat` syscall for that as `open` was blocked. Using sleep, we can carefully craft a sidechannel attack (delay in program) to leak anything.
