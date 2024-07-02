@@ -5,7 +5,8 @@ permalink: /about/
 comments: false
 ---
 
-Sophomore in Arizona State University . Trying to get into vulnerability research and exploit development. 
+I am a lrising junior at Arizona State University. I am a noobie trying to get into vulnerability research and exploit development while balancing my time participating in CTFs with [Shellphish](https://shellphish.net/), [ASU Hacking Club](http://asuhacking.club/), or sometimes solo, doing cool research at [SEFCOM](https://sefcom.asu.edu/), and completing assignments.
+
 
 The following Sanskrit shloka was taught to me by my mother and everyday I try to apply it's teaching in my life.
 
