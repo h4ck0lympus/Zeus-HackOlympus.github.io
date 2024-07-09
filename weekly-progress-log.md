@@ -52,3 +52,10 @@ Before starting this, random notes from Week 0:
 1. Still working on coverage reports and setting up harness for fuzzing.
 2. Participated in UIUCTF solo. Solved 500 point challenge from pwn, `syscall`.
 3. we can read a file using `mmap` given we can open a file. I used `openat` syscall for that as `open` was blocked. Using sleep, we can carefully craft a sidechannel attack (delay in program) to leak anything.
+
+### Week 5 - 7/1/2024 - 7/7/2024
+
+1. coverage reports for oss-fuzz project `gcloud storage ls gs://oss-fuzz-coverage/latest_report_info/ | grep <PROJECT>`. Then we can do `gcloud storage cat gs:<link_from_json>`
+2. oss-fuzz project build status: `https://oss-fuzz-build-logs.storage.googleapis.com/`
+3. oss-fuzz fuzz introspector: `https://oss-fuzz-introspector.storage.googleapis.com/index.html`. Introspector index: `https://introspector.oss-fuzz.com/indexing-overview`
+
