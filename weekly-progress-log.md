@@ -59,3 +59,6 @@ Before starting this, random notes from Week 0:
 2. oss-fuzz project build status: `https://oss-fuzz-build-logs.storage.googleapis.com/`
 3. oss-fuzz fuzz introspector: `https://oss-fuzz-introspector.storage.googleapis.com/index.html`. Introspector index: `https://introspector.oss-fuzz.com/indexing-overview`
 
+### Week 6 - 7/8/2024 - 7/15/2024
+1. NOTE: oss-fuzz is not made to fuzz previous versions of projects. Trying to find a way to go around this limitation.
+2. Not much research work. Did assignments and solved challenges from old CTF's. Looked at kernel pwn.
