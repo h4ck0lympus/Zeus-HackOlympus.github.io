@@ -62,3 +62,28 @@ Before starting this, random notes from Week 0:
 ### Week 6 - 7/8/2024 - 7/15/2024
 1. NOTE: oss-fuzz is not made to fuzz previous versions of projects. Trying to find a way to go around this limitation.
 2. Not much research work. Did assignments and solved challenges from old CTF's. Looked at kernel pwn.
+
+### Week7 - 7/16/2024 - 7/23/2024
+1. Cool way to use exclusive or (bitwise XOR):
+suppose we need to find median of 3 numbers. Normally code for this can be complex but using XOR we can make it straight forward:
+```
+    input a, b, c
+    if (a > b) ^ (a > c):
+        a is median
+    else if (b > a) ^ (b > c):
+        b is median
+    else:
+        c is median
+```
+
+`(a > b) ^ (a > c)` only one should be true. If (a > b) is true and (a > c) is false, it's logically proven that c > a > b. Hence a being median.
+2. cool resource:  https://fibonhack.it/resources/pwn
+3. imaginary ctf 2024 with ASU HC.
+4. To test the harness we can write smaller code rather than testing the reading code base. That's what I did this time. Code base is huge, we can't spend time just reading it and making it work with pre-existing tools, so prove/disprove the hypothesis by small test code.
+5. Finally done with community college summer course I was taking. For the final project I had to implement binary search in MIPS assembly. Loved the experience !
+
+### Week8 - 7/24/2024 - 7/31/2024
+
+1. Move out week
+
+###
