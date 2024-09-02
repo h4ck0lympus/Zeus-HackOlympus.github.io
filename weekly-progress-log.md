@@ -82,8 +82,17 @@ suppose we need to find median of 3 numbers. Normally code for this can be compl
 4. To test the harness we can write smaller code rather than testing the reading code base. That's what I did this time. Code base is huge, we can't spend time just reading it and making it work with pre-existing tools, so prove/disprove the hypothesis by small test code.
 5. Finally done with community college summer course I was taking. For the final project I had to implement binary search in MIPS assembly. Loved the experience !
 
-### Week8 - 7/24/2024 - 7/31/2024
+### Week8 - 7/24/2024 - 8/16/2024
 
-1. Move out week
+1. Move out :(
 
-###
+### 8/16/2024 - 8/25/2024
+
+1. Semester started, done with move in.
+2. Started format string module on pwncollege.
+3. made simple harness.
+
+### 8/26/2024 - 9/1/2024
+1. started some algo practice, streak of 11 in 2 days.
+2. continued practice on format string 
+3. continued making better harness
