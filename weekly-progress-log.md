@@ -96,3 +96,78 @@ suppose we need to find median of 3 numbers. Normally code for this can be compl
 1. started some algo practice, streak of 11 in 2 days.
 2. continued practice on format string 
 3. continued making better harness
+
+### 9/1/2024 - 9/7/2024
+1. Did leetcode. Learned a new algorithm - toroise and hare 2 pointer algo. Did LRU Cache question.
+2. Practiced for interview
+3. Read about C++ intrinsics. 
+4. Played CSAW ctf with ASU HC. Solved a basic and easy challenge about bash scripting. No pwn solves.
+5. Learned a lot about cepstral analysis and sound cryptography.
+6. mat343 work 1.2, 1.3. MATLAB lab 1.
+7. CSE360 - HW#2
+
+### 9/8/2024 - 9/14/2024
+1. Applied in some more internship applications.
+2. Did leet. Solved around 4 more questions (1282 and some more i don't remember).
+3. Did CSE355 assignment for DFA and NFA construction.
+4. Project-1 CSE330.
+5. Studied Matrix LU decomposition - MAT343. Did MAT343 work.
+6. Did setup for cse360 and hw#3.
+7. MAT343 -1.4, 1.5, 2.1.
+8. CSE340 HW1. 
+
+### 9/15/2024 - 9/21/2024
+
+1. CSE355 Hw-1. Worked on a lot of DFA and NFA problems. Made a DFA that accepts all binary string divisbile by 5. Really cool problem. I am gonna write a blog post for this in future.
+2. Started working on project-1 CSE340. A parser, lexical analyzer and custom regular expression matcher implemented using regular expression graph made using thompson construction of NFA. I will write a blog post about it in future.
+3. Went to hacker devils meeting and did leet problem.
+4. Recitation 3 CSE355.
+5. MAT343 - 2.2, 3.1. MATLAB Lab 2
+6. CSE360 - HW#4
+
+### 9/22/2024 - 9/28/2024
+1. Project2 CSE330. Wrote a kernel module and custom syscall. Cool project.
+2. Continued working on project1 due on 27th. 
+3. MAT343 - 3.2.
+5. MAT343 Exam on 26th.
+6. Heap exploitation module started in CSE466.
+7. CSE355 HW2.
+
+### 9/29/2024 - 10/5/2024
+1. MAT343 - matlab lab3.
+2. Studied pumping lemma, did pumping lemma CSE355 assignment - recitation 5.
+3. Studied for CSE355 (on 2nd Oct) and CSE330 (on 7th October.) exam.
+4. Revised tcache heap exploitation. 
+5. CSE360 - HW#5
+
+### 10/6/2024 - 10/12/2024
+1. CSE340 HW2.
+2. MAT343 - 3.3, 3.4.
+3. CSE340 exam on 9th, Started CSE360 project phase1 9th, after exam, finished successfuly !
+4. Did challenged heap exploitation module.
+
+### 10/13/2024 - 10/19/2024
+1. heap exploitation all over except last challenge.
+2. CSE330 project3 - Wrote code for kernel threads, synchronized producer and consumer using semaphore.
+3. CSE355 Recitation 7 and HW3.
+4. MAT343 - 3.5, 3.6. 
+
+### 10/20/2024 - 10/26/2024
+
+1. CSE360 HW#6 and midterm exam.
+2. CSE355 Recitation 8 and Recitation 9
+3. mat343 4.1, 4.2, and lab 4
+4. Applied for internship.
+
+### 10/27/2024 - 11/2/2024
+
+1. MAT343 5.1.
+2. CSE360 Project phase2.
+3. CSE 355 - recitation 10 and HW4.
+4. CSE340 HW3.
+
+### 11/3/2024 - 11/9/2024
+1. CSE330 project 4.
+3. MAT343 Test2 - 5th Nov.
+4. CSE355 Test2 - 6th Nov.
+
