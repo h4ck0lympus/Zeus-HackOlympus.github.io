@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="{{ page.delay | default: 0 }}; url={{ page.redirect_to }}">
+  <link rel="canonical" href="{{ page.redirect_to }}">
+  <meta name="robots" content="noindex">
+  <title>Redirecting…</title>
+</head>
+<body>
+  <p>Moving to <a href="{{ page.redirect_to }}" rel="noopener noreferrer">{{ page.redirect_to }}</a>…</p>
+  <script>
+    (function () {
+      var to = "{{ page.redirect_to }}";
+      // Only preserve current query if destination doesn't already include one
+      var dest = to + (to.indexOf('?') === -1 ? window.location.search : '') + window.location.hash;
+      window.location.replace(dest);
+    })();
+  </script>
+</body>
+</html>
+
