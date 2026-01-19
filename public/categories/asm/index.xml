@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Asm on HackOlympus</title>
+    <link>http://localhost:1313/categories/asm/</link>
+    <description>Recent content in Asm on HackOlympus</description>
+    <generator>Hugo</generator>
+    <language>en-US</language>
+    <lastBuildDate>Sun, 24 Jan 2021 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/categories/asm/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Memory Mapping Introduction</title>
+      <link>http://localhost:1313/posts/2021-01-24-memory-mapping-introduction/</link>
+      <pubDate>Sun, 24 Jan 2021 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/2021-01-24-memory-mapping-introduction/</guid>
+      <description>&lt;h4 id=&#34;memory-mapping&#34;&gt;&lt;strong&gt;Memory mapping&lt;/strong&gt;&lt;/h4&gt;&#xA;&lt;p&gt;Memory of computer has addresses for its smooth working. These addresses are same for everyone and does not change from use to use. The first byte is at address 0, the second byte is at address 1, and so on until the last byte of the computer&amp;rsquo;s memory. Basically if I want to explain memory mapping in short there are memory registers that map memory. First a &amp;ldquo;logical&amp;rdquo; address is given to these processes which are currently running on the computer by CPU. This &amp;ldquo;logical&amp;rdquo; address is completely temporary and is not same for all users, its completely virtual. This process when becomes a permanent process, is assigned a &amp;ldquo;physical&amp;rdquo; address on the memory itself.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

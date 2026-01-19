@@ -1,0 +1,6 @@
+{{ $author := or .Site.Params.author (index .Site.Author "name") .Site.Title }}
+{{ $rss := "" }}
+{{ with site.Home.OutputFormats.Get "rss" }}
+  {{ $rss = .Permalink }}
+{{ end }}
+&copy; {{ $author }}{{ if $rss }} - Subscribe via <a href="{{ $rss }}">RSS</a>{{ end }}

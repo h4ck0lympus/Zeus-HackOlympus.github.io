@@ -1,0 +1,23 @@
+{{ define "main" }}
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        {{ if and (eq .Section "posts") .Params.externalURL }}
+          <a href="{{ .Params.externalURL }}">{{ .Title }} &rarr;</a>
+        {{ else }}
+          {{ .Title }}
+        {{ end }}
+      </h1>
+
+      {{ if eq .Section "posts" }}
+        <p class="post-meta">
+          {{ partial "post_meta.html" (dict "page" . "showTaxonomies" true "includePermalink" true) }}
+        </p>
+      {{ end }}
+    </header>
+
+    <div class="post-content">
+      {{ .Content }}
+    </div>
+  </article>
+{{ end }}

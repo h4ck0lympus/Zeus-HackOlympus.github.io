@@ -1,0 +1,17 @@
+{{ define "main" }}
+  <div class="home">
+    <h1 class="page-heading">{{ .Title }}</h1>
+    {{ with .Content }}{{ . }}{{ end }}
+
+    <ul class="post-list">
+      {{ range $key, $value := .Data.Terms }}
+        <li>
+          <h2>
+            <a class="post-link" href="{{ $value.Page.RelPermalink }}">{{ $value.Page.Title }}</a>
+            <span class="post-count">({{ len $value.Pages }})</span>
+          </h2>
+        </li>
+      {{ end }}
+    </ul>
+  </div>
+{{ end }}

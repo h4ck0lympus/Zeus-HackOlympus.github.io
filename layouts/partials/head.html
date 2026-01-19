@@ -1,0 +1,54 @@
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+{{ $title := .Site.Title }}
+{{ if not .IsHome }}
+  {{ $title = printf "%s | %s" .Title .Site.Title }}
+{{ end }}
+
+{{ $canonical := replace .Permalink "index.html" "" }}
+
+{{- if .IsHome -}}
+  {{- with .Site.Params.description }}<meta name="description" content="{{ . }}">{{ end -}}
+{{- else -}}
+  {{- with .Description -}}
+    <meta name="description" content="{{ . }}">
+  {{- else -}}
+    {{- with .Summary }}<meta name="description" content="{{ . | plainify }}">{{ end -}}
+  {{- end -}}
+{{- end -}}
+
+<title>{{ $title }}</title>
+<link rel="canonical" href="{{ $canonical }}">
+
+<link rel="icon" type="image/x-icon" href="{{ "favicon.ico" | relURL }}">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ "favicon-32x32.png" | relURL }}">
+<link rel="icon" type="image/png" sizes="16x16" href="{{ "favicon-16x16.png" | relURL }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ "apple-touch-icon.png" | relURL }}">
+<link rel="manifest" href="{{ "site.webmanifest" | relURL }}">
+
+{{ with .Params.keywords }}
+  {{ $kw := . }}
+  {{ if reflect.IsSlice $kw }}
+    <meta name="keywords" content="{{ delimit $kw ", " }}">
+  {{ else }}
+    <meta name="keywords" content="{{ $kw }}">
+  {{ end }}
+{{ end }}
+
+{{ with .OutputFormats.Get "rss" }}
+  <link rel="alternate" type="application/rss+xml" title="{{ $.Site.Title }}" href="{{ .Permalink }}">
+{{ end }}
+
+<meta property="og:title" content="{{ $title }}">
+<meta property="og:site_name" content="{{ .Site.Title }}">
+<meta property="og:url" content="{{ $canonical }}">
+
+<script src="https://kit.fontawesome.com/6b8da6f1d0.js" crossorigin="anonymous"></script>
+
+{{ partial "head/css.html" . }}
+{{ partial "head/js.html" . }}
+
+{{ partial "head_custom.html" . }}
+{{ partial "fonts.html" . }}

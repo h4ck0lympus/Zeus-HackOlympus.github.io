@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+<head>
+	<meta name="generator" content="Hugo 0.154.5"><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+
+<meta name="description" content="A security blog and mind dump ..."><title>HackOlympus</title>
+<link rel="canonical" href="http://localhost:1313/">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+
+
+
+
+  <link rel="alternate" type="application/rss+xml" title="HackOlympus" href="http://localhost:1313/index.xml">
+
+
+<meta property="og:title" content="HackOlympus">
+<meta property="og:site_name" content="HackOlympus">
+<meta property="og:url" content="http://localhost:1313/">
+
+<script src="https://kit.fontawesome.com/6b8da6f1d0.js" crossorigin="anonymous"></script>
+
+
+
+
+  
+  <link rel="stylesheet" href="/css/main.css">
+
+
+
+
+      <script src="/js/main.js"></script>
+
+
+
+<link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+
+
+</head>
+<body>
+
+  <header class="site-header" role="banner">
+    <div class="wrapper">
+      <a class="site-title" rel="author" href="/">HackOlympus</a>
+
+<nav class="site-nav">
+    <a class="page-link" href="/about/">About</a>
+    <a class="page-link" href="/posts/">Posts</a>
+</nav>
+
+
+    </div>
+  </header>
+
+  <main class="page-content" aria-label="Content">
+    <div class="wrapper">
+      
+  
+  
+
+  <div class="home">
+    
+
+    
+      <article class="post">
+        <header class="post-header">
+          <h1 class="post-title">
+            
+              <a class="post-link" href="/posts/2024-04-06-kernel-exploitation-notes/">Kernel Exploitation Notes</a>
+            
+          </h1>
+
+          <p class="post-meta">
+            
+  <time datetime="2024-04-06T00:00:00Z">Apr 6, 2024</time>
+          </p>
+        </header>
+
+        <div class="post-content">
+          <h2 id="environment-setup">Environment setup</h2>
+<p><a href="https://gist.github.com/Zeus-HackOlympus/1127529039c5a45593d9a4c86570f77d">Dockerfile</a></p>
+<h3 id="dev-files">/dev files</h3>
+<p><code>/dev</code> or device files represents different hardware devices attatched to the computer.</p>
+<h4 id="types-of-device-files">Types of device files</h4>
+<p>There are 2 types of device files:</p>
+<ol>
+<li><strong>Character device:</strong> they read data in <strong>unbuffered</strong> manner, one character at a time example microphone.</li>
+<li><strong>Block device:</strong> read data in <strong>buffered</strong> manner, one block at a time from block sizes ranging from 512 bytes, 1KB, 4KB etc.</li>
+</ol>
+<h3 id="proc-files">/proc files</h3>
+<p><code>/proc</code> files contains subdirectories for each process running on the system. These direcotires contain important process specific information example <code>fd</code>.</p>
+<p><strong>both /dev and /proc are controlled by kernel</strong></p>
+<h2 id="modules">Modules</h2>
+<h3 id="read-and-write">read and write</h3>
+<p><code>device_read</code>: kernel entrypoint, used when reading data from hardware device <br>
+<code>device_write</code>: kernel entrypoint, used fow writing to hardware device \</p>
+<h3 id="ioctl">ioctl</h3>
+<p><code>ioctl</code>: used for controlling/setting input/output control on hardware device. example:</p>
+<ol>
+<li>read from camera using <code>device_read</code>.</li>
+<li><code>ioctl</code> is used to define the resolution of camera.</li>
+</ol>
+<h2 id="kernel-module">Kernel module</h2>
+<p>Used for programming interaction between hardware device and software.
+it :</p>
+<ol>
+<li>reads data</li>
+<li>writes data</li>
+<li>uses ioctl to controlling/setting data</li>
+<li>after doing its operation returns to userspace</li>
+</ol>
+<p><strong>How does kernel take/return data from/to userland ?</strong></p>
+<p><code>copy_from_user</code>: copy data from the userspace to the kernel. <br>
+<code>copy_to_user</code>: copy data from the kernel to the userspace.</p>
+<p><strong>Module loading</strong>: <code>insmod</code> is used to load a module. (requires root permission)</p>
+<p><strong>listing module</strong>: <code>lsmod</code> lists loaded modules.</p>
+<p><strong>remove module</strong>: <code>rmmod</code> unloads a module. (requires root permission)</p>
+<h2 id="random-stuff">Random Stuff</h2>
+<p>reading <code>/proc/kallsyms</code>: see where kernel modules/functions are loaded</p>
+<h3 id="privilege-escalation">Privilege escalation</h3>
+<p><code>commit_creds(prepare_kernel_cred(0))</code>: get root ! <br>
+<code>current-&gt;thread_info.flag &amp;= ~(1 &lt;&lt; TIF_SECCOMP)</code>: escape seccomp <br>
+<code>run_cmd(const char* cmd)</code>: run command <code>cmd</code></p>
+
+        </div>
+      </article>
+    
+
+    
+
+  <div class="pagination">
+    
+      <a class="previous" href="/page/4/">&laquo; Older</a>
+    
+
+    
+      <a class="next" href="/page/2/">Newer &raquo;</a>
+    
+  </div>
+
+
+  </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrapper">
+      <p>
+
+
+  
+
+&copy; Zeus - Subscribe via <a href="http://localhost:1313/index.xml">RSS</a>
+</p>
+
+    </div>
+  </footer>
+
+</body>
+</html>
+

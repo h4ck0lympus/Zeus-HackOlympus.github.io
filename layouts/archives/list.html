@@ -1,0 +1,25 @@
+{{ define "main" }}
+  <div class="home">
+    <h1 class="page-heading">Blog Archive</h1>
+    {{ with .Content }}{{ . }}{{ end }}
+
+    {{ $posts := where site.RegularPages "Section" "posts" }}
+    <ul class="post-archives">
+      {{ range $posts.ByDate.Reverse }}
+        <li>
+          <span class="post-meta">
+            {{ partial "post_meta.html" (dict "page" . "showTaxonomies" true "includePermalink" true) }}
+          </span>
+
+          <h2>
+            {{ if .Params.externalURL }}
+              <a class="post-link" href="{{ .Params.externalURL }}">{{ .Title }} &rarr;</a>
+            {{ else }}
+              <a class="post-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+            {{ end }}
+          </h2>
+        </li>
+      {{ end }}
+    </ul>
+  </div>
+{{ end }}

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.Language.LanguageCode }}" dir="{{ or .Site.Language.LanguageDirection `ltr` }}">
+<head>
+  {{ partial "head.html" . }}
+</head>
+<body>
+
+  <header class="site-header" role="banner">
+    <div class="wrapper">
+      {{ partial "header.html" . }}
+    </div>
+  </header>
+
+  <main class="page-content" aria-label="Content">
+    <div class="wrapper">
+      {{ block "main" . }}{{ end }}
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrapper">
+      {{ partial "footer.html" . }}
+    </div>
+  </footer>
+
+</body>
+</html>
+

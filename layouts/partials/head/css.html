@@ -1,0 +1,10 @@
+{{ $scss := resources.Get "scss/main.scss" }}
+
+{{ if hugo.IsDevelopment }}
+  {{ $css := $scss | toCSS (dict "targetPath" "css/main.css") }}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}">
+{{ else }}
+  {{ $css := $scss | toCSS (dict "targetPath" "css/main.css") | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}" crossorigin="anonymous">
+{{ end }}
+

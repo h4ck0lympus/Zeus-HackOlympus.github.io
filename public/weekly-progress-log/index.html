@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+  
+
+
+<meta name="description" content="I am planning to log my weekly progress as a way to be honest to myself and note my findings. So here it is :
+Before starting this, random notes from Week 0:
+Why can&rsquo;t we fuzz multithreaded programs using libfuzzer and afl&#43;&#43; ? I researched and found this question answered in one of the google group. So there are basically 2 main reasons: fuzzing is a feedback driven process. It uses coverage bitmap to track the coverage. More the coverage of the fuzzer the better the probability of finding bugs with the particular fuzzing instance. This coverage bitmap is created per process so it will be shared between the threads. Whenever we fuzz multithreaded programs, we are sharing this coverage bitmap with other threads. So one of the threads in the bitmap, marking the regions that are not covered by the other threads causing false coverage and decreasing fuzzing efficiency. another reason is the fact that AFL&#43;&#43; uses fork() to create a replica of parent process and send input to the child input. Using fork() is generally discouraged because fork() calling thread will be preserved while other threads will be killed and it can have severe impacts because locks are not released in the kernel, also shared memory can be corrupted. How is coverage bitmap initialized ? One program contains one or more functions, each functions contain one or more basic block. These basic-blocks are basically nodes in control-flow graph (CFG). Edge between 2 nodes in CFG (i.e edge between) is represented by one bit. Also finally finished lvl 3. Prime trick to exploit race conditions is to keep minimum change between 2 threads running simultaneously (Atleast this worked &hellip;). Before this also finished 3 papers - KRACE, razzer and exprace, pretty interesting stuff :) Week 1 - 06/02/2024 - 06/09/2024 Setting up razzer. Razzer up until now is not able to compile on host playground . So trying docker (I don&rsquo;t want to get into dependency hell). Successful in compiling razzer. It was successful with ubuntu 16.04 with default configurations. Needed some very minor changes in create-image.sh for debootstrap to work in docker. solved lvl4. Learning trust GDB, IDA can be wrong, GDB cannot be&hellip; fork keeps the same memory layout as parent so leaking something in parent/child will be good for other sub-processes too Week 2 - 06/10/2024 - 06/16/2024 solved lvl5, lvl6, lvl7, lvl8, and lvl 12. Got Green belt. we can do fork syscall using SYS_CLONE with flag SIGCHLD. never trusting chromium syscall blog table. SYS_CLONE arguments were wrong. started afl&#43;&#43; reading. Week 3 - 06/17/2024 - 06/22/2024 unlikely and likely macro in afl&#43;&#43; source code. They help compiler to signal if a code block is usually going to be checked or not because of often same result of being true/false. Provides minor performance boost necessary in big codebase. long __builtin_expect(long EXP, long C); tells the compiler that EXP will generally have value of C. In almost all cases will it be used in the context of boolean expressions in which case it is much more convenient to define two helper macros: #define unlikely(expr) __builtin_expect(!!(expr), 0) #define likely(expr) __builtin_expect(!!(expr), 1) (from What every programmer should know about memory) 2. generate compilation database from clang tooling, bear -- &lt;make command&gt; 3. trying to test harness coverage. 4. looked into llvm-cov too test coverage metric of a harness 5. GoogleCTF 2024. Worked on pycalc challenge. Learned a lot of random things about how python bytecode works. How virtual stack in cpython works. LOAD_CONST, LOAD_ATTR etc. JIT adaptive bytecode in python 3.11 . Studied some python optamizations in python3.11
+"><title>Weekly progress/log | HackOlympus</title>
+<link rel="canonical" href="http://localhost:1313/weekly-progress-log/">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+
+
+
+
+
+<meta property="og:title" content="Weekly progress/log | HackOlympus">
+<meta property="og:site_name" content="HackOlympus">
+<meta property="og:url" content="http://localhost:1313/weekly-progress-log/">
+
+<script src="https://kit.fontawesome.com/6b8da6f1d0.js" crossorigin="anonymous"></script>
+
+
+
+
+  
+  <link rel="stylesheet" href="/css/main.css">
+
+
+
+
+      <script src="/js/main.js"></script>
+
+
+
+<link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+
+
+</head>
+<body>
+
+  <header class="site-header" role="banner">
+    <div class="wrapper">
+      <a class="site-title" rel="author" href="/">HackOlympus</a>
+
+<nav class="site-nav">
+    <a class="page-link" href="/about/">About</a>
+    <a class="page-link" href="/posts/">Posts</a>
+</nav>
+
+
+    </div>
+  </header>
+
+  <main class="page-content" aria-label="Content">
+    <div class="wrapper">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Weekly progress/log
+        
+      </h1>
+
+      
+    </header>
+
+    <div class="post-content">
+      <p>I am planning to log my weekly progress as a way to be honest to myself and note my findings. So here it is :</p>
+<p>Before starting this, random notes from Week 0:</p>
+<ol>
+<li><strong>Why can&rsquo;t we fuzz multithreaded programs using libfuzzer and afl++ ?</strong> I researched and found this question answered in one of the <a href="https://groups.google.com/g/afl-users/c/lzDYaClQIco">google group</a>.
+So there are basically 2 main reasons:
+<ul>
+<li>fuzzing is a feedback driven process. It uses coverage bitmap to track the coverage. More the coverage of the fuzzer the better the probability of finding bugs with the particular fuzzing instance.
+This coverage bitmap is created per process so it will be shared between the threads. Whenever we fuzz multithreaded programs, we are sharing this coverage bitmap with other threads. So one of the
+threads in the bitmap, marking the regions that are not covered by the other threads causing false coverage and decreasing fuzzing efficiency.</li>
+<li>another reason is the fact that AFL++ uses <code>fork()</code> to create a replica of parent process and send input to the child input. Using <code>fork()</code> is generally discouraged because <code>fork()</code>
+calling thread will be preserved while other threads will be killed and it can have severe impacts because locks are not released in the kernel, also shared memory can be corrupted.</li>
+</ul>
+</li>
+<li><strong>How is coverage bitmap initialized ?</strong>
+<ul>
+<li>One program contains one or more functions, each functions contain one or more basic block. These basic-blocks are basically nodes in control-flow graph (CFG). Edge between 2 nodes in CFG (i.e edge between)
+is represented by one bit.</li>
+</ul>
+</li>
+<li>Also finally finished lvl 3. Prime trick to exploit race conditions is to keep minimum change between 2 threads running simultaneously (Atleast this worked &hellip;). Before this also finished 3 papers - KRACE, razzer and exprace,
+pretty interesting stuff :)</li>
+</ol>
+<h3 id="week-1---06022024---06092024">Week 1 - 06/02/2024 - 06/09/2024</h3>
+<ol>
+<li>Setting up razzer. Razzer up until now is not able to compile on host <code>playground</code> . So trying docker (I don&rsquo;t want to get into dependency hell).</li>
+<li>Successful in compiling razzer. It was successful with ubuntu 16.04 with default configurations. Needed some very minor changes in create-image.sh for debootstrap to work in docker.</li>
+<li>solved lvl4. Learning <strong>trust GDB, IDA can be wrong, GDB cannot be&hellip;</strong></li>
+<li><strong>fork keeps the same memory layout as parent so leaking something in parent/child will be good for other sub-processes too</strong></li>
+</ol>
+<h3 id="week-2---06102024---06162024">Week 2 - 06/10/2024 - 06/16/2024</h3>
+<ol>
+<li>solved lvl5, lvl6, lvl7, lvl8, and lvl 12. Got Green belt.</li>
+<li>we can do <code>fork</code> syscall using <code>SYS_CLONE</code> with flag <code>SIGCHLD</code>.</li>
+<li>never trusting chromium syscall blog table. <code>SYS_CLONE</code> arguments were wrong.</li>
+<li>started afl++ reading.</li>
+</ol>
+<h3 id="week-3---06172024---06222024">Week 3 - 06/17/2024 - 06/22/2024</h3>
+<ol>
+<li><code>unlikely</code> and <code>likely</code> macro in afl++ source code. They help compiler to signal if a code block is usually going to be checked or not because of often same result of being true/false. Provides minor performance boost necessary in big codebase.
+<code>long __builtin_expect(long EXP, long C);</code> tells the compiler that <code>EXP</code> will generally have value of <code>C</code>. In almost all cases will it be used in the context of boolean expressions in which case it is much more convenient to define two helper macros:</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>#define unlikely(expr) __builtin_expect(!!(expr), 0)
+</span></span><span style="display:flex;"><span>#define likely(expr) __builtin_expect(!!(expr), 1)
+</span></span></code></pre></div><p>(from <a href="https://www.akkadia.org/drepper/cpumemory.pdf">What every programmer should know about memory</a>)
+2. generate compilation database from <code>clang</code> tooling, <code>bear -- &lt;make command&gt;</code>
+3. trying to test harness coverage.
+4. looked into <code>llvm-cov</code> too test coverage metric of a harness
+5. GoogleCTF 2024. Worked on pycalc challenge. Learned a lot of random things about how python bytecode works. How virtual stack in cpython works. <code>LOAD_CONST</code>, <code>LOAD_ATTR</code> etc. JIT adaptive bytecode in python 3.11 . Studied some python optamizations in python3.11</p>
+<h3 id="week-4---06232024---06302024">Week 4 - 06/23/2024 - 06/30/2024</h3>
+<ol>
+<li>Still working on coverage reports and setting up harness for fuzzing.</li>
+<li>Participated in UIUCTF solo. Solved 500 point challenge from pwn, <code>syscall</code>.</li>
+<li>we can read a file using <code>mmap</code> given we can open a file. I used <code>openat</code> syscall for that as <code>open</code> was blocked. Using sleep, we can carefully craft a sidechannel attack (delay in program) to leak anything.</li>
+</ol>
+<h3 id="week-5---712024---772024">Week 5 - 7/1/2024 - 7/7/2024</h3>
+<ol>
+<li>coverage reports for oss-fuzz project <code>gcloud storage ls gs://oss-fuzz-coverage/latest_report_info/ | grep &lt;PROJECT&gt;</code>. Then we can do <code>gcloud storage cat gs:&lt;link_from_json&gt;</code></li>
+<li>oss-fuzz project build status: <code>https://oss-fuzz-build-logs.storage.googleapis.com/</code></li>
+<li>oss-fuzz fuzz introspector: <code>https://oss-fuzz-introspector.storage.googleapis.com/index.html</code>. Introspector index: <code>https://introspector.oss-fuzz.com/indexing-overview</code></li>
+</ol>
+<h3 id="week-6---782024---7152024">Week 6 - 7/8/2024 - 7/15/2024</h3>
+<ol>
+<li>NOTE: oss-fuzz is not made to fuzz previous versions of projects. Trying to find a way to go around this limitation.</li>
+<li>Not much research work. Did assignments and solved challenges from old CTF&rsquo;s. Looked at kernel pwn.</li>
+</ol>
+<h3 id="week7---7162024---7232024">Week7 - 7/16/2024 - 7/23/2024</h3>
+<ol>
+<li>Cool way to use exclusive or (bitwise XOR):
+suppose we need to find median of 3 numbers. Normally code for this can be complex but using XOR we can make it straight forward:</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>    input a, b, c
+</span></span><span style="display:flex;"><span>    if (a &gt; b) ^ (a &gt; c):
+</span></span><span style="display:flex;"><span>        a is median
+</span></span><span style="display:flex;"><span>    else if (b &gt; a) ^ (b &gt; c):
+</span></span><span style="display:flex;"><span>        b is median
+</span></span><span style="display:flex;"><span>    else:
+</span></span><span style="display:flex;"><span>        c is median
+</span></span></code></pre></div><p><code>(a &gt; b) ^ (a &gt; c)</code> only one should be true. If (a &gt; b) is true and (a &gt; c) is false, it&rsquo;s logically proven that c &gt; a &gt; b. Hence a being median.
+2. cool resource:  <a href="https://fibonhack.it/resources/pwn">https://fibonhack.it/resources/pwn</a>
+3. imaginary ctf 2024 with ASU HC.
+4. To test the harness we can write smaller code rather than testing the reading code base. That&rsquo;s what I did this time. Code base is huge, we can&rsquo;t spend time just reading it and making it work with pre-existing tools, so prove/disprove the hypothesis by small test code.
+5. Finally done with community college summer course I was taking. For the final project I had to implement binary search in MIPS assembly. Loved the experience !</p>
+<h3 id="week8---7242024---8162024">Week8 - 7/24/2024 - 8/16/2024</h3>
+<ol>
+<li>Move out :(</li>
+</ol>
+<h3 id="8162024---8252024">8/16/2024 - 8/25/2024</h3>
+<ol>
+<li>Semester started, done with move in.</li>
+<li>Started format string module on pwncollege.</li>
+<li>made simple harness.</li>
+</ol>
+<h3 id="8262024---912024">8/26/2024 - 9/1/2024</h3>
+<ol>
+<li>started some algo practice, streak of 11 in 2 days.</li>
+<li>continued practice on format string</li>
+<li>continued making better harness</li>
+</ol>
+<h3 id="912024---972024">9/1/2024 - 9/7/2024</h3>
+<ol>
+<li>Did leetcode. Learned a new algorithm - toroise and hare 2 pointer algo. Did LRU Cache question.</li>
+<li>Practiced for interview</li>
+<li>Read about C++ intrinsics.</li>
+<li>Played CSAW ctf with ASU HC. Solved a basic and easy challenge about bash scripting. No pwn solves.</li>
+<li>Learned a lot about cepstral analysis and sound cryptography.</li>
+<li>mat343 work 1.2, 1.3. MATLAB lab 1.</li>
+<li>CSE360 - HW#2</li>
+</ol>
+<h3 id="982024---9142024">9/8/2024 - 9/14/2024</h3>
+<ol>
+<li>Applied in some more internship applications.</li>
+<li>Did leet. Solved around 4 more questions (1282 and some more i don&rsquo;t remember).</li>
+<li>Did CSE355 assignment for DFA and NFA construction.</li>
+<li>Project-1 CSE330.</li>
+<li>Studied Matrix LU decomposition - MAT343. Did MAT343 work.</li>
+<li>Did setup for cse360 and hw#3.</li>
+<li>MAT343 -1.4, 1.5, 2.1.</li>
+<li>CSE340 HW1.</li>
+</ol>
+<h3 id="9152024---9212024">9/15/2024 - 9/21/2024</h3>
+<ol>
+<li>CSE355 Hw-1. Worked on a lot of DFA and NFA problems. Made a DFA that accepts all binary string divisbile by 5. Really cool problem. I am gonna write a blog post for this in future.</li>
+<li>Started working on project-1 CSE340. A parser, lexical analyzer and custom regular expression matcher implemented using regular expression graph made using thompson construction of NFA. I will write a blog post about it in future.</li>
+<li>Went to hacker devils meeting and did leet problem.</li>
+<li>Recitation 3 CSE355.</li>
+<li>MAT343 - 2.2, 3.1. MATLAB Lab 2</li>
+<li>CSE360 - HW#4</li>
+</ol>
+<h3 id="9222024---9282024">9/22/2024 - 9/28/2024</h3>
+<ol>
+<li>Project2 CSE330. Wrote a kernel module and custom syscall. Cool project.</li>
+<li>Continued working on project1 due on 27th.</li>
+<li>MAT343 - 3.2.</li>
+<li>MAT343 Exam on 26th.</li>
+<li>Heap exploitation module started in CSE466.</li>
+<li>CSE355 HW2.</li>
+</ol>
+<h3 id="9292024---1052024">9/29/2024 - 10/5/2024</h3>
+<ol>
+<li>MAT343 - matlab lab3.</li>
+<li>Studied pumping lemma, did pumping lemma CSE355 assignment - recitation 5.</li>
+<li>Studied for CSE355 (on 2nd Oct) and CSE330 (on 7th October.) exam.</li>
+<li>Revised tcache heap exploitation.</li>
+<li>CSE360 - HW#5</li>
+</ol>
+<h3 id="1062024---10122024">10/6/2024 - 10/12/2024</h3>
+<ol>
+<li>CSE340 HW2.</li>
+<li>MAT343 - 3.3, 3.4.</li>
+<li>CSE340 exam on 9th, Started CSE360 project phase1 9th, after exam, finished successfuly !</li>
+<li>Did challenged heap exploitation module.</li>
+</ol>
+<h3 id="10132024---10192024">10/13/2024 - 10/19/2024</h3>
+<ol>
+<li>heap exploitation all over except last challenge.</li>
+<li>CSE330 project3 - Wrote code for kernel threads, synchronized producer and consumer using semaphore.</li>
+<li>CSE355 Recitation 7 and HW3.</li>
+<li>MAT343 - 3.5, 3.6.</li>
+</ol>
+<h3 id="10202024---10262024">10/20/2024 - 10/26/2024</h3>
+<ol>
+<li>CSE360 HW#6 and midterm exam.</li>
+<li>CSE355 Recitation 8 and Recitation 9</li>
+<li>mat343 4.1, 4.2, and lab 4</li>
+<li>Applied for internship.</li>
+</ol>
+<h3 id="10272024---1122024">10/27/2024 - 11/2/2024</h3>
+<ol>
+<li>MAT343 5.1.</li>
+<li>CSE360 Project phase2.</li>
+<li>CSE 355 - recitation 10 and HW4.</li>
+<li>CSE340 HW3.</li>
+</ol>
+<h3 id="1132024---1192024">11/3/2024 - 11/9/2024</h3>
+<ol>
+<li>CSE330 project 4.</li>
+<li>MAT343 Test2 - 5th Nov.</li>
+<li>CSE355 Test2 - 6th Nov.</li>
+</ol>
+
+    </div>
+  </article>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrapper">
+      <p>
+
+
+  
+
+&copy; Zeus - Subscribe via <a href="http://localhost:1313/index.xml">RSS</a>
+</p>
+
+    </div>
+  </footer>
+
+</body>
+</html>
+

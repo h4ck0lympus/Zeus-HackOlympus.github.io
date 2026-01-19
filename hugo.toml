@@ -1,0 +1,59 @@
+baseURL = 'https://hackolympus.com'
+title = 'HackOlympus'
+languageCode = 'en-US'
+defaultContentLanguage = "en"
+timeZone = "UTC"
+
+[pagination]
+  pagerSize = 1
+  path = "page"
+
+[taxonimies]
+  tag = "tags"
+  category = "categories"
+
+# [permalinks]
+#   posts = "/blog/:year/:month/:day/:slug/"
+#   categories = "/categories/:slug/"
+#   tags = "/tags/:slug/"
+
+[params]
+  author = "Zeus"
+  description = "A security blog and mind dump ..."
+  comments = false
+
+[menus]
+  [[menus.main]]
+    name = 'About'
+    pageRef = '/about/'
+    weight = 10
+
+  [[menus.main]]
+    name = 'Posts'
+    pageRef = '/posts/'
+    weight = 20
+
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]
+  taxonomy = ["HTML", "RSS"]
+  term = ["HTML", "RSS"]
+
+[module]
+  [module.hugoVersion]
+    extended = true
+    min = '0.146.0'
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+# https://gohugo.io/quick-reference/syntax-highlighting-styles/#styles
+[markup.highlight]
+    style = "vs"
+    guessSyntax = true
+
+[caches]
+  [caches.images]
+    dir = ':cacheDir/images'

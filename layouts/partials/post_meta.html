@@ -1,0 +1,29 @@
+{{- $page := .page -}}
+{{- $showTax := .showTaxonomies | default false -}}
+{{- $includePermalink := .includePermalink | default false -}}
+
+{{- with $page.Date }}
+  <time datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}">{{ .Format "Jan 2, 2006" }}</time>
+{{- end -}}
+
+{{- if $showTax }}
+  {{- with $page.GetTerms "categories" }}
+    &bull;
+    {{- $count := len . -}}
+    {{- range $i, $term := . }}
+      <a href="{{ $term.RelPermalink }}">{{ $term.LinkTitle }}</a>{{ if lt (add $i 1) $count }}, {{ end }}
+    {{- end -}}
+  {{- end -}}
+
+  {{- with $page.GetTerms "tags" }}
+    &bull;
+    {{- $count := len . -}}
+    {{- range $i, $term := . }}
+      <a href="{{ $term.RelPermalink }}">{{ $term.LinkTitle }}</a>{{ if lt (add $i 1) $count }}, {{ end }}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if and $includePermalink $page.Params.externalURL }}
+  &bull; <a href="{{ $page.RelPermalink }}">Permalink</a>
+{{- end -}}
