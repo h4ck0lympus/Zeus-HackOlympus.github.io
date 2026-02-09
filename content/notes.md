@@ -8,7 +8,18 @@ draft = false
 
 ## Stack pivoting
 
+- Commonly used in places where you can only execute 1 or 2 gadgets (basically limited gadget execution) mainly because there is some metadata on stack you can't corrupt (in cases like FSOP) or stack size is small.
+
 ## One gadget
+
+- `one_gadget` to pop shell
+[GitHub](https://github.com/david942j/one_gadget)
+
+## angrop
+
+- easilly find rop chain
+
+[GitHub](https://github.com/angr/angrop)
 
 --- 
 
@@ -131,23 +142,46 @@ void* b = malloc(0x35); // get chunk of size 0x40
 
 ## Fastbins
 
+TODO
+
 ### House of spirit 
+
+TODO
 
 ## Largebins
 
+TODO
+
 ### Largebin attack
+
+TODO
 
 ## Unsorted bins
 
+TODO
+
 ### Unsafe unlinking
+
+TODO
 
 --- 
 
 # FSOP
 
+TODO
+
 ### AAW
+
+TODO
+
 ### AAR
+
+TODO
+
 ### Control Flow Hijacking
+
+TODO
+
 ### Random notes
 
 --- 
@@ -155,12 +189,22 @@ void* b = malloc(0x35); // get chunk of size 0x40
 ## Format String
 
 ### AAR
+
+TODO
+
 ### AAW
+
+TODO
+
 ### Control Flow Hijacking
+
+TODO
 
 ---
 
 ## memory "hopping"
+
+TODO
 
 ### environ
 

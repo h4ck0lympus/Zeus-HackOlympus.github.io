@@ -15,6 +15,8 @@ using namespace std;
 #define int long long
 #define HAVE_TESTCASES 0
 
+const int INF = (int) 1e18;
+
 void solve() {
 
 }
@@ -79,6 +81,9 @@ Rough feasibility guide ($n$ = input size):
 
 ## Binary search on arrays and for answer
 ## Math
+
+#### Compute answer modulo $1e9 + 7$
+
 ## String
 
 #### Circular Problems & The Concat Trick
@@ -109,6 +114,128 @@ Relevant problems:
 
 #### Find median in sliding window in $O(n)$ time
 
+
+### Graph
+
+#### BFS/DFS
+
+**DFS (recursive)**
+
+```cpp
+vector<int> adj[100005];
+bool visited[100005];
+void dfs(int v) {
+  if (visited[v]) return;
+  visited[v] = 1;
+  for (int neighbour: adj[v]) {
+    if (!visited[neighbour]) dfs(neighbour);
+  }
+}
+```
+
+**DFS (iterative)**
+
+>*NOTE:* Most of the times iterative dfs is not reqd.
+
+```cpp
+void iterative_dfs(int start) {
+  stack<int> st;
+  st.push(start);
+  visited[start] = 1;
+
+  while (!st.empty()) {
+    int v = st.top(); st.pop();
+    for (int u : adj[v]) {
+      if (!visited[u]) {
+        visited[u] = true;
+        st.push(u);
+      }
+    }
+  }
+
+}
+```
+
+**BFS**
+
+```cpp
+vector<int> adj[1000];
+bool visited[1000];
+int dist[1000][1000];
+
+void bfs(int v) {
+  queue<int> q;
+  q.push(v);
+  dist[v][v] = 0;
+  visited[v] = 1;
+  while (!q.empty()) {
+    int u = q.front(); q.pop();
+    for (int e: adj[u]) {
+      if (visited[e]) continue;
+      visited[e] = 1;
+      dist[e] = dist[u] + 1;
+      q.push(e);
+    }
+  }
+}
+```
+
+**State pruning in BFS**
+
+Sometimes in distance related problem involving BFS, we have to explore all reachable nodes $O(V + E)$. However when single "move" can span multiple cells (like jumping K meters), the number of edges E can explode to $O(V \cdot K)$  . In this situation, there are multiple ways but the core philosophy to tackle is **pruning states** and **skipping redundant edges** to bring the complexity back down to $O(V)$.
+
+#### Multi source BFS
+
+- we can start bfs from multiple sources. Just push multiple sources in the start in the queue.
+- Helpful when we need to explore multiple paths from multiple sources at the SAME time.
+- Helpful when graph is dynamic, i.e. changes over time.
+
+#### State space BFS
+
+[1063B](https://codeforces.com/contest/1063/problem/B)
+
+#### 0/1 BFS
+
+#### Bipartite graph
+
+#### DSU
+
+### Shortest path on weighted edges
+
+#### Dijkstra
+
+#### Floyd-Warshal
+
+- useful if we want to find shortest path **among all the edges** in graph.
+- time complexity $O(n^3)$
+
+```cpp
+// classic floyd-warshal problem
+void solve() {
+  int n, m, q; cin >> n >> m >> q;
+  vector<vector<int>> dist(500, vector<int>(500, INF));
+  
+  for (int i=0; i < n; i++) dist[i][i] = 0; // distance to itself = 0
+
+  for (int i=0; i < m; i++) {
+    int a,b,c; cin >> a >> b >> c;
+    --a; --b;
+    dist[a][b] = min(dist[a][b], c); // distance to direct neighbour
+    dist[b][a] = min(dist[b][a], c); // distance to direct neighbour (if undirected)
+  }
+
+  for (int i=0; i < n; i++) { // intermediate
+    for (int j=0; j < n; j++) { // source
+      for (int k=0; k < n; k++) { // destination
+        dist[j][k] = min(dist[j][k], dist[j][i] + dist[i][k]);
+      }
+    }
+  }
+}
+```
+
+[CSES Shortest Route II](https://cses.fi/problemset/task/1672)
+
 ## Misc coding tips
 
 #### Directional array to reduce code
@@ -116,24 +243,12 @@ Relevant problems:
 instead of doing the following and checking each co-ordinate seperately we can just use a loop - much simpler and shorter.
 
 ```cpp
- if (cr != 0 && mp[cr-1][cc] == '.')  // up
- 
- if (cr != row - 1 && mp[cr+1][cc] == '.') // down
- 
- if (cc != 0 && mp[cr][cc-1] == '.') // left
- 
- if (cc != col - 1 && mp[cr][cc+1] == '.') // right
-```
-
-```
-
 int dr[4] = {-1, +1, 0, 0};
 int dc[4] = {0, 0, -1, +1};
 
-
 for (int i=0; i < 4; i++) {
-  int crr = cr + dr[i], ccc = cc + dc[i];
-  if (crr >= 0 && crr < row && ccc >= 0 && ccc < col)  {
+  int nr = cr + dr[i], nc = cc + dc[i];
+  if (nr >= 0 && nr < row && nc >= 0 && nc < col)  {
     // do stuff  
   }
 }
