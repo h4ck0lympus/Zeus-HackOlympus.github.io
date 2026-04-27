@@ -1,0 +1,56 @@
+==================================================================
+https://keybase.io/hackolympus
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://hackolympus.com
+  * I am hackolympus (https://keybase.io/hackolympus) on keybase.
+  * I have a public key ASCQ__8YWcOknIuRz6HMLpTOpU3PYr5cCuuTPljRS9uE_Ao
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "012090ffff1859c3a49c8b91cfa1cc2e94cea54dcf62be5c0aeb933e58d14bdb84fc0a",
+      "host": "keybase.io",
+      "kid": "012090ffff1859c3a49c8b91cfa1cc2e94cea54dcf62be5c0aeb933e58d14bdb84fc0a",
+      "uid": "bc2be48f14ced1c7de16466927de3919",
+      "username": "hackolympus"
+    },
+    "merkle_root": {
+      "ctime": 1777333457,
+      "hash": "406dfc229010ee71c92004d8d0a7105d7490eee30da9a485e66d701d3b7c497d39c437430b3dd125ba32c3f80a2ba007daf615ec49897b5c8cd7ee07844572a5",
+      "hash_meta": "c6bb026385c7defac886920fd260db6a8db7a8f397c135e1c379a4d72b61e6b6",
+      "seqno": 27551564
+    },
+    "service": {
+      "entropy": "by73ztK8OaOQSwXPVuGnwUh+",
+      "hostname": "hackolympus.com",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 2
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "6.6.2"
+  },
+  "ctime": 1777333468,
+  "expire_in": 504576000,
+  "prev": "bbb801da1762def01126feef1643f66f0293366518d7ef6314d197d34c6b8e88",
+  "seqno": 7,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgkP//GFnDpJyLkc+hzC6UzqVNz2K+XArrkz5Y0UvbhPwKp3BheWxvYWTESpcCB8Qgu7gB2hdi3vARJv7vFkP2bwKTNmUY1+9jFNGX00xrjojEICB3/evbvT3eQmFBw2+Qy/RB+LnSuWP0MD/toov3XpuGAgHCo3NpZ8RA+WLHOvvQ6pwtBzuxbBY0rL5Qf8nmKjLZ/sp6IIxd4thUOZWtsVrG8a67VvbQWVmpL06Ixhqc97yBPgxkHCQ1C6hzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIJhkhFdVCxQ4n/FUwzqvW5gcmcyyG0jttbK9/5UhB+8Go3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/hackolympus
+
+==================================================================
