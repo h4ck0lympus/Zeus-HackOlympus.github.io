@@ -5,35 +5,8 @@ draft: false
 math: true
 ---
 
-### Template
+### [Template](https://github.com/h4ck0lympus/CP/blob/main/template.cpp)
 
-```cpp
-#include "bits/stdc++.h"
-
-using namespace std;
-
-#define int long long
-#define HAVE_TESTCASES 0
-
-const int INF = (int) 1e18;
-
-void solve() {
-
-}
-
-#undef int
-int main() {
-  ios_base::sync_with_stdio(false);
-  cin.tie(0);
-#if HAVE_TESTCASES
-  int t;
-  cin >> t;
-  while (t--) solve();
-#else
-  solve();
-#endif
-}
-```
 
 A common rule of thumb:
 - About **$10^8$ operations per second**
@@ -63,9 +36,9 @@ Rough feasibility guide ($n$ = input size):
   - Supports queries such as “largest value $\leq X$”
 
   * Use a multiset when:
-  - Order matters
-  - Elements are added and removed dynamically
-  - You need to repeatedly choose the best valid option
+    - Order matters
+    - Elements are added and removed dynamically
+    - You need to repeatedly choose the best valid option
 
   * for `multiset<int> m`, `m.begin()` will point to first element while, `prev(m.end())` will point to last element. 
 
@@ -91,21 +64,21 @@ Concept: To handle circularity in arrays or strings, append the object to itself
 
 Pros:
 
-• Simplifies logic: Turns circular gaps/patterns into linear ones.
+* Simplifies logic: Turns circular gaps/patterns into linear ones.
 
-• Eliminates complex `if` statements and modulo arithmetic.
+* Eliminates complex `if` statements and modulo arithmetic.
 
 Implementation Tips:
 
-• Limit the Range: Always ensure your results (like max gap length) do not exceed the original length $N$.
+* Limit the Range: Always ensure your results (like max gap length) do not exceed the original length $N$.
 
-• Complexity: Watch for $O(2N)$ memory/time; usually fine for $N \le 10^5$.
+* Complexity: Watch for $O(2N)$ memory/time; usually fine for $N \le 10^5$.
 
 Alternative (Index Method): Store indices of key elements (e.g., all 1s).
 
-• Internal gaps: $pos[i+1] - pos[i] - 1$.
+* Internal gaps: $pos[i+1] - pos[i] - 1$.
 
-• Circular gap: $(N - 1 - pos.back()) + pos[0]$.
+* Circular gap: $(N - 1 - pos.back()) + pos[0]$.
 
 Relevant problems: 
 1. [2176B](https://codeforces.com/problemset/problem/2176/B) (classic example)
@@ -196,13 +169,53 @@ Sometimes in distance related problem involving BFS, we have to explore all reac
 
 #### 0/1 BFS
 
+TODO
+
 #### Bipartite graph
 
-#### DSU
+- useful if we need to divide the graph into 2 disjoint independent sets.
+- graph not bipartite if we contains odd length cycle
+- 
+
+```cpp
+vector<int> adj[100005];
+int visited[100005]; // use this to store info about color as well as visited or not
+
+bool possible = true;
+
+void dfs(int v, int c) {
+  if (visited[v] != -1) return;
+  visited[v] = c;
+
+  for (int u: adj[v]){
+    if (visited[u] == -1) { // if not visited - visit but with inverted color
+      dfs(u, c ^ 1);
+    } else if (visited[u] == c)  { // if visited but color is c
+      possible = false;
+      return;
+    }
+  }
+}
+
+void solve() {
+  memset(visited, -1, sizeof(visited));
+  ...
+  dfs(0, 0); // node 0 with color 0
+}
+```
+* [Building teams](https://cses.fi/problemset/task/1668)
+* [NP-Hard-Problem](https://codeforces.com/problemset/problem/687/A)
+* [vitaly and cycle](https://codeforces.com/problemset/problem/557/D)
+* [alternating paths](https://codeforces.com/problemset/problem/2204/D)
+* [Tempe Network Coverage / Cover it](https://codeforces.com/problemset/problem/1176/E)
 
 ### Shortest path on weighted edges
 
+TODO
+
 #### Dijkstra
+
+TODO
 
 #### Floyd-Warshal
 
@@ -236,9 +249,52 @@ void solve() {
 
 [CSES Shortest Route II](https://cses.fi/problemset/task/1672)
 
-## Misc coding tips
+### Finding Cycle
 
-#### Directional array to reduce code
+#### for undirected graph
+
+in undirected graph, approach is straightforward - when running dfs/bfs, seeing parent is fine, since edges are bidirectional. So the check should be *seeing any other already visited node* if that exists then there is a cycle.
+
+#### for directed graph
+
+in directed graph, we should check if neighbour is visited and exists in current recursion stack. If exists in stack, then visited.
+
+We can also approach this by using 3 states : unvisted, currently exploring, processed.
+
+if visited and currently exploring then it's a cycle. 
+
+TODO
+
+### Topological Sort
+
+**TODO and Practice needed**
+
+### Strongly Connected Components
+
+### 2-Sat
+
+**TODO and Practice needed**
+
+### Minimum Spanning Tree (MST)
+
+**TODO and practice needed**
+
+### DSU (Disjoin set union) / Union find
+
+- stores info about collection of elements in same set. 
+- solves the problem of checking if 2 or more nodes in graph exists in same island or not (or similar union finding problems) from O(n) to O(1) (amortized).
+- check [DSU.h](https://github.com/h4ck0lympus/CP/blob/main/codeforces/DSU.h) for implementation
+
+
+## Dynamic Programming
+
+## Range Queries
+
+## Trees
+
+#### Misc coding tips
+
+##### Directional array to reduce code
 
 instead of doing the following and checking each co-ordinate seperately we can just use a loop - much simpler and shorter.
 
