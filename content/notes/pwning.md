@@ -1,7 +1,8 @@
 +++
-title = 'Notes'
+title = 'Pwning'
 date = '2026-01-19T17:57:48-07:00'
 draft = false
+description = 'Binary exploitation, heap, ROP, FSOP, and related notes.'
 +++
 
 # ROP
@@ -21,7 +22,7 @@ draft = false
 
 [GitHub](https://github.com/angr/angrop)
 
---- 
+---
 
 # Heap
 
@@ -71,7 +72,7 @@ typedef struct tcache_perthread_struct {
 } tcache_perthread_struct;
 ```
 
-tcache entry struct: 
+tcache entry struct:
 
 ```c
 typedef struct tcache_entry {
@@ -102,7 +103,7 @@ free(b);
 b = malloc(0x10); // freelist [ mangled_target -> NULL]
 target = malloc(0x10); // get target
 
-// write/read from target ... 
+// write/read from target ...
 ```
 
 ### Double-free protection bypass
@@ -120,9 +121,9 @@ free(a); // double free
 
 ### House of spirit
 
-**The main principle:** `free(ptr)` doesn't check if the `ptr` points to valid heap memory, so if we can craft a fake "malloc" like chunk (with chunk size <= 0x410 and malloc arg <= 0x408) then freeing this ptr will add the address pointed by chunk on tcache. 
+**The main principle:** `free(ptr)` doesn't check if the `ptr` points to valid heap memory, so if we can craft a fake "malloc" like chunk (with chunk size <= 0x410 and malloc arg <= 0x408) then freeing this ptr will add the address pointed by chunk on tcache.
 
-Requirments: 
+Requirments:
 - Free on near arbitrary ptr (ptr needs to be 0x10 byte aligned).
 
 pseudocode rough sketch:
@@ -140,35 +141,39 @@ void* b = malloc(0x35); // get chunk of size 0x40
 
 [how2heap poc](https://github.com/shellphish/how2heap/blob/master/glibc_2.35/tcache_house_of_spirit.c)
 
-## Fastbins
+## Beyond tcache
+
+### Fastbins
 
 TODO
 
-### House of spirit 
+#### House of spirit
 
 TODO
 
-## Largebins
+### Largebins
 
 TODO
 
-### Largebin attack
+#### Largebin attack
 
 TODO
 
-## Unsorted bins
+### Unsorted bins
 
 TODO
 
-### Unsafe unlinking
+#### Unsafe unlinking
 
 TODO
 
---- 
+---
 
-# FSOP
+# FSOP - File Struct Oriented Programming
 
-TODO
+when attacker has ability to write into `FILE` struct and change metadata.
+
+[`FILE` struct](https://elixir.bootlin.com/glibc/glibc-2.35/source/libio/bits/types/struct_FILE.h#L49)
 
 ### AAW
 
@@ -176,7 +181,6 @@ TODO
 
 ### AAR
 
-TODO
 
 ### Control Flow Hijacking
 
@@ -184,7 +188,7 @@ TODO
 
 ### Random notes
 
---- 
+---
 
 ## Format String
 
@@ -215,4 +219,3 @@ TODO
 ## Breaking canary
 
 ## Timing side channel
-
