@@ -173,6 +173,16 @@
 .post-content {
   margin-bottom: $spacing-unit;
 
+  .diagram--wide {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .diagram--wide img {
+    max-width: none;
+    width: auto;
+  }
+
   h1 {
     font-size: 38px;
 

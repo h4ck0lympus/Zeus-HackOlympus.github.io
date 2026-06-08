@@ -1,7 +1,7 @@
 ---
 title: "\"But why should I learn derivatives? Where would I even use this?\""
 date: 2026-06-03
-draft: true
+draft: false
 math: true
 ---
 
@@ -61,7 +61,8 @@ This is nicer to think about because each line becomes one small operation in th
 
 If we want to represent it as a DAG (or computation graph):
 
-**\<insert DAG image\>**
+<!-- ![Compuation Graph](/images/computation_graph.jpeg)  -->
+{{< diagram path="/images/graph.svg" alt="Computation graph for L = (a * b + c) * f" wide="true" >}}
 
 
 From multivariable calculus, the gradient is the rate of change of the final output \(L\) with respect to each input.
@@ -328,6 +329,11 @@ Then the chain rule lets us combine them and move one step backward.
 When a neural network gets large, the graph becomes much bigger, but the idea stays the same. Backpropagation is just the repeated application of local derivatives and the chain rule across the computation graph.
 
 That is why derivatives matter so much here. They are not just abstract things from a calculus class. They are the tool that tells a model how to learn.
+
+<br>
+
+For me, the best way to make this feel real was to pair the math with code. I built a small Rust version of `micrograd` alongside this post, and it helped expose the parts I only thought I understood.
+Repo: [micrograd-rs](https://github.com/h4ck0lympus/micrograd-rs)
 
 #### *References:*
 

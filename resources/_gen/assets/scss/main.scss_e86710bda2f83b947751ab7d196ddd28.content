@@ -267,6 +267,12 @@ pre {
 
 .post-content {
   margin-bottom: 30px; }
+  .post-content .diagram--wide {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; }
+  .post-content .diagram--wide img {
+    max-width: none;
+    width: auto; }
   .post-content h1 {
     font-size: 38px; }
     @media screen and (max-width: 800px) {

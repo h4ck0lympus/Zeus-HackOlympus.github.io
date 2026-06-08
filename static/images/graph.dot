@@ -1,0 +1,31 @@
+digraph G {
+  rankdir=LR;
+
+  node [shape=record];
+
+  a [label="{ a = 2.0 | grad = -6.0 | dL/da = dL/de * de/da = -2.0 * -3.0 }"];
+  b [label="{ b = -3.0 | grad = -4.0 | dL/db = dL/de * de/db = -2.0 * 2.0 }"];
+  e [label="{ e = a*b = -6.0 | grad = -2.0 | dL/de = dL/dd * dd/de = -2.0 * 1.0 }"];
+
+  c [label="{ c = 10.0 | grad = -2.0 | dL/dc = dL/dd * dd/dc = -2.0 * 1.0 }"];
+  d [label="{ d = e+c = 4.0 | grad = -2.0 | dL/dd = dL/dL * dL/dd = 1.0 * -2.0 }"];
+
+  f [label="{ f = -2.0 | grad = 4.0 | dL/df = d }"];
+  L [label="{ L = d*f = -8.0 | grad = 1.0 | dL/dL = 1.0 }"];
+
+  mul1 [label="*", shape=circle];
+  add1 [label="+", shape=circle];
+  mul2 [label="*", shape=circle];
+
+  a -> mul1;
+  b -> mul1;
+  mul1 -> e;
+
+  e -> add1;
+  c -> add1;
+  add1 -> d;
+
+  d -> mul2;
+  f -> mul2;
+  mul2 -> L;
+}
