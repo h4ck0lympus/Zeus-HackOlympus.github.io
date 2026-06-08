@@ -1,0 +1,13 @@
+{{- $src := .Get "src" -}}
+{{- $path := .Get "path" -}}
+{{- $alt := .Get "alt" | default "" -}}
+{{- $caption := .Get "caption" -}}
+{{- $wide := eq (.Get "wide") "true" -}}
+{{- $imgSrc := cond $path ($path | relURL) (printf "images/diagrams/%s" $src | relURL) -}}
+
+<figure class="diagram{{ if $wide }} diagram--wide{{ end }}">
+  <img src="{{ $imgSrc }}" alt="{{ $alt }}">
+  {{- with $caption }}
+    <figcaption>{{ . }}</figcaption>
+  {{- end }}
+</figure>
