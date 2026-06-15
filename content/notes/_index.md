@@ -6,3 +6,4 @@ draft = false
 
 - [Pwning](/notes/pwning/)
 - [CP](/notes/cp/)
+- [Software Hardening](/notes/software-hardening/)

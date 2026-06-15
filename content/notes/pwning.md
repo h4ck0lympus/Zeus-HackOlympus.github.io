@@ -167,6 +167,10 @@ TODO
 
 TODO
 
+### Concept of memory tagging in ptmalloc
+
+Some architectures (like ARM) have introduced this concept of memory tagging.
+
 ---
 
 # FSOP - File Struct Oriented Programming
@@ -177,10 +181,20 @@ when attacker has ability to write into `FILE` struct and change metadata.
 
 ### AAW
 
-TODO
+```py
+fake_file_struct = FileStructure(fp)
+payload = fake_file_struct.write(flag_address, 55)
+p.send(payload)
+```
+
 
 ### AAR
 
+```py
+fake_file_struct = FileStructure(fp)
+payload = fake_file_struct.write(flag_address, 55)
+p.send(payload)
+```
 
 ### Control Flow Hijacking
 
