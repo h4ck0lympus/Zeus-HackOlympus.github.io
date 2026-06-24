@@ -143,6 +143,8 @@ void* b = malloc(0x35); // get chunk of size 0x40
 
 ## Beyond tcache
 
+
+
 ### Fastbins
 
 TODO
@@ -166,10 +168,6 @@ TODO
 #### Unsafe unlinking
 
 TODO
-
-### Concept of memory tagging in ptmalloc
-
-Some architectures (like ARM) have introduced this concept of memory tagging.
 
 ---
 
