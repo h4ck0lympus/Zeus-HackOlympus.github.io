@@ -171,3 +171,7 @@ suppose we need to find median of 3 numbers. Normally code for this can be compl
 3. MAT343 Test2 - 5th Nov.
 4. CSE355 Test2 - 6th Nov.
 
+### 06/25/2026
+1. back to logging on this blog. 
+2. graduated
+3. fuzzing research for past couple of weeks, accompanied with applications, random CP/LC problems. Sometimes spend time doing random CTF Rev challenges - recently solved toddlergpu and minecraft chall for internal team CTF (CTFA).

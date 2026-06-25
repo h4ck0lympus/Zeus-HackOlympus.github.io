@@ -31,6 +31,29 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
 [https://introspector.oss-fuzz.com/](https://introspector.oss-fuzz.com/)
 
-check project vise ex - [https://introspector.oss-fuzz.com/project-profile?project=abseil-cpp](https://introspector.oss-fuzz.com/project-profile?project=abseil-cpp)
+check project-wise - [https://introspector.oss-fuzz.com/project-profile?project=abseil-cpp](https://introspector.oss-fuzz.com/project-profile?project=abseil-cpp)
 
+## Random Notes 
+
+https://securitylab.github.com/resources/fuzzing-sockets-FTP/ 
+- use [preeny](https://github.com/zardus/preeny) as a preloading library, it disables randomization. (especially useful for socket based fuzzing)
+- in case of socket based program, remove socket dependancy from software.  `send` <-> `write`. `accept` <-> `input file descriptor`.
+- we can use `getrandom` for file upload cases
+- avoid using `rmdir` or `unlink` to minimize randomization
+- transform multi-process architecture to single process since afl coverage map doesn't receive coverage signal from child process.
+- signals should be patched sincle AFL execution is dependant on signals. commenting calls to `alarm(2)` is helpful.
+- remove unnecessary delays / sleeps.
+- **effective fuzzing requires detailed knowledged of internals of software**
+- **Manual code audit. Static analysis. Fuzzing**
+
+
+## important features that should be present in fuzzers (according to me . Also regularly updated)
+- forkserver
+- some sort of persitence fuzzing workflow OR inprocess fuzzing (libafl ??)
+- good mutation algorithms
+- static analysis before fuzzing. Path constraint fuzzing ?
+- input replay functionality. Easy to say but sometimes trivial (race conditions)
+- cli args ??
+- good seed selection / harness generation using AI 
+- *i am speed* needless to say - speed is important
 
