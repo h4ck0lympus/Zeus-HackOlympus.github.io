@@ -5,6 +5,8 @@ draft: false
 math: true
 ---
 
+> "you are only as good as your last CVE"
+
 ## Libfuzzer Template
 [clang helper code for fuzzing](https://github.com/llvm/llvm-project/blob/main/compiler-rt/include/fuzzer/FuzzedDataProvider.h)
 
@@ -56,4 +58,5 @@ https://securitylab.github.com/resources/fuzzing-sockets-FTP/
 - cli args ??
 - good seed selection / harness generation using AI 
 - *i am speed* needless to say - speed is important
+
 
