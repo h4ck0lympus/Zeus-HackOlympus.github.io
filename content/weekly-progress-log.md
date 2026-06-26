@@ -175,3 +175,7 @@ suppose we need to find median of 3 numbers. Normally code for this can be compl
 1. back to logging on this blog. 
 2. graduated
 3. fuzzing research for past couple of weeks, accompanied with applications, random CP/LC problems. Sometimes spend time doing random CTF Rev challenges - recently solved toddlergpu and minecraft chall for internal team CTF (CTFA).
+
+### 06/26/2026
+1. spent time reading blog posts on agent harness and context engineering. 
+2. started fuzz design.
