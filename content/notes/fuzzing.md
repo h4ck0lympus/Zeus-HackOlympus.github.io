@@ -47,9 +47,43 @@ https://securitylab.github.com/resources/fuzzing-sockets-FTP/
 - remove unnecessary delays / sleeps.
 - **effective fuzzing requires detailed knowledged of internals of software**
 - **Manual code audit. Static analysis. Fuzzing**
+- every iteration of mutation fuzzer looks roughly like this: 
 
+```mermaid
+flowchart RL
+    Corpus[Corpus] --> CP[choose parent]
+    CP --> Input[Input]
 
-## important features that should be present in fuzzers (according to me . Also regularly updated)
+    Input --> Mutator[Mutator]
+    Mutator --> NewInput[new Input]
+    NewInput --> Executor[Executor]
+    Executor --> Observers[Observers]
+
+    Observers --> FO[Feedback / Objective]
+
+    FO --> Corpus
+    FO --> Solutions[Solutions]
+```
+
+in pseudocode: 
+
+```pseudocode
+corpus = [initial input]
+
+while no solution:
+    parent = scheduler.choose(corpus) # existing corpus input selected as starting point for mutation
+    candidate = mutator.mutate(parent)
+    exit_kind = executor.run(candidate)
+    observation = observers.results()
+
+    if objective.is_interesting(observation, exit_kind):
+        solutions.add(candidate)
+
+    if feedback.is_interesting(observation, exit_kind):
+        corpus.add(candidate)
+```
+
+## important features that should be present in fuzzers (regularly updated)
 - forkserver
 - some sort of persitence fuzzing workflow OR inprocess fuzzing (libafl ??)
 - good mutation algorithms

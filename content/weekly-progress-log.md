@@ -178,4 +178,7 @@ suppose we need to find median of 3 numbers. Normally code for this can be compl
 
 ### 06/26/2026
 1. spent time reading blog posts on agent harness and context engineering. 
-2. started fuzz design.
+2. started fuzz design
+
+### 06/27/2026
+1. parking game fuzzer pt0 and pt1
