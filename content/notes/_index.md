@@ -8,3 +8,4 @@ draft = false
 - [CP](/notes/cp/)
 - [Software Hardening](/notes/software-hardening/)
 - [Fuzzing](/notes/fuzzing/)
+- [Agents](/notes/agents-and-llm/)
