@@ -7,6 +7,8 @@ math: true
 
 > "you are only as good as your last CVE"
 
+### [Parking game fuzzer notes](/notes/parking-game-fuzzer)
+
 ## Libfuzzer Template
 [clang helper code for fuzzing](https://github.com/llvm/llvm-project/blob/main/compiler-rt/include/fuzzer/FuzzedDataProvider.h)
 
