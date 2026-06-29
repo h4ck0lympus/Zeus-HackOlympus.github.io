@@ -31,6 +31,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 }
 ```
 
+## AIxCC Team Atlanta notes from VRI (RITSEC)
+
+[Notes](/Team%20Atlanta%20Concise%20Notes.pdf)
+
 ## OSS Fuzz introspector 
 
 [https://introspector.oss-fuzz.com/](https://introspector.oss-fuzz.com/)
