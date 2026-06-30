@@ -64,4 +64,26 @@ https://securitylab.github.com/resources/fuzzing-sockets-FTP/
 - good seed selection / harness generation using AI 
 - *i am speed* needless to say - speed is important
 
+## Cyclomatic complexity
 
+How many fundamentally different control-flow decisions does this function contain?
+
+for example: 
+
+```c
+void foo(int x, int y) {
+    if (x > 0)
+        puts("A");
+
+    if (y > 0)
+        puts("B");
+}
+```
+
+Cyclomatic complexity is 3 (taken x, taken y, taken neither)
+
+Higher cyclomatic complexity means :
+* more branches
+* more paths
+* harder to achieve good coverage
+* **MORE OPPURTUNITES FOR BUGS** (fun fact: NASA has strict rules to keep max cyclomatic complexty to 15 or less) 
