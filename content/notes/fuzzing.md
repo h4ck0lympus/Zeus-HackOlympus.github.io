@@ -39,7 +39,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
 [https://introspector.oss-fuzz.com/](https://introspector.oss-fuzz.com/)
 
+
 check project-wise - [https://introspector.oss-fuzz.com/project-profile?project=abseil-cpp](https://introspector.oss-fuzz.com/project-profile?project=abseil-cpp)
+
+#### links for making scripts: 
+
+* oss-fuzz coverage file list - [https://storage.googleapis.com/oss-fuzz-coverage/](https://storage.googleapis.com/oss-fuzz-coverage/)
+* project wise summary from introspector API - [https://introspector.oss-fuzz.com/api/project-summary?project={project_name}](https://introspector.oss-fuzz.com/api/project-summary?project={project_name}) (replace project name)
 
 ## Random Notes 
 
