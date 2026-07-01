@@ -190,3 +190,10 @@ suppose we need to find median of 3 numbers. Normally code for this can be compl
 
 ### 06/29/2026
 1. autobuilder script
+
+### 06/30/2026
+1. not much work. just wrote one script and explored different agentic framework. For now going with langchain
+
+
+
+
