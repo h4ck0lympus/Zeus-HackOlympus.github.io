@@ -197,6 +197,5 @@ suppose we need to find median of 3 numbers. Normally code for this can be compl
 ### 07/01/2026
 1. another less productive day. partially written harness agent 
 
-
-
-
+### 07/02/2026
+1. harness agent complete. Working on execution.
