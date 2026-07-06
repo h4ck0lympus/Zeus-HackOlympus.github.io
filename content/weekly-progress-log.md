@@ -205,3 +205,8 @@ suppose we need to find median of 3 numbers. Normally code for this can be compl
 
 ### 07/04/2026
 1. first version complete.
+
+### 07/05/2026
+1. testing agent and fixing bugs
+
+
