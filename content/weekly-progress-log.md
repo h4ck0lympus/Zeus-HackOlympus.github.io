@@ -209,4 +209,12 @@ suppose we need to find median of 3 numbers. Normally code for this can be compl
 ### 07/05/2026
 1. testing agent and fixing bugs
 
+### 07/06/2026
+1. enjoyed fifa
+
+### 07/07/2026
+1. trip
+
+### 07/08/2026
+1. trip
 
