@@ -212,9 +212,8 @@ suppose we need to find median of 3 numbers. Normally code for this can be compl
 ### 07/06/2026
 1. enjoyed fifa
 
-### 07/07/2026
+### 07/07/2026 - 07/12/2026
 1. trip
 
-### 07/08/2026
-1. trip
-
+### 07/13/2026
+1. starting work with pwn llc
