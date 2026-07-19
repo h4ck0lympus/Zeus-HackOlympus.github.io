@@ -217,3 +217,20 @@ suppose we need to find median of 3 numbers. Normally code for this can be compl
 
 ### 07/13/2026
 1. starting work with pwn llc
+
+### 07/14/2026
+1. pwn llc work
+
+### 07/15/2026
+1. pwn llc work 
+
+### 07/16/2026
+1. pwn llc work
+2. fuzzagent
+
+### 07/17/2026
+1. pwn llc work - 1 variants
+
+### 07/17/2026
+1. pwn llc work - 1 variant (tcademy)
+2. playing with skill.md file (for different workflows)
